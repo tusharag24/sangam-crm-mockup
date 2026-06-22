@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sangam Insurance CRM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #473391;
+      --primary-hover: #6B59C4;
+      --primary-light: #F0EEFF;
+      --navy: #1B1A3B;
+      --bg: #F4F4FA;
+      --white: #FFFFFF;
+      --text-heading: #1A1A2E;
+      --text-body: #2D2D3A;
+      --text-muted: #4B5563;
+      --text-placeholder: #9CA3AF;
+      --border: #E5E7EB;
+      --success: #16A34A;
+      --success-bg: #F0FDF4;
+      --success-border: #BBF7D0;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-body);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 { color: var(--text-heading); }
+    
+    /* Reusable Components */
+    .btn {
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      border: none;
+      outline: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-ghost { background: var(--white); color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text-body); }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-danger:hover { background: #B91C1C; }
+    .btn-small { padding: 5px 13px; font-size: 11px; }
+
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,.07);
+      padding: 16px;
+    }
+    .card-compact { border-radius: 10px; padding: 14px; }
+    .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-heading); }
+    
+    .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-muted); }
+    
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Product Badges */
+    .badge-lp { background: #EEEDFE; color: #473391; }
+    .badge-property { background: #FFF8ED; color: #B45309; }
+    .badge-cl { background: #EFF6FF; color: #1D4ED8; }
+    .badge-term { background: #F0FDF4; color: #15803D; }
+
+    /* Source Badges */
+    .badge-d2c { background: #FFF0EE; color: #C2410C; }
+    .badge-sathi { background: #EEEDFE; color: #473391; }
+    .badge-yoddha { background: #E0F2FE; color: #0369A1; }
+
+    /* Health Badges */
+    .badge-healthy { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-at-risk { background: var(--warning-bg); color: var(--warning); border: 1px solid #FCD34D; }
+    .badge-stuck { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
+
+    /* Secondary Nav */
+    .sec-nav-item {
+      padding: 14px 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .sec-nav-item:hover { color: var(--text-heading); }
+    .sec-nav-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+    /* Stage Colors for Pills and Text */
+    .stage-outreach { color: #3B82F6; background: #EFF6FF; }
+    .stage-interest { color: #D97706; background: #FFFBEB; }
+    .stage-quote { color: #473391; background: #EEEDFE; }
+    .stage-payment { color: #2563EB; background: #EFF6FF; }
+    .stage-processing { color: #EA580C; background: #FFF7ED; }
+    .stage-policy { color: #16A34A; background: #F0FDF4; }
+    .stage-closed { color: #0D9488; background: #F0FDFA; }
+
+    /* Shell Layout */
+    .header {
+      height: 58px;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 8px; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    .hamburger { cursor: pointer; font-size: 18px; user-select: none; }
+    
+    .nav-drawer {
+      position: fixed;
+      top: 0; left: -380px;
+      width: 380px; height: 100vh;
+      background: var(--navy);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      color: white;
+      padding: 20px;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+    }
+    .nav-drawer.open { left: 0; }
+    .nav-drawer.open-right { right: 0 !important; }
+    .drawer-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 999;
+      display: none;
+    }
+    .drawer-overlay.open { display: block; }
+    
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 20px 24px;
+    }
+    .screen.active { display: flex; }
+
+    /* List Screen Specific */
+    .pipeline-row { display: flex; gap: 16px; margin-bottom: 24px; }
+    .pipeline-card { flex: 1; border-top-width: 4px; }
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+    .search-input {
+      min-width: 220px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .chip {
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .chip.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+
+    .table-container {
+      background: var(--white);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      flex: 1;
+      overflow-y: auto;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 12px 16px; border-bottom: 1px solid var(--border); background: #FAFAFA; font-weight: 600; color: var(--text-muted); position: sticky; top: 0; z-index: 10; }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:hover { background: #F9F9FB; cursor: pointer; }
+    
+    /* Sangam-Style Layout Updates */
+    .sangam-table th { background: #473391 !important; color: white !important; font-size: 12px; text-transform: uppercase; font-weight: 700; padding: 14px 16px; border:none; }
+    .sangam-filter-bar { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+    .sangam-filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .sangam-filter-label { font-size: 11px; font-weight: 600; color: var(--text-heading); }
+    .sangam-filter-select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--white); outline: none; min-width: 140px; font-size: 12px; color: var(--text-body); }
+    .alert-row td { background: #FEF2F2 !important; padding: 8px 16px; font-size: 12px; color: #DC2626; border-top: none !important; font-weight: 500; }
+
+    .lead-name { font-weight: 600; color: var(--text-heading); font-size: 14px; }
+    .lead-phone { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+    .loan-missing { color: var(--danger); font-style: italic; }
+
+    /* Detail Screen Layout */
+    .detail-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding: 16px 24px; }
+    
+    /* Header Cards */
+    .sangam-cards-row { display: flex; gap: 12px; margin-bottom: 16px; flex-shrink: 0; }
+    .sangam-top-card { background: var(--white); border-radius: 12px; padding: 12px 16px; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .stc-label { font-size: 10px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+    .stc-val { font-size: 13px; font-weight: 600; color: var(--text-heading); }
+    .stc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+
+    /* Module Tabs */
+    .sangam-tabs { display: flex; gap: 12px; margin-bottom: 24px; flex-shrink: 0; align-items: center; }
+    .sangam-tab { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-body); background: var(--white); transition: all 0.2s; }
+    .sangam-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+    
+    /* 3-Column Workspace */
+    .sangam-workspace { display: flex; gap: 24px; flex: 1; }
+    .sangam-left { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
+    .sangam-center { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; background: var(--white); padding: 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .sangam-right { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
+
+    /* Sangam Tracker */
+    .sangam-tracker-box { margin-bottom: 24px; padding: 0; }
+    .tracker-row { display: flex; border-radius: 16px; overflow: hidden; background: var(--white); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); align-items: stretch; }
+    .tracker-step { flex: 1; height: 44px; padding: 0 16px 0 32px; font-size: 13px; font-weight: 500; color: var(--text-muted); position: relative; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 1; }
+    .tracker-step:first-child { padding-left: 16px; }
+    .tracker-step.done { background: var(--primary-light); color: var(--primary); }
+    .tracker-step.active { background: #A78BFA; color: white; font-weight: 600; }
+    .tracker-step.done::after { border-left-color: var(--primary-light); }
+    .tracker-step.active::after { border-left-color: #A78BFA; }
+    .tracker-step::after { content: ''; position: absolute; right: -16px; top: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 16px solid var(--white); z-index: 2; transition: all 0.2s; }
+    .tracker-step::before { content: ''; position: absolute; right: -17px; top: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 17px solid var(--border); z-index: 1; }
+    .tracker-step:last-child::after, .tracker-step:last-child::before { display: none; }
+
+    /* Accordions */
+    .sangam-accordion { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: white; }
+    .sangam-accordion-header { padding: 16px; background: #FAFAFA; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
+    .sangam-accordion-header:hover { background: #F3F4F6; }
+    .sangam-accordion-title { font-weight: 700; font-size: 14px; color: var(--text-heading); display:flex; align-items:center; gap:8px;}
+    .sangam-accordion-body { padding: 24px; display: none; background: white; }
+    .sangam-accordion.active .sangam-accordion-body { display: block; }
+    .sangam-accordion:not(.active) .sangam-accordion-header { border-bottom: none; }
+    .acc-badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; }
+    .acc-badge.complete { background: #DCFCE7; color: #16A34A; }
+    .acc-badge.partial { background: #FEF9C3; color: #CA8A04; }
+    .acc-badge.missing { background: #FEE2E2; color: #DC2626; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1A1A2E;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 2000;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Sidebar & Right Panel Styles */
+    .nav-section { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--text-body); margin-bottom: 4px; transition: background 0.2s; }
+    .nav-section:hover { background: var(--bg); }
+    .nav-section.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .nav-section.active .nav-dot { background: var(--primary); }
+
+    .hl-card { background: var(--bg); border-radius: 10px; padding: 12px; margin-top: 16px; border: 1px solid var(--border); }
+    
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+    .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; outline: none; }
+    .form-control:focus { border-color: var(--primary); }
+
+    .log-item { display: flex; gap: 12px; margin-bottom: 16px; position: relative; }
+    .log-item::before { content: ''; position: absolute; left: 3px; top: 12px; bottom: -20px; width: 2px; background: var(--border); }
+    .log-item:last-child::before { display: none; }
+    .log-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; position: relative; z-index: 1; }
+
+    /* Center Panel specific */
+    .call-card { background: linear-gradient(135deg, #F0EEFF, #FFFFFF); border: 1px solid var(--primary-light); padding: 32px; border-radius: 16px; text-align: center; }
+    .stage-card { background: var(--white); border: 1px solid var(--primary); padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(71, 51, 145, 0.08); }
+    .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+    .btn-outline-primary:hover { background: var(--primary-light); }
+
+    /* Milestones */
+    .ms-timeline { position: relative; padding-left: 24px; margin-top: 16px; }
+    .ms-item { position: relative; margin-bottom: 24px; }
+    .ms-item::before { content: ''; position: absolute; left: -20px; top: 24px; bottom: -24px; width: 2px; background: var(--border); }
+    .ms-item:last-child::before { display: none; }
+    .ms-dot { position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--border); z-index: 1; }
+    .ms-item.done .ms-dot { background: var(--success); }
+    .ms-item.active .ms-dot { background: var(--primary); border: 3px solid var(--primary-light); left: -27px; top: 1px; width: 16px; height: 16px; }
+    .ms-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+    .ms-item.active .ms-card { border-color: var(--primary); box-shadow: 0 2px 8px rgba(71, 51, 145, 0.1); }
+    .ms-item.done .ms-card { border-color: var(--success-border); background: var(--success-bg); }
+    .progress-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+    .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+
+    /* Dashboard Layout Specifics */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; }
+    .dash-col-12 { grid-column: span 12; }
+    .dash-col-8 { grid-column: span 8; }
+    .dash-col-6 { grid-column: span 6; }
+    .dash-col-4 { grid-column: span 4; }
+    .dash-col-3 { grid-column: span 3; }
+    
+    .dash-section-title { font-size: 14px; font-weight: 700; color: var(--text-heading); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    
+    .kpi-card { background: var(--white); border-radius: 12px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+    .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+    .kpi-sub { font-size: 11px; font-weight: 500; margin-top: 4px; }
+    .kpi-sub.positive { color: var(--success); }
+    .kpi-sub.negative { color: var(--danger); }
+    .kpi-sub.neutral { color: var(--text-muted); }
+    
+    /* Horizontal Funnel */
+    .funnel-container { display: flex; width: 100%; justify-content: space-between; align-items: stretch; gap: 8px; }
+    .funnel-stage { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; position: relative; }
+    .funnel-stage:not(:last-child)::after { content: '→'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: var(--text-placeholder); z-index: 10; font-size: 16px; }
+    .funnel-stage-name { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .funnel-stage-val { font-size: 20px; font-weight: 700; color: var(--text-heading); }
+    .funnel-stage-conv { font-size: 11px; color: var(--success); font-weight: 600; margin-top: 4px; background: var(--success-bg); padding: 2px 6px; border-radius: 12px; display: inline-block; }
+    .funnel-stage-drop { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; background: var(--danger-bg); padding: 2px 6px; border-radius: 12px; display: inline-block; }
+
+    /* Alert Banner */
+    .alert-banner { display: flex; align-items: center; gap: 12px; background: #FFF4ED; border: 1px solid #FFEDD5; border-left: 4px solid #F97316; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; }
+    .alert-chip { background: white; border: 1px solid #FFEDD5; color: #C2410C; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
+    .alert-chip:hover { background: #FFEDD5; }
+    
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .dash-table th { font-weight: 600; color: var(--text-muted); padding: 8px; border-bottom: 1px solid var(--border); text-align: left; }
+    .dash-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+    .dash-table tr:last-child td { border-bottom: none; }
+    
+    /* Stacked Bar */
+    .stacked-bar-container { display: flex; height: 12px; border-radius: 6px; overflow: hidden; width: 100%; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+  <div class="drawer-overlay" id="pbOverlay" onclick="closePolicyBazaar()" style="z-index:2000;"></div>
+  <div class="drawer-overlay" id="modalOverlay" onclick="closeCreateModal()" style="z-index:3000;"></div>
+
+  <!-- Create Lead Modal -->
+  <div id="createModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:580px; background:var(--white); border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:3001; display:none; flex-direction:column; max-height:90vh;">
+    <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">Create Insurance Lead</h2>
+      <div class="hamburger" onclick="closeCreateModal()">✕</div>
+    </div>
+    <div id="createModalBody" style="padding:24px; overflow-y:auto; flex:1;"></div>
+  </div>
+
+  <!-- Share Quote Modal -->
+  <div id="shareModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:480px; background:var(--white); border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:3001; display:none; flex-direction:column; max-height:90vh;">
+    <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">Share Quote</h2>
+      <div class="hamburger" onclick="closeShareModal()">✕</div>
+    </div>
+    <div style="padding:24px; overflow-y:auto; flex:1;">
+      <div class="form-group">
+        <label>Share via</label>
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <button class="btn btn-primary" style="flex:1; background:#25D366; border-color:#25D366;">WhatsApp</button>
+          <button class="btn btn-ghost" style="flex:1;">Email</button>
+          <button class="btn btn-ghost" style="flex:1;">SMS</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Message Preview</label>
+        <textarea class="form-control" rows="6" style="background:#F9FAFB;">Hi,
+Here is the insurance quote we discussed for your home loan.
+Plan: CARE Health PA+CI
+Tenure: 5 Years
+Cover: ₹45,00,000
+
+Click here to view the detailed quote and proceed with payment:
+https://ambak.in/quote/x920dj</textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px; padding:12px;" onclick="executeShare()">Send Message →</button>
+    </div>
+  </div>
+
+  <!-- Nav Drawer -->
+  <div class="nav-drawer" id="navDrawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+      <h2 style="margin:0;">AMBAK Menu</h2>
+      <div class="hamburger" onclick="toggleDrawer()">✕</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap: 16px;">
+      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">E2E Dashboard</div>
+      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Partner Dashboard</div>
+      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Banker Directory</div>
+      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">LMS</div>
+      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Marketing Hub</div>
+      
+      <div style="margin-top: 16px;">
+        <div class="label" style="color:rgba(255,255,255,0.5); margin-bottom: 8px;">Manage Leads</div>
+        <div style="padding: 8px 12px; cursor: pointer;">All Leads</div>
+        <div class="nav-item" id="nav-item-list" style="padding: 8px 12px; background: var(--primary); border-radius: 6px; cursor: pointer;" onclick="navigateNav('list')">Insurance CRM</div>
+        <div class="nav-item" id="nav-item-dashboard" style="padding: 8px 12px; cursor: pointer;" onclick="navigateNav('dashboard')">Manager Dashboard</div>
+        <div style="padding: 8px 12px; cursor: pointer;">Call List</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PB Drawer -->
+  <div class="nav-drawer" id="pbDrawer" style="width:900px; left:auto; right:-950px; z-index:2001; background:#F9FAFB; color:var(--text-body); padding:0; box-shadow:-10px 0 25px rgba(0,0,0,0.1);">
+    <div id="pbContent" style="height:100%; display:flex; flex-direction:column;"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="hamburger" onclick="toggleDrawer()">≡ ≡</div>
+      <div style="width:24px; height:24px; border-radius:50%; background:var(--primary); border:2px solid white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px;">A</div>
+      <div style="font-weight:700; font-size:16px;">AMBAK® <span style="font-weight:400; font-size:12px; opacity:0.8; margin-left:4px;">Simplifying Home Finance</span></div>
+      <div class="header-divider"></div>
+      <div style="opacity:0.6; font-size:13px;">Insurance CRM</div>
+    </div>
+    <div class="header-right">
+      <div style="background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:12px; font-size:11px;">11 groups</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:32px; height:32px; border-radius:50%; background:#4A5568; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px;">RM</div>
+        <div style="line-height:1.2;">
+          <div style="font-weight:600; font-size:13px;">Rohit M.</div>
+          <div style="font-size:10px; opacity:0.7;">IBM Agent</div>
+        </div>
+        <div>▼</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="content-area">
+    
+    <!-- Screen 1: Lead List -->
+    <div class="screen active" id="screen-list">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>My Insurance Leads</h2>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <!-- Sangam Search Bar Style -->
+          <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; background:var(--white);">
+            <select style="border:none; background:#F9F9FB; padding:8px 12px; border-right:1px solid var(--border); outline:none; font-size:12px; color:var(--text-muted);">
+              <option>Lead Id</option>
+              <option>Name</option>
+              <option>Mobile</option>
+            </select>
+            <div style="display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:12px; color:var(--text-muted);">🔍</span>
+              <input type="text" placeholder="Search" style="border:none; padding:8px; outline:none; font-size:12px;" oninput="renderLeadTable()">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="openCreateModal()">+ Create Insurance Lead</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="sangam-filter-bar">
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Stage</label>
+          <select class="sangam-filter-select">
+            <option>All</option>
+            <option>New</option>
+            <option>Contacted</option>
+            <option>Quote</option>
+            <option>Processing</option>
+            <option>Policy</option>
+            <option>Lost</option>
+          </select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Product</label>
+          <select class="sangam-filter-select">
+            <option>All</option>
+            <option>Loan Protection</option>
+            <option>Property</option>
+            <option>Credit Life</option>
+            <option>Term Plan</option>
+          </select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Source</label>
+          <select class="sangam-filter-select">
+            <option>All</option>
+            <option>Yoddha</option>
+            <option>Saathi</option>
+            <option>Sangam</option>
+            <option>D2C</option>
+            <option>Manual</option>
+          </select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Date Range</label>
+          <select class="sangam-filter-select">
+            <option>Date From - Date To</option>
+          </select>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:8px;">
+          <button class="btn btn-ghost" style="padding:8px 16px; border-radius:20px; font-size:12px; height:34px;">More filter ≡</button>
+        </div>
+        
+        <div style="display:flex; align-items:flex-end; gap:8px; margin-left:auto;">
+          <button class="btn btn-primary" style="padding:8px 24px; border-radius:20px; font-size:12px; height:34px;">Apply</button>
+          <button class="btn btn-ghost" style="padding:8px 24px; border-radius:20px; font-size:12px; height:34px; border-color:#E5E7EB;">Reset</button>
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+        <div style="font-size:11px; font-weight:600; color:var(--text-heading);">Showing <span id="entry-count">0</span> entries on Page 1/1</div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="sangam-table">
+          <thead>
+            <tr>
+              <th>Insurance ID</th>
+              <th>Customer Details</th>
+              <th>Product & Source</th>
+              <th>Loan Amount</th>
+              <th>Stage</th>
+              <th>Status</th>
+              <th>Status Update</th>
+              <th>IBM Agent</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="lead-table-body">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Screen 2: Lead Detail -->
+    <div class="screen" id="screen-detail" style="padding:0;">
+      <!-- Details populated by JS -->
+    </div>
+
+    <!-- Screen 3: Manager Dashboard -->
+    <div class="screen" id="screen-dashboard" style="overflow-y:auto; background:var(--bg);">
+      
+      <!-- Page Header -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="margin:0;">Insurance Dashboard</h2>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-ghost">Download MIS</button>
+          <button class="btn btn-ghost">Export Report</button>
+          <button class="btn btn-primary" onclick="openCreateModal()">+ Create Insurance Lead</button>
+        </div>
+      </div>
+      
+      <!-- Filters -->
+      <div class="filter-bar" style="margin-bottom:24px;">
+        <select class="search-input" style="min-width:140px;"><option>This Month</option><option>Today</option><option>This Week</option><option>Custom Range</option></select>
+        <select class="search-input" style="min-width:140px;"><option>All Products</option><option>Loan Protection</option><option>Property</option><option>Credit Life</option><option>Term Plan</option></select>
+        <select class="search-input" style="min-width:140px;"><option>All Insurers</option><option>CARE</option><option>TATA</option><option>HDFC Life</option></select>
+        <select class="search-input" style="min-width:140px;"><option>All Sources</option><option>D2C</option><option>Sathi</option><option>Yoddha</option></select>
+        <select class="search-input" style="min-width:140px;"><option>All Managers</option></select>
+      </div>
+
+      <!-- Section 14: Alerts & Attention Required -->
+      <div class="alert-banner">
+        <div style="font-size:20px;">🚨</div>
+        <div style="font-weight:700; color:#C2410C;">Attention Required</div>
+        <div style="display:flex; gap:8px; margin-left:16px; overflow-x:auto;">
+          <div class="alert-chip">28 Follow-Ups Overdue</div>
+          <div class="alert-chip">12 Medical Cases > 5 Days</div>
+          <div class="alert-chip">6 Counter Offers Awaiting Customer</div>
+          <div class="alert-chip">14 Payment Links Expiring Today</div>
+          <div class="alert-chip">4 Policies Pending Sharing</div>
+        </div>
+      </div>
+
+      <!-- Section 1: Insurance Funnel Overview & Section 2: Conversion Funnel -->
+      <div class="dashboard-grid">
+        <div class="dash-col-12">
+          <div class="dash-section-title">Insurance Funnel Performance</div>
+          <div class="funnel-container" style="margin-bottom:24px;">
+            <div class="funnel-stage">
+              <div class="funnel-stage-name">New</div>
+              <div class="funnel-stage-val">1,250</div>
+              <div class="kpi-sub positive">+128 this week</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-stage-name">Contacted</div>
+              <div class="funnel-stage-val">900</div>
+              <div class="funnel-stage-conv">72% Conv</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-stage-name">Quote</div>
+              <div class="funnel-stage-val">540</div>
+              <div class="funnel-stage-conv">60% Conv</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-stage-name">Payment</div>
+              <div class="funnel-stage-val">210</div>
+              <div class="funnel-stage-drop">Largest Drop: 61%</div>
+            </div>
+            <div class="funnel-stage">
+              <div class="funnel-stage-name">Processing</div>
+              <div class="funnel-stage-val">180</div>
+              <div class="funnel-stage-conv">85% Conv</div>
+            </div>
+            <div class="funnel-stage" style="border-color:var(--success);">
+              <div class="funnel-stage-name" style="color:var(--success);">Policy Issued</div>
+              <div class="funnel-stage-val" style="color:var(--success);">150</div>
+              <div class="funnel-stage-conv">83% Conv</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 3: Lead Health -->
+        <div class="dash-col-6">
+          <div class="dash-section-title">Lead Health</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="kpi-card" style="border-left:4px solid var(--text-muted); cursor:pointer;" onclick="showToast('Loading unattempted leads')">
+              <div class="kpi-title">Unattempted Leads</div>
+              <div class="kpi-value">342</div>
+              <div class="kpi-sub neutral">Created but no activity</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--danger); cursor:pointer;" onclick="showToast('Loading missed SLA leads')">
+              <div class="kpi-title">Missed SLA</div>
+              <div class="kpi-value" style="color:var(--danger);">84</div>
+              <div class="kpi-sub negative">SLA Breached</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--warning); cursor:pointer;" onclick="showToast('Loading >7 days aging leads')">
+              <div class="kpi-title">Aging Leads (> 7 Days)</div>
+              <div class="kpi-value" style="color:var(--warning);">156</div>
+              <div class="kpi-sub neutral">Stuck in same stage</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--danger); cursor:pointer;" onclick="showToast('Loading >15 days aging leads')">
+              <div class="kpi-title">Aging Leads (> 15 Days)</div>
+              <div class="kpi-value" style="color:var(--danger);">42</div>
+              <div class="kpi-sub negative">Critical review needed</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 9: Follow-Up Dashboard -->
+        <div class="dash-col-6">
+          <div class="dash-section-title">Follow-Up Dashboard</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="kpi-card" style="background:#FFFBEB; border-color:#FCD34D;">
+              <div class="kpi-title" style="color:#D97706;">Due Today</div>
+              <div class="kpi-value" style="color:#D97706;">145</div>
+              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between;"><span>Customer Follow-Up</span><b>80</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Payment Follow-Up</span><b>45</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Processing Follow-Up</span><b>20</b></div>
+              </div>
+            </div>
+            <div class="kpi-card" style="background:#FEF2F2; border-color:#FCA5A5;">
+              <div class="kpi-title" style="color:var(--danger);">Overdue Follow-Ups</div>
+              <div class="kpi-value" style="color:var(--danger);">62</div>
+              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between;"><span>1 Day Overdue</span><b>34</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>3 Days Overdue</span><b>18</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>7+ Days Overdue</span><b>10</b></div>
+              </div>
+            </div>
+            <div class="kpi-card dash-col-6" style="grid-column: span 2; background:var(--white);">
+              <div class="kpi-title">Upcoming This Week</div>
+              <div class="kpi-value">310</div>
+              <div class="progress-track" style="margin-top:8px; margin-bottom:0;"><div class="progress-fill" style="width:100%; background:#9CA3AF;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 4: Quote Pipeline -->
+        <div class="dash-col-4">
+          <div class="dash-section-title">Quote Pipeline</div>
+          <div class="kpi-card" style="margin-bottom:12px;">
+            <div class="kpi-title">Quotes Shared</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+              <div class="kpi-value">540</div>
+              <div style="text-align:right; font-size:11px; color:var(--text-muted);">
+                <div style="display:flex; gap:12px; margin-bottom:4px;"><span>WhatsApp: <b>320</b></span><span>Email: <b>220</b></span></div>
+              </div>
+            </div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-size:12px;">
+              <span>Awaiting Customer Decision</span><b style="color:var(--warning);">120</b>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Payment Links</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+              <div class="kpi-value">380</div>
+              <div class="kpi-sub positive">Generated</div>
+            </div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-size:12px;">
+              <span style="cursor:pointer;" onclick="showToast('Loading pending payments')">Payment Pending</span><b style="color:var(--warning);">80</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:6px;">
+              <span>Payment Failed</span><b style="color:var(--danger);">24</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Processing Dashboard & Section 11: Processing Bottlenecks -->
+        <div class="dash-col-8">
+          <div class="dash-section-title">Processing & Bottlenecks</div>
+          <div style="display:flex; gap:16px; margin-bottom:16px;">
+            <div class="kpi-card" style="flex:1;">
+              <div class="kpi-title">Policies In Processing</div>
+              <div class="kpi-value">180</div>
+              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div>Property: <b>45</b></div><div>Loan Prot.: <b>80</b></div>
+                <div>Credit Life: <b>35</b></div><div>Term Plan: <b>20</b></div>
+              </div>
+            </div>
+            <div class="kpi-card" style="flex:1; background:#F9FAFB;">
+              <div class="kpi-title">Average Processing TAT</div>
+              <div class="kpi-value" style="font-size:18px; color:var(--text-heading);">Overall: 3.2 Days</div>
+              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div>Property: <b style="color:var(--success);">0.5d</b></div><div>LP CARE: <b style="color:var(--success);">1d</b></div>
+                <div>Credit Life: <b style="color:var(--warning);">8d</b></div><div>Term Plan: <b style="color:var(--warning);">9d</b></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="kpi-card">
+            <div style="font-weight:600; font-size:12px; margin-bottom:12px; color:var(--danger);">🚨 Stuck Cases & Bottlenecks</div>
+            <div style="display:flex; gap:12px;">
+              <div style="flex:1; background:#FEF2F2; padding:10px; border-radius:6px; border:1px solid #FECACA; text-align:center; cursor:pointer;" onclick="showToast('Loading medical pending')">
+                <div style="font-size:18px; font-weight:700; color:var(--danger);">42</div>
+                <div style="font-size:10px; font-weight:600; color:var(--danger); text-transform:uppercase;">Medical Pending</div>
+                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 4.2d</div>
+              </div>
+              <div style="flex:1; background:#FFFBEB; padding:10px; border-radius:6px; border:1px solid #FCD34D; text-align:center; cursor:pointer;" onclick="showToast('Loading docs pending')">
+                <div style="font-size:18px; font-weight:700; color:#D97706;">28</div>
+                <div style="font-size:10px; font-weight:600; color:#D97706; text-transform:uppercase;">Docs Pending</div>
+                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 2.1d</div>
+              </div>
+              <div style="flex:1; background:#EFF6FF; padding:10px; border-radius:6px; border:1px solid #BFDBFE; text-align:center; cursor:pointer;" onclick="showToast('Loading UW pending')">
+                <div style="font-size:18px; font-weight:700; color:#1D4ED8;">15</div>
+                <div style="font-size:10px; font-weight:600; color:#1D4ED8; text-transform:uppercase;">UW Pending</div>
+                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 5.5d</div>
+              </div>
+              <div style="flex:1; background:#F3F4F6; padding:10px; border-radius:6px; border:1px solid var(--border); text-align:center; cursor:pointer;" onclick="showToast('Loading counter offers')">
+                <div style="font-size:18px; font-weight:700; color:var(--text-heading);">8</div>
+                <div style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Counter Offer</div>
+                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 1.5d</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 6: Product Performance -->
+        <div class="dash-col-12">
+          <div class="dash-section-title">Product Performance</div>
+          <div style="display:flex; gap:16px;">
+            <div class="kpi-card" style="flex:1;">
+              <div style="font-weight:700; margin-bottom:12px; color:var(--primary);">Loan Protection</div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>500</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>300</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>180</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>140</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--success);"><span>Conversion</span><span>28%</span></div>
+            </div>
+            <div class="kpi-card" style="flex:1;">
+              <div style="font-weight:700; margin-bottom:12px; color:#B45309;">Property Insurance</div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>300</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>250</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>200</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>190</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--success);"><span>Conversion</span><span>63%</span></div>
+            </div>
+            <div class="kpi-card" style="flex:1;">
+              <div style="font-weight:700; margin-bottom:12px; color:#1D4ED8;">Credit Life</div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>250</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>150</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>80</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>45</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--danger);"><span>Conversion</span><span>18%</span></div>
+            </div>
+            <div class="kpi-card" style="flex:1;">
+              <div style="font-weight:700; margin-bottom:12px; color:#15803D;">Term Insurance</div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>200</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>120</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>40</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>25</b></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--danger);"><span>Conversion</span><span>12%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 7: Insurer Performance -->
+        <div class="dash-col-12">
+          <div class="dash-section-title">Insurer Performance</div>
+          <div class="card" style="padding:0; overflow:hidden;">
+            <table class="dash-table">
+              <thead style="background:#F9FAFB;">
+                <tr>
+                  <th>Insurer</th>
+                  <th>Quotes</th>
+                  <th>Payments</th>
+                  <th>Policies</th>
+                  <th>Approval %</th>
+                  <th>Counter %</th>
+                  <th>Rejection %</th>
+                  <th>Avg TAT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="cursor:pointer;" onclick="showToast('Loading CARE leads')">
+                  <td><div style="font-weight:600; color:var(--text-heading);">CARE Health</div></td>
+                  <td>280</td><td>150</td><td>135</td>
+                  <td><div class="badge badge-healthy">90%</div></td>
+                  <td>5%</td><td>5%</td>
+                  <td>1.2 Days</td>
+                </tr>
+                <tr style="cursor:pointer;" onclick="showToast('Loading TATA leads')">
+                  <td><div style="font-weight:600; color:var(--text-heading);">TATA AIG</div></td>
+                  <td>320</td><td>210</td><td>195</td>
+                  <td><div class="badge badge-healthy">92%</div></td>
+                  <td>3%</td><td>5%</td>
+                  <td>0.8 Days</td>
+                </tr>
+                <tr style="cursor:pointer;" onclick="showToast('Loading HDFC Life leads')">
+                  <td><div style="font-weight:600; color:var(--text-heading);">HDFC Life</div></td>
+                  <td>120</td><td>65</td><td>40</td>
+                  <td><div class="badge badge-at-risk">61%</div></td>
+                  <td>15%</td><td>24%</td>
+                  <td>8.5 Days</td>
+                </tr>
+                <tr style="cursor:pointer;" onclick="showToast('Loading ICICI leads')">
+                  <td><div style="font-weight:600; color:var(--text-heading);">ICICI Prudential</div></td>
+                  <td>80</td><td>45</td><td>30</td>
+                  <td><div class="badge badge-at-risk">66%</div></td>
+                  <td>10%</td><td>24%</td>
+                  <td>7.2 Days</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 8: Agent Performance -->
+        <div class="dash-col-8">
+          <div class="dash-section-title">Agent Performance (Leaderboard)</div>
+          <div class="card" style="padding:0; overflow:hidden;">
+            <table class="dash-table">
+              <thead style="background:#F9FAFB;">
+                <tr>
+                  <th>Agent</th>
+                  <th>Leads</th>
+                  <th>Calls</th>
+                  <th>Quotes</th>
+                  <th>Payments</th>
+                  <th>Policies</th>
+                  <th>Conv. %</th>
+                  <th>Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#F0FDF4;">
+                  <td><div style="font-weight:600; color:var(--text-heading);">⭐ Rohit M.</div></td>
+                  <td>120</td><td>450</td><td>85</td><td>42</td><td>38</td>
+                  <td><div style="color:var(--success); font-weight:700;">31%</div></td>
+                  <td><div style="font-weight:600;">₹4.2L</div></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600; color:var(--text-heading);">Anjali S.</div></td>
+                  <td>115</td><td>410</td><td>75</td><td>35</td><td>30</td>
+                  <td><div style="color:var(--success); font-weight:700;">26%</div></td>
+                  <td><div style="font-weight:600;">₹3.1L</div></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600; color:var(--text-heading);">Vikram K.</div></td>
+                  <td>98</td><td>280</td><td>45</td><td>18</td><td>15</td>
+                  <td><div style="color:var(--warning); font-weight:700;">15%</div></td>
+                  <td><div style="font-weight:600;">₹1.8L</div></td>
+                </tr>
+                <tr style="background:#FEF2F2;">
+                  <td><div style="font-weight:600; color:var(--text-heading);">🔻 Priya D.</div></td>
+                  <td>85</td><td>120</td><td>20</td><td>5</td><td>2</td>
+                  <td><div style="color:var(--danger); font-weight:700;">2%</div></td>
+                  <td><div style="font-weight:600;">₹0.2L</div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 10: Lost Lead Analysis -->
+        <div class="dash-col-4">
+          <div class="dash-section-title">Lost Lead Analysis</div>
+          <div class="kpi-card">
+            <div class="kpi-title">Total Lost Leads</div>
+            <div class="kpi-value" style="color:var(--danger);">285</div>
+            
+            <div style="margin-top:16px;">
+              <div style="font-size:11px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">By Customer Reason (65%)</div>
+              <div class="stacked-bar-container" style="margin-bottom:12px;">
+                <div style="width: 40%; background: #3B82F6;" title="Premium Too High"></div>
+                <div style="width: 30%; background: #60A5FA;" title="Already Insured"></div>
+                <div style="width: 20%; background: #93C5FD;" title="Not Interested"></div>
+                <div style="width: 10%; background: #DBEAFE;" title="Bought Through Bank"></div>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#3B82F6;border-radius:2px;"></div>Premium Too High</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#60A5FA;border-radius:2px;"></div>Already Insured</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#93C5FD;border-radius:2px;"></div>Not Interested</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#DBEAFE;border-radius:2px;"></div>Bought via Bank</div>
+              </div>
+
+              <div style="font-size:11px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">By Operational Reason (35%)</div>
+              <div class="stacked-bar-container" style="margin-bottom:12px;">
+                <div style="width: 45%; background: #EF4444;" title="Insurer Rejected"></div>
+                <div style="width: 25%; background: #F87171;" title="Counter Offer Rejected"></div>
+                <div style="width: 15%; background: #FCA5A5;" title="Payment Not Received"></div>
+                <div style="width: 15%; background: #FECACA;" title="No Response"></div>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px;">
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#EF4444;border-radius:2px;"></div>Insurer Rejected</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#F87171;border-radius:2px;"></div>Counter Offer Rejected</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#FCA5A5;border-radius:2px;"></div>Payment Not Recv</div>
+                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#FECACA;border-radius:2px;"></div>No Response</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Section 12: Policy Issuance Dashboard -->
+        <div class="dash-col-6">
+          <div class="dash-section-title">Policy Issuance & Free Look</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="kpi-card">
+              <div class="kpi-title">Policies Issued</div>
+              <div class="kpi-value" style="color:var(--success);">150</div>
+              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div>Today: <b>12</b></div><div>This Wk: <b>45</b></div>
+                <div>This Mo: <b>150</b></div>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Policy Sharing Status</div>
+              <div class="kpi-value">150</div>
+              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between;"><span>Completed</span><b style="color:var(--success);">146</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Pending</span><b style="color:var(--danger);">4</b></div>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Free Look Active</div>
+              <div class="kpi-value" style="color:var(--primary);">85</div>
+              <div class="kpi-sub neutral">Policies within 30 days</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--danger);">
+              <div class="kpi-title">Cancellations (Free Look)</div>
+              <div class="kpi-value" style="color:var(--danger);">3</div>
+              <div class="kpi-sub negative">2% Cancellation Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 13: Revenue Dashboard -->
+        <div class="dash-col-6">
+          <div class="dash-section-title">Revenue Dashboard</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div class="kpi-card" style="background:var(--navy); color:white; border:none;">
+              <div class="kpi-title" style="color:rgba(255,255,255,0.7);">Total Premium Generated</div>
+              <div class="kpi-value" style="color:white;">₹42.5L</div>
+              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px; color:rgba(255,255,255,0.9);">
+                <div style="display:flex; justify-content:space-between;"><span>MTD</span><b>₹42.5L</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>QTD</span><b>₹1.2Cr</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>YTD</span><b>₹3.8Cr</b></div>
+              </div>
+            </div>
+            <div class="kpi-card" style="background:#F0FDF4; border-color:#BBF7D0;">
+              <div class="kpi-title" style="color:#166534;">Commission Earned</div>
+              <div class="kpi-value" style="color:#16A34A;">₹7.2L</div>
+              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between;"><span>Expected</span><b>₹7.2L</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Received</span><b style="color:var(--success);">₹5.8L</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>Pending</span><b style="color:var(--warning);">₹1.4L</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Revenue by Insurer (MTD)</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>TATA AIG</span><b>₹18L</b></div>
+                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:42%;"></div></div>
+                
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>CARE</span><b>₹12L</b></div>
+                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:28%; background:#0EA5E9;"></div></div>
+              </div>
+              <div style="flex:1; margin-left:24px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>HDFC Life</span><b>₹8L</b></div>
+                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:18%; background:#D97706;"></div></div>
+                
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>ICICI Pru</span><b>₹4.5L</b></div>
+                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:12%; background:#DC2626;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">
+    <span id="toast-icon">✓</span>
+    <span id="toast-msg">Success</span>
+  </div>
+
+  <script>
+    // === GLOBAL STATE ===
+    let currentLead = null;
+    let G_MS = {}; // milestone states
+    let G_DS = {}; // doc statuses
+    let G_AP = {}; // approval outcomes
+    let G_MAINTAB = 'details';
+    let G_SECTION = null; // null = stage content
+    let G_LP = null;
+    let G_LPC = { ten: 5, plan: 'PA + CI', loe: false, vb: false };
+    let G_Q_TAB = 'calc';
+    let G_PRODUCT_TAB = 'lp';
+    let G_PBS = 'quotes';
+    let G_PBI = -1;
+
+    // Rate tables
+    const CARE_RATES = {
+      ci_pa: [
+        {band: '18-25', rates: [200, 380, 550, 700, 850]},
+        {band: '26-30', rates: [250, 480, 700, 900, 1100]},
+        {band: '31-35', rates: [300, 580, 850, 1100, 1350]},
+        {band: '36-40', rates: [400, 780, 1150, 1500, 1850]},
+        {band: '41-45', rates: [550, 1080, 1600, 2100, 2600]},
+        {band: '46-50', rates: [800, 1580, 2350, 3100, 3850]},
+        {band: '51-55', rates: [1200, 2380, 3550, 4700, 5850]},
+        {band: '56-60', rates: [1800, 3580, 5350, 7100, 8850]},
+        {band: '61-65', rates: [2600, 5180, 7750, 10300, 12850]}
+      ],
+      pa_only: 40
+    };
+    const TATA_RATES = {
+      ci: [ {band: 'All', rates: [220, 420, 600, 780, 950]} ],
+      pa: [45, 85, 125, 165, 205]
+    };
+
+    // Stage definition
+    // State Machine Definition
+    const BUCKETS = ['New', 'Contacted', 'Quote', 'Processing', 'Policy', 'Lost'];
+
+    const STATUS_MAP = {
+      'New': ['Not Connected', 'Call Back', 'Interested', 'Not Interested'],
+      'Contacted': ['Call Back', 'Interested', 'Not Interested'],
+      'Quote': ['Quote Shared', 'Payment Link Shared', 'Payment Done', 'Not Interested'],
+      'Processing': ['Documents', 'Medical', 'Approval', 'Policy Issuance'], 
+      'Policy': ['Active', 'Freelook', 'Payout'],
+      'Lost': []
+    };
+
+    const SUBSTATUS_MAP = {
+      'Not Connected': ['Customer Busy', 'Not Reachable', 'Invalid Number', 'Ringing No Answer', 'Switched Off', 'Voicemail', 'Customer Disconnected'],
+      'Call Back': ['Busy Call Later', 'Call Later - Partial Details Shared', 'Language Barrier', 'Customer Disconnected'],
+      'Interested': [],
+      'Not Interested': ['Already Insured', 'Too Expensive', 'Coverage Not Needed', 'Purchased Elsewhere', 'Bank Insurance Selected', 'Quote Declined', 'Premium Too High', 'No Response'],
+      'Quote Shared': ['Consent Pending', 'Exploring Other Options', 'Visit Requested'],
+      'Payment Link Shared': ['Payment Pending', 'Link Not Working'],
+      'Payment Done': ['Verification Pending', 'Payment Verified', 'Verification Failed'],
+      'Documents': ['Pending', 'Partial', 'Received'],
+      'Medical': ['Scheduled', 'Completed'],
+      'Approval': ['Pending', 'Counter Offer', 'Approved', 'Rejected'],
+      'Policy Issuance': ['Pending', 'Issued'],
+      'Active': ['Policy Shared'],
+      'Freelook': ['Pending', 'Completed', 'Policy Cancelled'],
+      'Payout': ['Pending', 'Received']
+    };
+
+    // === DATA (Mock) ===
+    const LEADS = [
+      {
+        id: 'INS-49201', code: 'priya',
+        name: 'Priya Sharma', phone: '+91 98765 43210', email: 'priya.s@gmail.com',
+        age: 34, income: '₹14L/yr', si: 4500000, loanBank: 'HDFC Bank',
+        initialProduct: 'lp', productStatus: 'draft', quotes: [],
+        source: 'd2c', bucket: 'Quote', status: 'Exploring Options', subStatus: 'Comparing Insurers',
+        attempts: 0, createdDate: '14 Jun 2026',
+        hlLead: { id: '#194856', bank: 'HDFC Bank', si: 4500000, hlStage: 'loggedin', rm: 'Rohit M' },
+        log: [
+          {dot: '#473391', text: 'Bucket changed to Quote', time: 'Today 10:30 AM'},
+          {dot: '#D97706', text: 'Status updated to Exploring Options', time: 'Today 10:20 AM'},
+          {dot: '#3B82F6', text: 'Connected: Call answered', time: 'Today 10:15 AM'},
+        ]
+      },
+      {
+        id: 'INS-49202', code: 'rajesh',
+        name: 'Rajesh Kumar', phone: '+91 87654 32109', email: 'rajesh.k@gmail.com',
+        age: 42, income: '₹22L/yr', si: 6000000, loanBank: 'ICICI Bank',
+        initialProduct: 'term', productStatus: 'draft', quotes: [],
+        source: 'sathi', bucket: 'New', status: 'Not Connected', subStatus: 'Customer Busy',
+        attempts: 1, createdDate: '15 Jun 2026',
+        hlLead: { id: '#194892', bank: 'ICICI Bank', si: 6000000, hlStage: 'sanctioned', rm: 'Rohit M' },
+        log: [
+          {dot: '#3B82F6', text: 'Call attempt: Not connected (Customer Busy)', time: 'Yesterday 4:00 PM'},
+        ]
+      },
+      {
+        id: 'INS-49203', code: 'sunita',
+        name: 'Sunita Patel', phone: '+91 76543 21098', email: 'sunita.p@gmail.com',
+        age: 39, income: '₹18L/yr', si: 3000000, loanBank: 'SBI',
+        initialProduct: 'cl', productStatus: 'locked', quotes: [],
+        finalProduct: 'cl', finalInsurer: 'HDFC Life', finalPremium: 9500,
+        source: 'd2c', bucket: 'Quote', status: 'Payment Pending', subStatus: 'Customer Will Pay Later',
+        attempts: 0, createdDate: '10 Jun 2026',
+        hlLead: { id: '#194701', bank: 'SBI', si: 3000000, hlStage: 'disbursed', rm: 'Rohit M' },
+        log: [
+          {dot: '#2563EB', text: 'Payment link generated & sent', time: 'Today 9:00 AM'},
+        ]
+      },
+      {
+        id: 'INS-49204', code: 'amit',
+        name: 'Amit Singh', phone: '+91 65432 10987', email: 'amit.s@gmail.com',
+        age: 45, income: '₹12L/yr', si: null, loanBank: 'NR Associates',
+        initialProduct: 'property', productStatus: 'draft', quotes: [],
+        source: 'yoddha', bucket: 'New', status: 'Not Connected', subStatus: '',
+        attempts: 0, createdDate: '16 Jun 2026',
+        hlLead: null,
+        log: [
+          {dot: '#16A34A', text: 'Lead created manually', time: 'Today 11:45 AM'},
+        ]
+      },
+      {
+        id: 'INS-49205', code: 'neha',
+        name: 'Neha Gupta', phone: '+91 54321 09876', email: 'neha.g@gmail.com',
+        age: 28, income: '₹9L/yr', si: 3500000, loanBank: 'Axis Bank',
+        initialProduct: 'lp', productStatus: 'locked', quotes: [],
+        finalProduct: 'lp', finalInsurer: 'CARE', finalPremium: 8200,
+        source: 'sathi', bucket: 'Processing', status: 'In Progress', subStatus: '',
+        attempts: 0, createdDate: '01 Jun 2026',
+        hlLead: { id: '#194123', bank: 'Axis Bank', si: 3500000, hlStage: 'disbursed', rm: 'Rohit M' },
+        log: [
+          {dot: '#16A34A', text: 'Payment received successfully', time: 'Yesterday 2:00 PM'},
+        ]
+      },
+      {
+        id: 'INS-49206', code: 'vikram',
+        name: 'Vikram Mehta', phone: '+91 43210 98765', email: 'vikram.m@gmail.com',
+        age: 50, income: '₹35L/yr', si: 8000000, loanBank: 'Kotak Bank',
+        initialProduct: 'term', productStatus: 'draft', quotes: [],
+        source: 'd2c', bucket: 'New', status: 'Not Connected', subStatus: '',
+        attempts: 0, createdDate: '17 Jun 2026',
+        hlLead: { id: '#194999', bank: 'Kotak Bank', si: 8000000, hlStage: 'contacted', rm: 'Rohit M' },
+        log: [
+          {dot: '#16A34A', text: 'Lead assigned from Sangam', time: '1 hr ago'},
+        ]
+      }
+    ];
+
+    // === HELPERS ===
+    function toggleDrawer() {
+      document.getElementById('navDrawer').classList.toggle('open');
+      document.getElementById('drawerOverlay').classList.toggle('open');
+    }
+
+    function showToast(msg, isSuccess=true) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').innerText = isSuccess ? '✓' : 'ℹ';
+      t.style.background = isSuccess ? '#16A34A' : '#1A1A2E';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    function formatMoney(num) {
+      if(!num) return '₹-';
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+    }
+
+    function formatLakhs(num) {
+      if(!num) return 'missing';
+      return '₹' + (num/100000).toFixed(0) + 'L';
+    }
+    
+    function getProductLabel(key) {
+      if (!key) return 'Not Selected';
+      const map = { lp: 'Loan Protection', property: 'Property Insurance', cl: 'Credit Life', term: 'Term Plan' };
+      return map[key] || key;
+    }
+    function getStageLabel(key) {
+      return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+    function getActionBtn(lead) {
+      switch(lead.bucket) {
+        case 'New': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); gCallOut('call')">Call Now</button>`;
+        case 'Contacted': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Follow Up</button>`;
+        case 'Quote': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Manage Quotes</button>`;
+        case 'Processing': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Track Progress</button>`;
+        case 'Policy': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">View Policy</button>`;
+        case 'Lost': return `<button class="btn btn-ghost btn-small" style="color:var(--text-muted);" onclick="event.stopPropagation(); openLead('${lead.id}')">View</button>`;
+        default: return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">View</button>`;
+      }
+    }
+
+    // === RENDERERS: LIST SCREEN ===
+    function renderPipelineCards() {
+      const pc = document.getElementById('pipeline-cards');
+      if (pc) pc.innerHTML = '';
+    }
+
+    function renderLeadTable() {
+      let tbody = document.getElementById('lead-table-body');
+      let html = '';
+      
+      LEADS.forEach(l => {
+        let siText = l.si ? formatLakhs(l.si) : `<span class="loan-missing">missing</span>`;
+        let bankText = l.loanBank || 'Unknown Bank';
+        let statusText = l.status ? `${l.status}:` : '-';
+        let agentName = l.hlLead ? l.hlLead.rm : 'Unassigned';
+        
+        html += `
+          <tr onclick="openLead('${l.id}')">
+            <td>
+              <div style="font-weight:700; color:var(--text-heading); cursor:pointer;">${l.id}</div>
+            </td>
+            <td>
+              <div class="lead-name">${l.name}</div>
+              <div class="lead-phone">${l.phone}</div>
+            </td>
+            <td>
+              <div style="display:flex; gap:6px; flex-direction:column; align-items:flex-start;">
+                <span class="badge badge-${l.finalProduct || l.initialProduct}">${getProductLabel(l.finalProduct || l.initialProduct)}</span>
+                <span class="badge badge-${l.source}">${l.source.toUpperCase()}</span>
+              </div>
+            </td>
+            <td>
+              <div style="font-weight:600">${siText}</div>
+              <div style="font-size:11px; color:var(--text-muted)">${bankText}</div>
+            </td>
+            <td>
+              ${l.bucket}
+            </td>
+            <td>
+              <div style="font-weight:500;">${statusText}</div>
+            </td>
+            <td style="font-size:12px; color:var(--text-muted)">
+              ${l.log[0]?.time || 'Just now'}
+            </td>
+            <td style="font-size:12px;">
+              ${agentName}
+            </td>
+            <td>${getActionBtn(l)}</td>
+          </tr>
+        `;
+        
+        if (l.followUpDate && l.bucket !== 'Policy' && l.bucket !== 'Lost') {
+           html += `
+             <tr class="alert-row">
+               <td colspan="9">⏰ Upcoming Follow-Up: ${l.followUpDate}</td>
+             </tr>
+           `;
+        }
+      });
+      if(tbody) tbody.innerHTML = html;
+      const ec = document.getElementById('entry-count');
+      if(ec) ec.textContent = LEADS.length;
+    }
+
+    // === NAVIGATION ===
+    function showScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${screen}`).classList.add('active');
+    }
+
+    function navigateNav(screen) {
+      document.querySelectorAll('.nav-item').forEach(i => {
+        i.style.background = 'transparent';
+        i.style.color = 'var(--text-body)';
+      });
+      document.getElementById(`nav-item-${screen}`).style.background = 'var(--primary)';
+      document.getElementById(`nav-item-${screen}`).style.color = 'var(--white)';
+      document.getElementById('navDrawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      showScreen(screen);
+    }
+
+    function openLead(id) {
+      currentLead = LEADS.find(l => l.id === id);
+      G_SECTION = null;
+      G_PRODUCT_TAB = currentLead.initialProduct || 'lp';
+      renderLeadDetail();
+      showScreen('detail');
+    }
+
+    function closeLead() {
+      currentLead = null;
+      showScreen('list');
+      renderLeadTable(); // Refresh table in case stages changed
+      renderPipelineCards();
+    }
+
+    // === RENDERERS: DETAIL SCREEN ===
+    function renderLeadDetail() {
+      if (!currentLead) return;
+      
+      let html = `
+        <div class="detail-body">
+          <div id="detail-meta"></div>
+          <div class="sangam-workspace" style="margin-top:24px;">
+            <div class="sangam-left" id="detail-left"></div>
+            <div class="sangam-center" id="detail-center"></div>
+            <div class="sangam-right" id="detail-right"></div>
+          </div>
+        </div>
+      `;
+      document.getElementById('screen-detail').innerHTML = html;
+      
+      renderMetaStrip();
+      renderLeftSidebar();
+      renderCenterPanel();
+      renderRightPanel();
+    }
+
+    function renderMetaStrip() {
+      const l = currentLead;
+      let html = `
+        <div class="sangam-cards-row">
+          <!-- Card 1: Lead Information -->
+          <div class="sangam-top-card">
+            <div class="stc-grid" style="grid-template-columns: 1fr 1fr 1.5fr;">
+              <div>
+                <div class="stc-label">Lead Id</div>
+                <div class="stc-val">${l.id}</div>
+              </div>
+              <div>
+                <div class="stc-label">Customer Name</div>
+                <div class="stc-val">${l.name}</div>
+              </div>
+              <div>
+                <div class="stc-label">Created Date</div>
+                <div class="stc-val">${l.createdDate}</div>
+              </div>
+              <div style="grid-column: span 2;">
+                <div class="stc-label">Source/Sub Source</div>
+                <div class="stc-val">${l.source.toUpperCase()} / Website</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Insurance Details -->
+          <div class="sangam-top-card">
+            <div class="stc-grid">
+              ${l.productStatus === 'locked' ? `
+              <div>
+                <div class="stc-label">Product Status</div>
+                <div class="stc-val"><span class="badge" style="background:#DCFCE7; color:#16A34A; border:1px solid #BBF7D0; font-size:10px; padding:2px 6px;">Locked</span></div>
+              </div>
+              <div style="grid-column: span 2;">
+                <div class="stc-label">Final Product</div>
+                <div class="stc-val" style="font-weight:700; color:var(--primary);">${getProductLabel(l.finalProduct)}</div>
+              </div>
+              <div>
+                <div class="stc-label">Insurer & Premium</div>
+                <div class="stc-val">${l.finalInsurer || '-'} <span style="color:var(--success); font-weight:600;">${formatMoney(l.finalPremium)}</span></div>
+              </div>
+              <div style="grid-column: span 2;">
+                <div class="stc-label">Relationship Manager</div>
+                <div class="stc-val">Ambak BM</div>
+              </div>
+              ` : `
+              <div>
+                <div class="stc-label">Product Status</div>
+                <div class="stc-val"><span class="badge" style="background:#F3F4F6; color:var(--text-muted); border:1px solid var(--border); font-size:10px; padding:2px 6px;">Draft</span></div>
+              </div>
+              <div style="grid-column: span 2;">
+                <div class="stc-label">Recommended Product</div>
+                <div class="stc-val" style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-weight:600;">${getProductLabel(l.initialProduct)}</span>
+                  <span style="color:var(--primary); font-size:11px; cursor:pointer; font-weight:600;" onclick="showToast('Edit product recommendation')">[Change]</span>
+                </div>
+              </div>
+              <div>
+                <div class="stc-label">Insurer</div>
+                <div class="stc-val" style="color:var(--text-placeholder);">Pending Quote</div>
+              </div>
+              <div style="grid-column: span 2;">
+                <div class="stc-label">Relationship Manager</div>
+                <div class="stc-val">Ambak BM</div>
+              </div>
+              `}
+            </div>
+          </div>
+
+          <!-- Card 3: Home Loan Context -->
+          <div class="sangam-top-card">
+            <div class="stc-grid">
+              <div>
+                <div class="stc-label">Bank Name</div>
+                <div class="stc-val">${l.hlLead ? l.hlLead.bank : '-'}</div>
+              </div>
+              <div>
+                <div class="stc-label">Loan Amount</div>
+                <div class="stc-val">${l.hlLead ? formatLakhs(l.hlLead.si) : '-'}</div>
+              </div>
+              <div>
+                <div class="stc-label">HL Stage</div>
+                <div class="stc-val">${l.hlLead ? getStageLabel(l.hlLead.hlStage) : '-'}</div>
+              </div>
+              <div>
+                <div class="stc-label">Assigned IBM</div>
+                <div class="stc-val">${l.hlLead ? l.hlLead.rm : '-'}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Status -->
+          <div class="sangam-top-card">
+            <div class="stc-grid">
+              <div>
+                <div class="stc-label">Status</div>
+                <div class="stc-val">${l.status || 'Fresh'}</div>
+              </div>
+              <div>
+                <div class="stc-label">Sub Status</div>
+                <div class="stc-val">${l.subStatus || 'Fresh'}</div>
+              </div>
+              <div>
+                <div class="stc-label">Last Updated</div>
+                <div class="stc-val">${l.log[0]?.time || l.createdDate}</div>
+              </div>
+              <div>
+                <div class="stc-label">Follow Up</div>
+                <div class="stc-val">No Follow Up</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Owner & Communication -->
+          <div class="sangam-top-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between;">
+              <div>
+                <div class="stc-label">Assigned to</div>
+                <div class="stc-val" style="font-size:12px; font-weight:400;">Verification Agent</div>
+              </div>
+              <div>
+                <div class="stc-label">Communication</div>
+                <div style="display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; max-width:80px;">
+                  <div style="width:24px; height:24px; border-radius:50%; background:#25D366; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">W</div>
+                  <div style="width:24px; height:24px; border-radius:50%; background:#473391; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">@</div>
+                  <div style="width:24px; height:24px; border-radius:50%; background:#0284C7; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">💬</div>
+                  <div style="width:24px; height:24px; border-radius:50%; background:#EA580C; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">📞</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('detail-meta').innerHTML = html;
+    }
+
+    function setMainTab(tab) {
+      G_MAINTAB = tab;
+      renderLeadDetail();
+    }
+
+    function renderStageBar() {
+      const displayBuckets = BUCKETS.filter(b => b !== 'Lost');
+      const idx = BUCKETS.indexOf(currentLead.bucket);
+      let html = '<div class="sangam-tracker-box"><div class="tracker-row">';
+      
+      displayBuckets.forEach((st, i) => {
+        // Original index of this step in BUCKETS
+        const origIdx = BUCKETS.indexOf(st);
+        let isDone = origIdx < idx;
+        let isCurrent = origIdx === idx;
+        let isLost = currentLead.bucket === 'Lost';
+        
+        let classes = 'tracker-step';
+        if(isDone && !isLost) classes += ' done';
+        if(isCurrent) {
+           classes += ' active';
+        }
+        
+        html += `
+          <div class="${classes}" style="cursor:default;">
+            ${st}
+          </div>
+        `;
+      });
+      html += '</div></div>';
+      return html;
+    }
+
+    function transitionLeadState(newStatus, newSubStatus, remarks, followUpDate, pendingWith) {
+      const l = currentLead;
+      const oldBucket = l.bucket;
+      const oldStatus = l.status;
+      
+      l.status = newStatus;
+      l.subStatus = newSubStatus;
+      if (followUpDate) l.followUpDate = followUpDate;
+      
+      // Auto Bucket Transitions based on Backend Mapping PRD
+      // Auto Bucket Transitions based on Backend Mapping PRD
+      if (newStatus === 'Not Connected') l.bucket = 'New';
+      if (newStatus === 'Call Back' || newStatus === 'Interested') l.bucket = 'Contacted';
+      if (newStatus === 'Quote Generated' || newStatus === 'Quote Shared' || newStatus === 'Payment Link Shared' || (newStatus === 'Payment Done' && newSubStatus !== 'Payment Verified')) l.bucket = 'Quote';
+      if ((newStatus === 'Payment Done' && newSubStatus === 'Payment Verified') || newStatus === 'Documents' || newStatus === 'Medical' || newStatus === 'Approval' || (newStatus === 'Policy Issuance' && newSubStatus !== 'Issued')) l.bucket = 'Processing';
+      if ((newStatus === 'Policy Issuance' && newSubStatus === 'Issued') || newStatus === 'Active' || newStatus === 'Freelook' || newStatus === 'Payout') l.bucket = 'Policy';
+      if (newStatus === 'Not Interested' || newStatus === 'Lost') l.bucket = 'Lost';
+
+      if (oldBucket !== l.bucket) {
+        l.log.unshift({ dot: 'var(--primary)', text: `Lead moved to ${l.bucket}`, time: 'Just now' });
+      }
+      
+      let logText = ``;
+      if (newStatus === 'Not Connected') {
+        logText = `Call Attempted<br>Reason: ${l.subStatus}`;
+      } else if (newStatus === 'Call Back') {
+        logText = `Customer contacted.<br>Status: Call Back<br>Reason: ${l.subStatus}`;
+      } else if (newStatus === 'Interested') {
+        logText = `Customer interested in insurance.`;
+      } else if (newStatus === 'Quote Generated') {
+        logText = `Quote Generated. Proceeding with Product Selection.`;
+      } else if (newStatus === 'Quote Shared') {
+        logText = `Quote Shared.<br>Reason: ${l.subStatus}`;
+      } else if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified') {
+        logText = `Payment Proof Uploaded and Verified. Lead moved to Processing.`;
+      } else if (newStatus === 'Not Interested' || newStatus === 'Lost') {
+        logText = `Lead marked Lost<br>Reason: ${l.subStatus || l.status}`;
+      } else {
+        logText = `Status updated to ${l.status}`;
+        if (l.subStatus) logText += `<br>Reason: ${l.subStatus}`;
+      }
+      
+      if (followUpDate) logText += `<br>Follow-up scheduled: ${followUpDate}`;
+      if (remarks) logText += `<br>Remark: ${remarks}`;
+      l.log.unshift({ dot: '#10B981', text: logText, time: 'Just now' });
+      
+      // Auto-progress status if bucket change requires it to avoid confusing states
+      if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified') {
+         l.status = 'Documents';
+         l.subStatus = 'Pending';
+         l.log.unshift({ dot: 'var(--primary)', text: 'System Auto-Update: Status progressed to Documents (Pending)', time: 'Just now' });
+      } else if (newStatus === 'Policy Issuance' && newSubStatus === 'Issued') {
+         l.status = 'Active';
+         l.subStatus = 'Policy Shared';
+         l.log.unshift({ dot: 'var(--primary)', text: 'System Auto-Update: Status progressed to Active', time: 'Just now' });
+      }
+      
+      showToast('Lead state updated successfully');
+      renderLeadDetail(); // Re-render everything to apply new state
+    }
+
+    function renderLeftSidebar() {
+      const sections = [
+        {name: 'Insurance Details', state: 'Pending'},
+        {name: 'Customer Details', state: 'Complete'},
+        {name: 'Income Details', state: 'Pending'},
+        {name: 'Property Details', state: 'Pending'},
+        {name: 'Nominee Details', state: 'Missing'},
+        {name: 'Health Screening', state: 'Pending'}
+      ];
+      
+      let html = `
+        <div class="card" style="padding: 24px 16px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); background:var(--white); border-radius:12px;">
+          <div style="font-weight:700; margin-bottom:16px; font-size:16px;">Application Data</div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+      `;
+      
+      sections.forEach(sec => {
+        let isActive = G_SECTION === sec.name;
+        let color = '';
+        if(sec.state === 'Complete') { color = 'var(--success)'; }
+        else if(sec.state === 'Pending') { color = 'var(--warning)'; }
+        else { color = 'var(--text-placeholder)'; } // using grey for missing/not started
+
+        html += `
+          <div class="nav-section ${isActive ? 'active' : ''}" style="display:flex; align-items:center; gap:12px; padding:12px 8px; cursor:pointer;" onclick="setSection('${sec.name}')">
+            <div style="width:10px; height:10px; border-radius:50%; background:var(--primary);"></div>
+            <div style="${isActive ? 'font-weight:600;' : ''}">${sec.name}</div>
+          </div>
+        `;
+      });
+      html += `
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detail-left').innerHTML = html;
+    }
+
+    function setSection(sec) {
+      G_SECTION = sec;
+      renderLeftSidebar();
+      renderCenterPanel();
+    }
+
+    function renderCenterPanel() {
+      const el = document.getElementById('detail-center');
+      let contentHtml = '';
+
+      if (G_SECTION) {
+        contentHtml = renderSectionForm(G_SECTION);
+        el.innerHTML = contentHtml;
+        return;
+      }
+
+      let trackerHtml = renderStageBar();
+
+      if (currentLead.bucket === 'New') {
+        contentHtml = renderNewStage();
+      } else if (currentLead.bucket === 'Contacted') {
+        contentHtml = renderContactedStage();
+      } else if (currentLead.bucket === 'Processing') {
+        contentHtml = renderProcessingStage();
+      } else if (currentLead.bucket === 'Quote') {
+        contentHtml = renderQuoteStage();
+      } else if (currentLead.bucket === 'Policy') {
+        contentHtml = renderPolicyStage();
+      } else if (currentLead.bucket === 'Lost') {
+        contentHtml = renderLostStage();
+      }
+
+      const commonTabsHtml = renderCommonTabsHtml();
+
+      el.innerHTML = trackerHtml + contentHtml + commonTabsHtml;
+    }
+
+    function renderCommonTabsHtml() {
+      const activeTab = currentLead.activeTab || 'History';
+      
+      let tabsHtml = `
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <button onclick="currentLead.activeTab='History'; renderLeadDetail();" style="background:${activeTab==='History'?'var(--navy)':'white'}; color:${activeTab==='History'?'white':'var(--text-heading)'}; border:${activeTab==='History'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:600; font-size:14px; cursor:pointer;">Activity History</button>
+          <button onclick="currentLead.activeTab='FollowUp'; renderLeadDetail();" style="background:${activeTab==='FollowUp'?'var(--navy)':'white'}; color:${activeTab==='FollowUp'?'white':'var(--text-heading)'}; border:${activeTab==='FollowUp'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:500; font-size:14px; cursor:pointer;">Follow Up</button>
+          <button onclick="currentLead.activeTab='Documents'; renderLeadDetail();" style="background:${activeTab==='Documents'?'var(--navy)':'white'}; color:${activeTab==='Documents'?'white':'var(--text-heading)'}; border:${activeTab==='Documents'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:500; font-size:14px; cursor:pointer;">Documents</button>
+        </div>
+        <div style="border-bottom:3px solid #E5E7EB; margin-bottom:24px;"></div>
+      `;
+
+      if (activeTab === 'FollowUp') {
+        const leadTasks = (window.G_TASKS || []).filter(t => t.leadId === currentLead.id);
+        let tasksHtml = leadTasks.length === 0 ? `<div style="text-align:center; padding:40px; color:#6B7280;">No follow-ups scheduled for this lead.</div>` : leadTasks.map(t => `
+          <div style="border:1px solid #E5E7EB; border-radius:8px; padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:14px; color:#111827; margin-bottom:4px;">Follow-up: ${t.taskType}</div>
+              <div style="font-size:12px; color:#6B7280; display:flex; gap:12px;">
+                <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> ${t.date}</span>
+                <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${t.time}</span>
+              </div>
+            </div>
+            ${t.status === 'pending' ? `<button class="btn btn-primary btn-small" onclick="completeTask('${t.id}')">Mark Complete</button>` : `<span style="color:#10B981; font-weight:600; font-size:12px;">Completed</span>`}
+          </div>
+        `).join('');
+        
+        return `<div style="background:var(--white); margin-top:24px;">${tabsHtml}<div>${tasksHtml}</div></div>`;
+      }
+
+      if (activeTab === 'Documents') {
+        let docsHtml = `
+          <div style="text-align:center; padding:40px; color:#6B7280;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" style="margin-bottom:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <div style="font-weight:600; font-size:16px; color:#374151; margin-bottom:4px;">No Documents Uploaded</div>
+            <div style="font-size:13px;">Documents will appear here once uploaded during the workflow.</div>
+          </div>
+        `;
+        return `<div style="background:var(--white); margin-top:24px;">${tabsHtml}<div>${docsHtml}</div></div>`;
+      }
+
+      return `
+          <div style="background:var(--white); margin-top:24px;">
+            ${tabsHtml}
+            <div style="position:relative; padding-left:24px; padding-right:8px;">
+              <div style="position:absolute; top:8px; bottom:0; left:7px; border-left:2px dotted #E5E7EB;"></div>
+              ${currentLead.log.map((entry, idx) => {
+                let text = entry.text;
+                let title = "Activity Log";
+                if (text.includes("Status updated") || text.includes("Lead marked Lost")) title = "Lead Status Updated";
+                else if (text.includes("Payment")) title = "Payment Update";
+                else if (text.includes("Bucket changed")) title = "Stage Progression";
+                else if (text.includes("Milestone completed")) title = "Processing Milestone";
+                else if (text.includes("Follow-up")) title = "Followup Created";
+                else if (text.includes("Customer expressed interest")) title = "Lead Status Updated";
+
+                let remarksHtml = "";
+                if (text.includes("<br>Remark:")) {
+                    let parts = text.split("<br>Remark:");
+                    text = parts[0].replace(/<br>/g, " ");
+                    let remark = parts[1].trim();
+                    remarksHtml = `
+                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <div>
+                          <div style="font-weight:500; font-size:15px; color:#111827;">Remarks Added</div>
+                          <div style="color:#374151; font-size:14px; margin-top:4px;">${remark}</div>
+                        </div>
+                      </div>
+                    `;
+                } else if (text.includes("<br>Reason:")) {
+                    let parts = text.split("<br>Reason:");
+                    text = parts[0].replace(/<br>/g, " ");
+                    let remark = parts[1].trim();
+                    remarksHtml = `
+                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <div>
+                          <div style="font-weight:500; font-size:15px; color:#111827;">Remarks Added</div>
+                          <div style="color:#374151; font-size:14px; margin-top:4px;">Reason: ${remark}</div>
+                        </div>
+                      </div>
+                    `;
+                } else if (text.includes("<br>Lead moved")) {
+                    let parts = text.split("<br>Lead moved");
+                    text = parts[0].replace(/<br>/g, " ");
+                    let remark = "Lead moved" + parts[1];
+                    remarksHtml = `
+                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <div>
+                          <div style="font-weight:500; font-size:15px; color:#111827;">System Update</div>
+                          <div style="color:#374151; font-size:14px; margin-top:4px;">${remark}</div>
+                        </div>
+                      </div>
+                    `;
+                } else {
+                    remarksHtml = `
+                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <div>
+                          <div style="font-weight:500; font-size:15px; color:#111827;">System Update</div>
+                          <div style="color:#374151; font-size:14px; margin-top:4px;">${text.replace(/<br>/g, " ")}</div>
+                        </div>
+                      </div>
+                    `;
+                }
+
+                let by = text.includes("Bucket changed") || text.includes("verified internally") ? "System" : "Verification Agent";
+                let actualTime = entry.time === 'Just now' ? '19 Jun, 2026, 2:34 PM' : entry.time;
+
+                return `
+                  <div style="position:relative; margin-bottom:0; display:flex; justify-content:space-between; border-bottom:1px solid #E5E7EB; padding-bottom:32px; padding-top:16px;">
+                    <div style="position:absolute; top:20px; left:-23.5px; width:14px; height:14px; border-radius:50%; background:white; border:4px solid #93C5FD; z-index:2;"></div>
+                    
+                    <div style="flex:1;">
+                      <div style="font-size:18px; font-weight:700; color:#111827; margin-bottom:4px;">${title}</div>
+                      ${remarksHtml}
+                      
+                    </div>
+                    
+                    <div style="width:250px; text-align:left; font-size:13px; line-height:1.6; padding-left:24px;">
+                      <div style="margin-bottom:8px;"><span style="color:#5B21B6; font-weight:700;">By</span> <span style="font-weight:700; color:#111827;">${by}</span></div>
+                      <div style="margin-bottom:8px;"><span style="color:#5B21B6; font-weight:700;">At</span> <span style="font-weight:700; color:#111827;">${actualTime}</span></div>
+                      <div><span style="color:#5B21B6; font-weight:700;">From</span> <span style="font-weight:700; color:#111827;">Sangam</span></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+      `;
+    }
+
+    function renderOutreachStage() {
+      return `
+        <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
+          <div class="label" style="color:var(--primary); margin-bottom:16px;">📞 First Contact Action</div>
+          <div style="width:80px; height:80px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 16px;">${currentLead.name.charAt(0)}</div>
+          <div style="font-size:24px; font-weight:700; margin-bottom:4px;">${currentLead.name}</div>
+          <div style="font-size:32px; font-weight:800; color:var(--text-heading); margin-bottom:12px;">
+            ${currentLead.phone}
+            <button class="btn btn-ghost btn-small" style="margin-left:8px; vertical-align:middle;" onclick="showToast('Number copied')">Copy</button>
+          </div>
+          <div style="background:var(--bg); border-radius:8px; padding:12px; margin-bottom:24px; display:inline-block;">
+            <div style="font-size:12px; color:var(--text-muted);">Recommended Product</div>
+            <div style="font-weight:700; color:var(--primary);">${getProductLabel(currentLead.finalProduct || currentLead.initialProduct)} • ${formatLakhs(currentLead.si)} Cover</div>
+          </div>
+          
+          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">
+            Please use the Right Panel to update the first contact status.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInterestStage() {
+      let desc = '';
+      let prod = currentLead.finalProduct || currentLead.initialProduct;
+      if(prod === 'lp') desc = "Loan protection covers the home loan EMI in case of critical illness or accidents. Pitch it as securing their family's future so the loan doesn't become a burden.";
+      else if(prod === 'property') desc = 'Property insurance protects the physical structure of the home against fire, theft, and natural disasters. Essential for a new asset.';
+      else if(prod === 'cl') desc = 'Credit life insurance pays off the outstanding loan balance in case of death. Peace of mind for the co-borrower.';
+      else if(prod === 'term') desc = 'Term plan offers comprehensive life cover for the family at affordable premiums.';
+
+      return `
+        <div class="card" style="padding:32px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:24px;">
+          <div style="display:flex; gap:12px; align-items:center; margin-bottom:24px;">
+            <div style="width:48px; height:48px; border-radius:8px; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:24px;">💡</div>
+            <div>
+              <div class="label" style="color:var(--primary);">Pitch Guidance</div>
+              <h2 style="margin:0;">Recommended: ${getProductLabel(prod)}</h2>
+            </div>
+          </div>
+          
+          <div style="background:#FAFAFA; border-left:4px solid var(--primary); padding:16px; border-radius:0 8px 8px 0; margin-bottom:32px;">
+            <p style="font-size:14px; line-height:1.6; color:var(--text-body); margin:0;">${desc}</p>
+          </div>
+
+          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">
+            Please use the Right Panel to update the ongoing status (e.g. Follow-Up, Interested, Not Interested).
+          </div>
+        </div>
+      `;
+    }
+
+    // Placeholders for the rest
+    function setQuoteTab(tab) { G_Q_TAB = tab; renderCenterPanel(); }
+    function setLPCalc(k, v) { G_LPC[k] = v; renderCenterPanel(); }
+
+    function calculateLP() {
+      const age = currentLead.age || 30;
+      const si = currentLead.si || 5000000;
+      const siL = si / 100000;
+      const tIdx = G_LPC.ten - 1;
+
+      // CARE Calc
+      let careRows = [];
+      let carePre = 0;
+      if (G_LPC.plan === 'PA + CI') {
+        let band = CARE_RATES.ci_pa.find(b => {
+          let parts = b.band.split('-');
+          return age >= parseInt(parts[0]) && age <= parseInt(parts[1]);
+        }) || CARE_RATES.ci_pa[3];
+        let baseRate = band.rates[tIdx];
+        let basePrem = baseRate * siL;
+        carePre += basePrem;
+        careRows.push({ label: 'Base Premium (PA+CI)', amt: basePrem });
+      } else {
+        let basePrem = CARE_RATES.pa_only * G_LPC.ten * siL;
+        carePre += basePrem;
+        careRows.push({ label: 'Base Premium (PA Only)', amt: basePrem });
+      }
+
+      if (G_LPC.loe) { carePre += 1250 * G_LPC.ten; careRows.push({ label: 'Loss of Employment', amt: 1250 * G_LPC.ten }); }
+      if (G_LPC.vb) { carePre += 949 * G_LPC.ten; careRows.push({ label: 'Vector Borne', amt: 949 * G_LPC.ten }); }
+
+      let careGST = carePre * 0.18;
+      let carePost = carePre + careGST;
+      let careComm = carePre * 0.20;
+
+      // TATA Calc
+      let tataRows = [];
+      let tataPre = 0;
+      if (G_LPC.plan === 'PA + CI') {
+        let tataBase = TATA_RATES.ci[0].rates[tIdx] * siL;
+        let tataPA = TATA_RATES.pa[tIdx] * siL;
+        tataPre = tataBase + tataPA;
+        tataRows.push({ label: 'GCS Plus (CI)', amt: tataBase });
+        tataRows.push({ label: 'Accidental Death (PA)', amt: tataPA });
+      } else {
+        tataPre = TATA_RATES.pa[tIdx] * siL;
+        tataRows.push({ label: 'Accidental Death (PA)', amt: tataPre });
+      }
+      let tataGST = tataPre * 0.18;
+      let tataPost = tataPre + tataGST;
+      let tataComm = tataPre * 0.18;
+
+      G_LP = {
+        care: { pre: carePre, gst: careGST, post: carePost, comm: careComm, rows: careRows },
+        tata: { pre: tataPre, gst: tataGST, post: tataPost, comm: tataComm, rows: tataRows }
+      };
+      renderCenterPanel();
+      showToast('Premiums calculated');
+    }
+
+    function shareQuote(qid) {
+      if(qid) {
+         let q = currentLead.quotes.find(x => x.id === qid);
+         if(q) q.status = 'Shared';
+      }
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('shareModal').style.display = 'flex';
+      renderCenterPanel();
+    }
+    function closeShareModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('shareModal').style.display = 'none';
+    }
+    function executeShare() {
+      closeShareModal();
+      showToast('Quote shared successfully via WhatsApp');
+      currentLead.log.unshift({ dot: 'var(--primary)', text: 'Shared quote with customer via WhatsApp', time: 'Just now' });
+      renderRightPanel();
+    }
+
+    function lockProduct(qid) {
+      let q = currentLead.quotes.find(x => x.id === qid);
+      if(!q) return;
+      currentLead.productStatus = 'locked';
+      currentLead.finalProduct = q.prod;
+      currentLead.finalInsurer = q.insurer;
+      currentLead.finalPremium = q.premium;
+      
+      let subStatus = q.prod === 'lp' ? q.insurer : getProductLabel(q.prod);
+      transitionLeadState('Quote Shared', 'Payment Link shared', '', '', '');
+      showToast('Product locked. Payment link generated.');
+    }
+
+    function setProductTab(prod) {
+      G_PRODUCT_TAB = prod;
+      G_LP = null;
+      renderCenterPanel();
+    }
+
+    function addQuoteToHistory(insurer, cov, premium) {
+      if(!currentLead.quotes) currentLead.quotes = [];
+      let qid = 'Q-' + Math.floor(Math.random()*10000);
+      currentLead.quotes.push({
+        id: qid,
+        prod: G_PRODUCT_TAB,
+        insurer: insurer,
+        cov: cov,
+        premium: premium,
+        status: 'Generated'
+      });
+      currentLead.log.unshift({dot: 'var(--primary)', text: `Quote generated for ${getProductLabel(G_PRODUCT_TAB)} (${insurer})`, time: 'Just now'});
+      showToast('Quote added to history');
+      renderCenterPanel();
+    }
+
+    function renderLPGenerator() {
+      let pill = (v) => `<div class="chip ${G_LPC.ten===v?'active':''}" onclick="setLPCalc('ten', ${v})">${v} Yr</div>`;
+      let planBtn = (v) => `<button class="btn ${G_LPC.plan===v?'btn-primary':'btn-ghost'}" style="flex:1;" onclick="setLPCalc('plan', '${v}')">${v}</button>`;
+
+      let inputCol = `
+        <div style="flex:1; border-right:1px solid var(--border); padding-right:24px;">
+          <div style="display:flex; gap:12px; margin-bottom:16px;">
+            <div style="flex:1;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Age</label>
+              <input type="text" class="form-control" style="font-weight:600;" value="${currentLead.age || ''}" readonly>
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Loan Amount</label>
+              <input type="text" class="form-control" style="font-weight:600;" value="${currentLead.si || ''}" readonly>
+            </div>
+          </div>
+          
+          <div style="margin-bottom:16px;">
+            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Tenure</label>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">${pill(1)}${pill(2)}${pill(3)}${pill(4)}${pill(5)}</div>
+          </div>
+
+          <div style="margin-bottom:24px;">
+            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Plan</label>
+            <div style="display:flex; gap:12px;">${planBtn('PA Only')}${planBtn('PA + CI')}</div>
+          </div>
+
+          <div style="background:var(--bg); border-radius:8px; padding:16px; margin-bottom:24px; border:1px solid var(--border);">
+            <div style="font-weight:600; color:#EA580C; margin-bottom:12px; font-size:11px; text-transform:uppercase;">CARE Add-ons</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div>Loss of Employment <span style="color:var(--text-muted); font-size:11px;">(+₹1,250/yr)</span></div>
+              <input type="checkbox" ${G_LPC.loe?'checked':''} onchange="setLPCalc('loe', this.checked)">
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>Vector Borne Diseases <span style="color:var(--text-muted); font-size:11px;">(+₹949/yr)</span></div>
+              <input type="checkbox" ${G_LPC.vb?'checked':''} onchange="setLPCalc('vb', this.checked)">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;" onclick="calculateLP()">Calculate Premiums →</button>
+        </div>
+      `;
+
+      let resultCol = '';
+      if (!G_LP) {
+         resultCol = `<div style="flex:1; padding-left:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); background:var(--bg); border-radius:8px; text-align:center;">Select parameters and calculate to see premiums</div>`;
+      } else {
+         let resultCard = (brand, bg, badgeColor, d) => `
+          <div class="card" style="margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div class="badge" style="background:${bg}; color:white;">${brand}</div>
+            </div>
+            <table style="width:100%; margin-bottom:12px;">
+              ${d.rows.map(r => `<tr><td style="padding:4px 0; font-size:12px;">${r.label}</td><td style="text-align:right; font-weight:600; font-size:12px;">${formatMoney(r.amt)}</td></tr>`).join('')}
+              <tr><td style="padding:4px 0; color:var(--text-muted); font-size:12px;">GST (18%)</td><td style="text-align:right; font-size:12px;">${formatMoney(d.gst)}</td></tr>
+            </table>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px dashed var(--border);">
+              <div style="font-weight:600;">Total Premium</div>
+              <div style="font-size:20px; font-weight:800; color:var(--primary);">${formatMoney(d.post)}</div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:16px;">
+              <button class="btn btn-ghost btn-small" style="flex:1;" onclick="addQuoteToHistory('${brand}', '${G_LPC.plan}', ${d.post})">+ Add to Quotes</button>
+            </div>
+          </div>
+        `;
+        resultCol = `
+          <div style="flex:1; padding-left:24px; display:flex; flex-direction:column; overflow-y:auto; max-height:500px;">
+            ${resultCard('CARE Health Insurance', '#0EA5E9', 'blue', G_LP.care)}
+            ${resultCard('TATA AIG General', '#F97316', 'orange', G_LP.tata)}
+          </div>
+        `;
+      }
+      return `<div style="display:flex; min-height:300px;">${inputCol}${resultCol}</div>`;
+    }
+
+    function renderNextActionWidget() {
+      let actionText = '';
+      if (!currentLead.selectedPlan) {
+         actionText = "Generate Quote";
+      } else if (!currentLead.quoteShared) {
+         actionText = "Share Quote";
+      } else if (!currentLead.paymentLinkGenerated) {
+         actionText = "Generate Payment Link";
+      } else if (!currentLead.paymentVerified) {
+         actionText = "Verify payment";
+      } else {
+         actionText = "Move to Processing";
+      }
+
+      return `
+        <div style="position:sticky; top:24px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:16px;">
+          <div style="font-size:11px; font-weight:700; color:#1D4ED8; margin-bottom:4px; text-transform:uppercase;">Next Action</div>
+          <div style="font-weight:600; font-size:16px; color:#1E3A8A;">${actionText}</div>
+        </div>
+      `;
+    }
+
+    function shareQuoteAction(method) {
+      currentLead.quoteShared = true;
+      if (method !== 'Copy Link') {
+        transitionLeadState('Quote Shared', '', `Quote shared via ${method}`, '', '');
+      }
+      showToast('Quote Shared');
+      renderLeadDetail();
+    }
+
+    function generatePaymentLink() {
+      currentLead.paymentLinkGenerated = true;
+      transitionLeadState('Payment Link Shared', '', `Payment link generated`, '', '');
+      showToast('Payment Link Generated');
+      renderLeadDetail();
+    }
+
+    function sharePayAction(method) {
+      if (method !== 'Copy Link') currentLead.log.unshift({dot:'#10B981', text:`Payment link shared via ${method}`, time:'Just now'});
+      showToast('Payment Link Shared');
+      renderLeadDetail();
+    }
+
+
+    function renderNewStage() {
+      // PRD: Center panel is deliberately empty. Activity History tabs pushed up to fill the space.
+      return '';
+    }
+
+    function renderContactedStage() {
+      let product = currentLead.finalProduct || currentLead.initialProduct || '';
+      
+      const PRODUCTS = {
+        lp: {
+          name: 'Loan Protection',
+          abbr: 'LP',
+          desc: 'Covers the outstanding home loan amount in case of death or disability. Ensures the family keeps their home.',
+          benefit: 'Loan liability fully covered — family never inherits debt',
+          insurers: ['CARE Health', 'TATA AIG']
+        },
+        property: {
+          name: 'Property Insurance',
+          abbr: 'PR',
+          desc: 'Protects the physical property against fire, natural disasters, and structural damage. Annual renewable policy.',
+          benefit: 'Property value protected against unforeseen damage',
+          insurers: ['Bajaj General', 'HDFC Ergo', 'SBI General']
+        },
+        credit: {
+          name: 'Credit Life',
+          abbr: 'CL',
+          desc: "Covers the borrower's life for the loan tenure. If the borrower passes away, the insurer repays the outstanding loan.",
+          benefit: 'Decreasing cover that matches loan outstanding — cost-effective',
+          insurers: ['PB Partners (via PolicyBazaar)']
+        },
+        term: {
+          name: 'Term Plan',
+          abbr: 'TP',
+          desc: "Pure life cover at low cost. Pays a lump sum to the nominee on the policyholder's death during the policy term.",
+          benefit: 'High cover at lowest premium — ideal for income replacement',
+          insurers: ['PB Partners (via PolicyBazaar)']
+        }
+      };
+
+      let html = `
+        <div style="background:var(--white); border-radius:12px; padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:24px;">
+          <div style="text-align:center; margin-bottom:32px;">
+             <h2 style="font-size:24px; margin:0 0 8px;">Select Insurance Product</h2>
+             <div style="color:var(--text-muted); font-size:14px;">Understand the customer's needs and select the right product.</div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
+            ${Object.entries(PRODUCTS).map(([key, p]) => {
+              let sel = product === key;
+              return `
+               <div style="border:2px solid ${sel ? 'var(--primary)' : '#E5E7EB'}; border-radius:12px; padding:20px; cursor:pointer; background:${sel?'#EFF6FF':'white'}; transition:all 0.2s;" onclick="currentLead.finalProduct='${key}'; renderLeadDetail()">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                     <div style="width:40px; height:40px; border-radius:8px; background:${sel?'var(--primary)':'#F3F4F6'}; color:${sel?'white':'var(--text-body)'}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">
+                        ${p.abbr}
+                     </div>
+                     <div style="width:20px; height:20px; border-radius:50%; border:2px solid ${sel?'var(--primary)':'#D1D5DB'}; background:${sel?'var(--primary)':'transparent'}; display:flex; align-items:center; justify-content:center;">
+                        ${sel ? '<div style="width:8px; height:8px; border-radius:50%; background:white;"></div>' : ''}
+                     </div>
+                  </div>
+                  <div style="font-weight:700; font-size:16px; margin-bottom:6px; color:${sel?'var(--primary)':'var(--text-heading)'};">${p.name}</div>
+                  <div style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:12px; min-height:36px;">${p.desc}</div>
+                  <div style="font-size:11px; color:#059669; font-weight:600; margin-bottom:10px; display:flex; align-items:start; gap:4px;">
+                    <span style="margin-top:1px;">✓</span> ${p.benefit}
+                  </div>
+                  <div style="font-size:11px; color:var(--text-muted); border-top:1px solid ${sel?'#BFDBFE':'#F3F4F6'}; padding-top:10px;">
+                    <span style="font-weight:600;">Insurers:</span> ${p.insurers.join(', ')}
+                  </div>
+               </div>
+              `;
+            }).join('')}
+          </div>
+          
+          <div style="text-align:center;">
+             <button class="btn btn-primary" style="padding:12px 32px; font-size:16px; border-radius:8px;" ${!product ? 'disabled style="padding:12px 32px; font-size:16px; border-radius:8px; opacity:0.5; cursor:not-allowed;"' : ''} onclick="transitionLeadState('Quote Generated', '', 'Product selected: ${product ? getProductLabel(product) : ''}', null, null); renderLeadDetail();">Generate Quote →</button>
+          </div>
+        </div>
+      `;
+      return html;
+    }
+
+    function renderLostStage() {
+      return `
+        <div style="background:var(--white); border-radius:12px; padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; margin-top:24px; border-top:4px solid #EF4444;">
+          <h2 style="font-size:24px; color:#EF4444; margin:0 0 8px;">Lead Closed (Lost)</h2>
+          <div style="font-size:16px; color:var(--text-muted); margin-bottom:24px;">This lead is read-only. No further actions can be taken.</div>
+          <div style="background:#FEF2F2; border-radius:8px; padding:16px; text-align:left; border:1px solid #FCA5A5; max-width:400px; margin:0 auto;">
+            <div style="font-weight:600; color:#991B1B; margin-bottom:8px;">Lost Summary</div>
+            <div style="font-size:14px; margin-bottom:4px;"><strong>Reason:</strong> ${currentLead.subStatus || 'Not specified'}</div>
+            <div style="font-size:14px; margin-bottom:4px;"><strong>By:</strong> Verification Agent</div>
+            <div style="font-size:14px;"><strong>Last Product:</strong> ${getProductLabel(currentLead.finalProduct || currentLead.initialProduct)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+
+    function renderQuoteStage() {
+      let product = currentLead.finalProduct || currentLead.initialProduct || 'lp';
+      let isLocked = currentLead.paymentVerified || currentLead.productStatus === 'locked';
+
+      // Product header badge (read-only — no switching allowed)
+      let productHeaderHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:8px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
+              ${product==='lp'?'LP':product==='property'?'PR':product==='credit'?'CL':'TP'}
+            </div>
+            <div>
+              <div style="font-weight:700; font-size:16px; color:var(--text-heading);">${getProductLabel(product)}</div>
+              <div style="font-size:11px; color:var(--text-muted);">${product==='lp'?'Path A — In-House Calculator':'Path B — PolicyBazaar'}</div>
+            </div>
+          </div>
+          ${isLocked ? `
+            <div style="display:flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #10B981; border-radius:6px; padding:6px 12px;">
+              <div style="width:18px; height:18px; border-radius:50%; background:#10B981; color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;">✓</div>
+              <span style="font-weight:600; font-size:12px; color:#065F46;">Payment Verified</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      let centerAreaHtml = '';
+
+      // Path B: Property, Credit Life, Term → PolicyBazaar
+      if (product === 'property' || product === 'cl' || product === 'term') {
+         centerAreaHtml = `
+          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:24px; text-align:center;">
+            <div style="width:56px; height:56px; border-radius:12px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;">🔗</div>
+            <div style="font-weight:700; font-size:18px; margin-bottom:8px;">PolicyBazaar Workspace</div>
+            <div style="font-size:13px; color:var(--text-muted); margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto;">Customer details are prefilled. Open the PolicyBazaar workspace to compare plans, generate quotes, and reach the payment screen for <strong>${getProductLabel(product)}</strong>.</div>
+            <button class="btn btn-primary" style="padding:10px 28px; font-size:15px;" onclick="openPBDrawer('${product}')">Open PolicyBazaar Workspace →</button>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:12px;">When PB reaches the payment screen, use "Copy Payment Link" to share via WhatsApp.</div>
+          </div>
+         `;
+      }
+      // Path A: LP only → In-House Calculator (CARE + TATA AIG)
+      else if (product === 'lp') {
+         if (currentLead.selectedPlan && currentLead.selectedPlan.product === 'lp') {
+            const selPlan = currentLead.selectedPlan;
+            centerAreaHtml = `
+              <div style="border:2px solid var(--primary); border-radius:12px; padding:20px; margin-bottom:24px; background:white;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
+                  <div style="font-weight:700; font-size:16px; color:var(--primary);">Selected Plan: ${selPlan.insurer}</div>
+                  ${!isLocked ? `<button class="btn btn-ghost btn-small" onclick="currentLead.selectedPlan=null; currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate</button>` : ''}
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div><div style="font-size:11px; color:var(--text-muted);">Premium</div><div style="font-weight:700; font-size:16px;">${selPlan.premium}</div></div>
+                  <div><div style="font-size:11px; color:var(--text-muted);">Coverage / Tenure</div><div style="font-weight:600; font-size:14px;">${selPlan.coverage} / ${selPlan.tenure || '10 Years'}</div></div>
+                </div>
+              </div>
+            `;
+         } else {
+            centerAreaHtml = `
+              <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                  <h3 style="font-size:15px; margin:0;">In-House Loan Protection Calculator</h3>
+                </div>
+                ${!currentLead.inHouseQuotesGenerated ? `
+                  <div style="display:flex; gap:12px; margin-bottom:16px;">
+                    <div style="flex:1;"><label class="label">Age</label><input type="number" class="form-control" value="${currentLead.age || 30}"></div>
+                    <div style="flex:1;"><label class="label">Loan Amount</label><input type="text" class="form-control" value="₹${formatLakhs(currentLead.si || 4500000)}"></div>
+                    <div style="flex:1;"><label class="label">Tenure (yrs)</label><input type="number" class="form-control" value="10"></div>
+                  </div>
+                  <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
+                ` : `
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                      <div><div style="font-weight:700; color:var(--primary);">CARE Health Insurance</div><div style="font-size:11px; color:var(--text-muted);">Comprehensive • ₹${formatLakhs(currentLead.si || 4500000)} Cover</div></div>
+                      <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹14,500</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="currentLead.selectedPlan={product:'lp', insurer:'CARE Health Insurance', premium:'₹14,500', coverage:'₹'+formatLakhs(currentLead.si||4500000), tenure:'10 Years'}; renderLeadDetail();">Select Plan</button></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                      <div><div style="font-weight:700; color:var(--primary);">TATA AIG</div><div style="font-size:11px; color:var(--text-muted);">Standard • ₹${formatLakhs(currentLead.si || 4500000)} Cover</div></div>
+                      <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹16,200</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="currentLead.selectedPlan={product:'lp', insurer:'TATA AIG', premium:'₹16,200', coverage:'₹'+formatLakhs(currentLead.si||4500000), tenure:'10 Years'}; renderLeadDetail();">Select Plan</button></div>
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
+                `}
+              </div>
+            `;
+         }
+      }
+
+      return `
+        <div style="margin-top:24px;">
+          ${productHeaderHtml}
+          ${centerAreaHtml}
+        </div>
+      `;
+    }
+
+    function renderPaymentStage() {
+      return `
+        <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
+          <div style="width:64px; height:64px; border-radius:50%; background:var(--warning-bg); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;">⏳</div>
+          <h2 style="margin-bottom:8px;">Awaiting Payment</h2>
+          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">The payment link has been sent to the customer via SMS & Email.</div>
+          
+          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:24px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+              <div style="font-size:12px; color:var(--text-muted);">Insurer</div>
+              <div style="font-weight:600; font-size:12px;">CARE Health Insurance</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <div style="font-size:12px; color:var(--text-muted);">Amount</div>
+              <div style="font-weight:800; font-size:16px; color:var(--primary);">${formatMoney(currentLead.si ? currentLead.si * 0.05 : 25000)}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <div style="font-size:12px; color:var(--text-muted);">Link Expiry</div>
+              <div style="font-weight:600; font-size:12px; color:var(--danger);">Today, 11:59 PM</div>
+            </div>
+          </div>
+          
+          <div style="display:flex; gap:12px;">
+            <button class="btn btn-ghost" style="flex:1;" onclick="showToast('Payment link resent to WhatsApp')">🔁 Resend Link</button>
+            <button class="btn btn-primary" style="flex:1; background:var(--success); border-color:var(--success);" onclick="gMarkPaid()">✓ Mark Paid</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function gMarkPaid() {
+      currentLead.subStatus = 'Payment Received';
+      currentLead.log.unshift({ dot: 'var(--success)', text: 'Payment marked as received', time: 'Just now' });
+      transitionLeadState('Payment Done', 'Payment Verified', '', '', '');
+    }
+
+    function setPBStep(step, idx = -1) {
+      G_PBS = step;
+      if (idx !== -1) G_PBI = idx;
+      renderCenterPanel();
+    }
+
+    const PB_PLANS = [
+      { insurer: 'United India', price: '₹97/month', total: 11629 },
+      { insurer: 'Bajaj General', price: '₹106/month', total: 12776, choice: true },
+      { insurer: 'SBI General', price: '₹142/month', total: 17012 }
+    ];
+
+    function renderPBContent() {
+      if (!G_PBS) G_PBS = 'quotes';
+
+      let html = '';
+      html += `
+        <div style="background:var(--navy); color:white; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:18px; font-weight:800; display:flex; align-items:center; gap:12px;">
+            <div style="width:24px; height:24px; background:white; color:var(--navy); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px;">PB</div>
+            PolicyBazaar Integration
+          </div>
+        </div>
+        <div style="display:flex; flex:1; overflow:hidden;">
+          <div style="flex:1; border-right:1px solid var(--border); background:#F9FAFB; display:flex; flex-direction:column; overflow-y:auto; padding:24px;">
+      `;
+
+      if (G_PBS === 'quotes') {
+        html += `
+            <div style="display:flex; gap:12px; margin-bottom:24px;">
+              <select class="form-control" style="width:150px;"><option>10 Years</option><option>15 Years</option></select>
+              <select class="form-control" style="width:150px;"><option>Const. Yr: 2023</option></select>
+            </div>
+            ${PB_PLANS.map((p, i) => `
+              <div class="card" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; border: ${p.choice ? '2px solid #16A34A' : '1px solid var(--border)'}; background:white;">
+                <div style="flex:1;">
+                  ${p.choice ? `<div class="badge" style="background:#DCFCE7; color:#16A34A; margin-bottom:8px;">✔ Recommended Choice</div>` : ''}
+                  <div style="font-weight:700; font-size:16px; margin-bottom:4px; color:var(--primary);">${p.insurer}</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Bharat Griha Raksha • ${formatLakhs(currentLead.si)} Cover</div>
+                  <a href="#" style="font-size:12px; color:#0065ff; display:inline-block; margin-top:8px;">⭐ View Coverages</a>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:22px; font-weight:800; color:var(--text-heading);">${p.price}</div>
+                  <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">₹${p.total} one-time</div>
+                  <button class="btn btn-primary" onclick="setPBStep('form', ${i})">Select Plan</button>
+                </div>
+              </div>
+            `).join('')}
+        `;
+      } else {
+        const plan = PB_PLANS[G_PBI];
+        html += `
+            <div style="margin-bottom:24px;">
+              <h3 style="margin-bottom:16px;">Policy Proposal Details</h3>
+              <div class="card" style="background:white; border-color:var(--primary); margin-bottom:24px;">
+                <div style="font-weight:700; color:var(--primary); margin-bottom:8px;">${plan.insurer}</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;">
+                  <span>Building SI</span><span style="font-weight:600;">${formatLakhs(currentLead.si)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-top:12px; border-top:1px dashed var(--border); font-weight:700;">
+                  <span>Total Premium</span><span style="color:var(--success);">₹${plan.total}</span>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <div class="form-group" style="flex:1;"><label>First Name</label><input type="text" class="form-control" value="${currentLead.name.split(' ')[0]}" readonly style="background:#F3F4F6;"></div>
+                <div class="form-group" style="flex:1;"><label>Last Name</label><input type="text" class="form-control" value="${currentLead.name.split(' ')[1] || ''}" readonly style="background:#F3F4F6;"></div>
+              </div>
+              <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <div class="form-group" style="flex:1;"><label>Date of Birth</label><input type="text" class="form-control" value="05/08/1990" readonly style="background:#F3F4F6;"></div>
+                <div class="form-group" style="flex:1;"><label>Email ID</label><input type="text" class="form-control" value="${currentLead.email}" readonly style="background:#F3F4F6;"></div>
+              </div>
+              
+              <button class="btn btn-primary" style="width:100%; margin-top:24px; padding:12px;" onclick="finalizePBPlan()">Select & Import Plan into Sangam CRM</button>
+              <button class="btn btn-ghost" style="width:100%; margin-top:12px;" onclick="setPBStep('quotes')">← Back to Quotes</button>
+            </div>
+        `;
+      }
+
+      html += `
+          </div>
+          <div style="width:280px; background:white; padding:24px; display:flex; flex-direction:column;">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:16px;">Ambak Customer Context</div>
+            <div style="margin-bottom:24px;">
+              <div style="font-weight:700; font-size:16px; margin-bottom:4px;">${currentLead.name}</div>
+              <div style="font-size:12px; color:var(--text-muted);">${currentLead.phone}</div>
+            </div>
+            
+            <div class="card" style="background:#FAFAFA; border:1px solid var(--border); padding:12px; margin-bottom:16px;">
+              <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Loan Amount</div>
+              <div style="font-weight:700; font-size:14px; color:var(--primary);">${formatLakhs(currentLead.si)}</div>
+            </div>
+
+            <div class="card" style="background:#FAFAFA; border:1px solid var(--border); padding:12px; margin-bottom:16px;">
+              <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Linked Home Loan</div>
+              <div style="font-weight:700; font-size:12px;">${currentLead.hlLead ? currentLead.hlLead.bank : '-'}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Stage: ${currentLead.hlLead ? getStageLabel(currentLead.hlLead.hlStage) : '-'}</div>
+            </div>
+
+            <div style="margin-top:auto;">
+              <div style="font-size:11px; color:var(--text-muted); line-height:1.4; background:#F0FDF4; padding:12px; border-radius:8px; border:1px solid #BBF7D0; color:#16A34A;">
+                <b>Tip:</b> PolicyBazaar requires the exact Name and DOB as per Aadhaar. Verify this before generating the link.
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return html;
+    }
+    function finalizePBPlan() {
+      const plan = PB_PLANS[G_PBI];
+      currentLead.selectedPlan = {
+         insurer: plan.insurer,
+         premium: plan.price,
+         coverage: formatLakhs(currentLead.si),
+         tenure: '10 Years'
+      };
+      closePolicyBazaar();
+      showToast('Plan selection imported from PolicyBazaar.');
+      renderLeadDetail();
+    }
+
+    function generateInHouseQuote() {
+      currentLead.inHouseQuotesGenerated = true;
+      showToast('Quotes Generated Successfully');
+      renderLeadDetail();
+    }
+
+    function selectInHousePlan(insurer, premium) {
+      currentLead.selectedPlan = { 
+         insurer: insurer, 
+         premium: premium, 
+         coverage: formatLakhs(currentLead.si || 4500000), 
+         tenure: '10 Years' 
+      };
+      showToast('Plan Selected Successfully');
+      renderLeadDetail();
+    }
+
+    function renderProcessingStage() {
+      let product = currentLead.finalProduct || currentLead.initialProduct || 'lp';
+      let insurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : '';
+      let isTata = insurer === 'TATA AIG';
+      
+      // Product-specific milestones with helper text
+      let milestones = [];
+      if (product === 'property') {
+         milestones = [
+           { label: 'Payment Verified', helper: 'Payment proof has been uploaded and verified by operations.' },
+           { label: 'KYC Documents', helper: 'Upload Aadhaar + PAN copies for KYC verification.' },
+           { label: 'Policy Issued', helper: 'Insurer issues the policy after KYC approval.' },
+           { label: 'Policy Copy Received', helper: 'Soft copy of the policy document received from insurer.' }
+         ];
+      } else if (product === 'lp' && isTata) {
+         milestones = [
+           { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
+           { label: 'Tele-PD Scheduled', helper: 'TATA AIG will schedule a tele-personal discussion with the customer.' },
+           { label: 'Tele-PD Completed', helper: 'Tele-PD completed. Awaiting underwriting decision.' },
+           { label: 'Policy Issued', helper: 'TATA AIG issues the policy after PD clearance.' },
+           { label: 'Policy Copy Received', helper: 'Soft copy of the policy received.' }
+         ];
+      } else if (product === 'lp') {
+         milestones = [
+           { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
+           { label: 'Verification', helper: 'CARE Health verifies customer details and eligibility.' },
+           { label: 'Feder Form', helper: 'Customer signs the Feder declaration form.' },
+           { label: 'Policy Issued', helper: 'CARE issues the policy after form submission.' },
+           { label: 'Policy Copy Received', helper: 'Soft copy of the policy received.' }
+         ];
+      } else {
+         // Credit Life & Term Plan
+         milestones = [
+           { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
+           { label: 'KYC Verification', helper: 'Upload identity and address proof documents.' },
+           { label: 'Income Verification', helper: 'Upload salary slips or ITR for income verification.' },
+           { label: 'Medical Examination', helper: 'Customer undergoes medical tests as required by insurer.' },
+           { label: 'Underwriting Review', helper: 'Insurer reviews all documents and medical reports.' },
+           { label: 'Approval Decision', helper: 'Insurer issues approval, counter-offer, or rejection.' },
+           { label: 'Policy Issued', helper: 'Policy issued after approval. Document will be shared.' }
+         ];
+      }
+
+      // Proper status-to-milestone mapping matrix
+      let activeIdx = 0;
+      let status = currentLead.status;
+      let subStatus = currentLead.subStatus;
+
+      if (product === 'property') {
+        // Property: 4 milestones
+        if (status === 'Documents' && (subStatus === 'Pending' || subStatus === 'Partial')) activeIdx = 1;
+        else if (status === 'Documents' && subStatus === 'Received') activeIdx = 2;
+        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 2;
+        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 3;
+        else if (status === 'Documents') activeIdx = 1;
+        else if (status === 'Approval') activeIdx = 2;
+        else if (status === 'Policy Issuance') activeIdx = 2;
+      } else if (product === 'lp') {
+        // LP: 5 milestones
+        if (status === 'Documents' && subStatus === 'Pending') activeIdx = 1;
+        else if (status === 'Documents' && (subStatus === 'Partial' || subStatus === 'Received')) activeIdx = 2;
+        else if (status === 'Medical') activeIdx = isTata ? 2 : 2;
+        else if (status === 'Approval' && (subStatus === 'Pending' || subStatus === 'Counter Offer')) activeIdx = 3;
+        else if (status === 'Approval' && (subStatus === 'Approved' || subStatus === 'Rejected')) activeIdx = 3;
+        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 3;
+        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 4;
+        else if (status === 'Documents') activeIdx = 1;
+        else if (status === 'Approval') activeIdx = 3;
+        else if (status === 'Policy Issuance') activeIdx = 3;
+      } else {
+        // CL/Term: 7 milestones
+        if (status === 'Documents' && subStatus === 'Pending') activeIdx = 1;
+        else if (status === 'Documents' && subStatus === 'Partial') activeIdx = 2;
+        else if (status === 'Documents' && subStatus === 'Received') activeIdx = 3;
+        else if (status === 'Medical' && subStatus === 'Scheduled') activeIdx = 3;
+        else if (status === 'Medical' && subStatus === 'Completed') activeIdx = 4;
+        else if (status === 'Approval' && (subStatus === 'Pending' || subStatus === 'Counter Offer')) activeIdx = 4;
+        else if (status === 'Approval' && subStatus === 'Approved') activeIdx = 5;
+        else if (status === 'Approval' && subStatus === 'Rejected') activeIdx = 5;
+        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 5;
+        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 6;
+        else if (status === 'Documents') activeIdx = 1;
+        else if (status === 'Medical') activeIdx = 3;
+        else if (status === 'Approval') activeIdx = 4;
+        else if (status === 'Policy Issuance') activeIdx = 5;
+      }
+
+      // Payment Verified is always done (first milestone) when in Processing
+      if (activeIdx === 0) activeIdx = 1;
+
+      // Simulated completion dates for done milestones
+      let baseDateMs = Date.now() - (activeIdx * 2 * 86400000); // 2 days apart
+      
+      let milestoneHtml = milestones.map((m, i) => {
+         let isDone = i < activeIdx;
+         let isActive = i === activeIdx;
+         let isPending = !isDone && !isActive;
+         let bg = isDone ? '#F0FDF4' : isActive ? '#EFF6FF' : 'transparent';
+         let borderColor = isDone ? '#BBF7D0' : isActive ? '#BFDBFE' : '#E5E7EB';
+         let dotBg = isDone ? '#10B981' : isActive ? 'var(--primary)' : 'white';
+         let dotBorder = isDone ? '#10B981' : isActive ? 'var(--primary)' : '#D1D5DB';
+         let icon = isDone ? '✓' : isActive ? (i+1) : (i+1);
+         let dotColor = isDone || isActive ? 'white' : '#9CA3AF';
+         
+         // Simulated date for done milestones
+         let doneDate = '';
+         if (isDone) {
+            let d = new Date(baseDateMs + (i * 2 * 86400000));
+            doneDate = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+         }
+         
+         return `
+           <div style="display:flex; flex-direction:column; align-items:center; position:relative; flex:1; min-width:100px; text-align:center;">
+             <div style="width:32px; height:32px; border-radius:50%; border:2px solid ${dotBorder}; background:${dotBg}; color:${dotColor}; display:flex; align-items:center; justify-content:center; font-size:${isDone?'14':'13'}px; font-weight:700; z-index:2; margin-bottom:12px;">${icon}</div>
+             ${i < milestones.length - 1 ? `<div style="position:absolute; top:16px; left:50%; width:100%; height:2px; background:${isDone ? '#10B981' : '#E5E7EB'}; z-index:1;"></div>` : ''}
+             <div style="font-weight:600; font-size:12px; color:${isDone ? '#059669' : isActive ? 'var(--primary)' : '#9CA3AF'}; line-height:1.2; margin-bottom:4px; max-width:90%;">${m.label}</div>
+             ${isDone ? `<div style="font-size:10px; color:#059669;">${doneDate}</div>` : ''}
+             ${isActive ? `<div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); width:140px; background:white; border:1px solid #BFDBFE; border-radius:6px; padding:8px; font-size:10px; color:var(--text-muted); line-height:1.3; margin-top:8px; z-index:10; box-shadow:0 4px 6px rgba(0,0,0,0.05);">${m.helper}</div>` : ''}
+           </div>
+         `;
+      }).join('');
+
+      // Product header
+      let productLabel = getProductLabel(product);
+      let insurerLabel = insurer || (product === 'property' ? 'Bajaj General' : product === 'lp' ? 'CARE Health' : 'PB Partner');
+
+      return `
+        <div class="card" style="padding:24px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:100%;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div>
+              <h2 style="margin:0; font-size:20px;">Milestone Tracker</h2>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${productLabel} • ${insurerLabel}</div>
+            </div>
+            <div class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Processing</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; overflow-x:auto; padding-bottom:80px; scrollbar-width:thin;">
+             ${milestoneHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPolicyStage() {
+      let insurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : 'Unknown Insurer';
+      let premiumStr = currentLead.selectedPlan ? currentLead.selectedPlan.premium : '₹0';
+      let premiumNum = parseInt(premiumStr.replace(/[^0-9]/g, '')) || 0;
+      let commission = premiumNum * 0.20;
+      
+      return `
+        <div class="card" style="padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:600px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:24px;">
+             <h2 style="margin:0; font-size:20px;">Policy Summary</h2>
+             <div class="badge" style="background:#DCFCE7; color:#16A34A; border:1px solid #BBF7D0;">Policy Stage</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+             <div class="form-group">
+               <label class="label">Policy Number</label>
+               <input type="text" class="form-control" placeholder="Enter Policy Number">
+             </div>
+             <div class="form-group">
+               <label class="label">Policy Start Date</label>
+               <input type="date" class="form-control" id="policy-start-date" onchange="updateFreelookExpiry()">
+             </div>
+          </div>
+
+          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px;">
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Insurer</div>
+                <div style="font-weight:600; font-size:13px;">${insurer}</div>
+             </div>
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Premium Paid</div>
+                <div style="font-weight:600; font-size:13px;">${premiumStr}</div>
+             </div>
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Freelook Expiry</div>
+                <div style="font-weight:600; font-size:13px;" id="freelook-expiry-display">Enter start date to calculate</div>
+             </div>
+             <div style="display:flex; justify-content:space-between;">
+                <div style="font-size:12px; color:var(--text-muted);">Commission Expected (20%)</div>
+                <div style="font-weight:700; font-size:14px; color:var(--success);">₹${commission.toLocaleString('en-IN')}</div>
+             </div>
+          </div>
+          
+          <div style="text-align:center; margin-top:24px;">
+            <button class="btn btn-primary" style="padding:10px 24px;" onclick="showToast('Policy details saved!')">Save Policy Details</button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.updateFreelookExpiry = function() {
+      const dateInput = document.getElementById('policy-start-date');
+      const display = document.getElementById('freelook-expiry-display');
+      if (!dateInput || !display || !dateInput.value) {
+        if (display) display.textContent = 'Enter start date to calculate';
+        return;
+      }
+      const startDate = new Date(dateInput.value);
+      const expiryDate = new Date(startDate.getTime() + (15 * 86400000));
+      display.textContent = expiryDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      display.style.color = '#DC2626';
+    };
+
+    function renderSectionForm(sec) {
+      let content = '';
+      
+      let misinp = (lbl) => `
+        <div class="form-group">
+          <label>${lbl}</label>
+          <input type="text" class="form-control" placeholder="Enter ${lbl}">
+        </div>
+      `;
+      let hlinp = (lbl, val) => `
+        <div class="form-group">
+          <label>${lbl}</label>
+          <div style="position:relative;">
+            <input type="text" class="form-control" style="background:#F0FDF4; border-color:#BBF7D0;" value="${val}" readonly>
+            <span class="badge" style="background:#DCFCE7; color:#16A34A; position:absolute; right:8px; top:6px; font-size:9px;">Auto-filled from Sangam</span>
+          </div>
+        </div>
+      `;
+
+      if (sec === 'Insurance Details') {
+        content = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-group"><label>Product</label><select class="form-control"><option>Loan Protection</option><option>Property Insurance</option><option>Credit Life</option><option>Term Insurance</option></select></div>
+            ${misinp('Plan')}
+            <div class="form-group"><label>Tenure</label><select class="form-control"><option>1 Year</option><option>5 Years</option><option>20 Years</option></select></div>
+            <div class="form-group"><label>Insurer</label><select class="form-control"><option>Any</option><option>CARE</option><option>TATA AIG</option><option>HDFC Life</option></select></div>
+            ${misinp('Add-ons')}
+            ${misinp('Sum Insured')}
+            <div class="form-group"><label>Premium Mode</label><select class="form-control"><option>Single</option><option>Annual</option><option>Monthly</option></select></div>
+          </div>
+        `;
+      } else if (sec === 'Customer Details') {
+        content = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            ${hlinp('Name', currentLead.name)}
+            ${hlinp('DOB', '05 Aug 1990')}
+            <div class="form-group"><label>Gender</label><select class="form-control"><option>Male</option><option>Female</option><option>Other</option></select></div>
+            ${hlinp('Mobile', currentLead.phone)}
+            ${hlinp('Email', currentLead.email)}
+            ${misinp('PAN')}
+            ${misinp('Aadhaar')}
+            <div class="form-group"><label>Marital Status</label><select class="form-control"><option>Single</option><option>Married</option></select></div>
+            ${misinp('Spouse')}
+            ${misinp('Dependents')}
+            ${misinp('Language')}
+            <div class="form-group" style="grid-column: span 2;"><label>Address</label><input type="text" class="form-control"></div>
+            ${misinp('Occupation')}
+            ${misinp('Designation')}
+            ${misinp('Official Email')}
+            ${misinp("Mother's Name")}
+          </div>
+        `;
+      } else if (sec === 'Income Details') {
+        content = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-group"><label>Employment Type</label><select class="form-control"><option>Salaried</option><option>Self Employed</option></select></div>
+            ${misinp('Annual Income')}
+            ${misinp('Company/Employer')}
+            <div class="form-group"><label>ITR Filed</label><select class="form-control"><option>No</option><option>Yes</option></select></div>
+            ${misinp('ITR Income')}
+            ${misinp('Bank Statement Months')}
+            ${misinp('CIBIL Score')}
+          </div>
+        `;
+      } else if (sec === 'Property Details') {
+        content = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            ${misinp('Property Value')}
+            <div class="form-group"><label>Type</label><select class="form-control"><option>Residential</option><option>Commercial</option></select></div>
+            <div class="form-group" style="grid-column: span 2;"><label>Address</label><input type="text" class="form-control"></div>
+            ${misinp('Pin Code')}
+            ${misinp('Construction Year')}
+            <div class="form-group"><label>Construction Type</label><select class="form-control"><option>Pucca</option><option>Kutcha</option></select></div>
+            ${misinp('Built-up Area')}
+            ${misinp('Floor Number')}
+          </div>
+        `;
+      } else if (sec === 'Nominee Details') {
+        content = `
+          <div class="card" style="background:#FAFAFA; border:1px solid var(--border); padding:16px; margin-bottom:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              ${misinp('Full Name')}
+              <div class="form-group"><label>Relationship</label><select class="form-control"><option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option></select></div>
+              <div class="form-group"><label>Date of Birth</label><input type="date" class="form-control"></div>
+              <div class="form-group"><label>Share %</label><input type="number" class="form-control" value="100" onchange="if(this.value!=100) document.getElementById('nom-warn').style.display='block'; else document.getElementById('nom-warn').style.display='none';"></div>
+            </div>
+            <div id="nom-warn" style="display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:12px; background:var(--danger-bg); padding:8px; border-radius:4px;">⚠ Warning: Total share must equal 100%</div>
+          </div>
+          <button class="btn btn-ghost btn-small">+ Add Another Nominee</button>
+        `;
+      } else if (sec === 'Health Screening') {
+        let tgl = (q) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div style="font-weight:500;">${q}</div>
+            <div class="form-group" style="margin:0; width:120px;">
+              <select class="form-control"><option>No</option><option>Yes</option></select>
+            </div>
+          </div>
+        `;
+        content = `
+          ${tgl('Smoker')}
+          ${tgl('Pre-existing Illness')}
+          ${tgl('Disability')}
+          ${tgl('Existing Insurance')}
+        `;
+      } else {
+        content = `<div style="padding:40px; text-align:center; color:var(--text-muted); background:var(--bg); border-radius:8px;">Form fields for ${sec} would go here.</div>`;
+      }
+      
+      return `
+        <div class="card" style="min-height: 400px; padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+            <h2 style="margin:0;">${sec}</h2>
+            <button class="btn btn-ghost" onclick="setSection(null)">← Back to Stage</button>
+          </div>
+          ${content}
+          <div style="margin-top:32px; border-top:1px solid var(--border); padding-top:24px; display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="showToast('${sec} Saved'); setSection(null)">Save Changes</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleDynFields(val) {
+      document.getElementById('dyn-fields-lp').style.display = 'none';
+      document.getElementById('dyn-fields-prop').style.display = 'none';
+      document.getElementById('dyn-fields-cl').style.display = 'none';
+      document.getElementById('acc-health').style.display = 'none';
+
+      if(val === 'lp') document.getElementById('dyn-fields-lp').style.display = 'block';
+      if(val === 'prop') document.getElementById('dyn-fields-prop').style.display = 'block';
+      if(val === 'cl' || val === 'term') {
+        document.getElementById('dyn-fields-cl').style.display = 'block';
+        document.getElementById('acc-health').style.display = 'block';
+      }
+    }
+
+    window.handleStatusChange = function(status) {
+      document.getElementById('update-substatus').innerHTML = (SUBSTATUS_MAP[status] || []).map(s => `<option value="${s}">${s}</option>`).join('');
+      window.handleSubStatusChange();
+    };
+
+    window.handleSubStatusChange = function() {
+      const status = document.getElementById('update-status').value;
+      const subStatus = document.getElementById('update-substatus').value;
+      
+      let html = '';
+      if (status === 'Not Connected' || status === 'Callback') {
+        html = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Follow-up Date *</label>
+              <input type="date" class="form-control" style="padding:6px; font-size:12px;" id="update-fdate">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Follow-up Time *</label>
+              <input type="time" class="form-control" style="padding:6px; font-size:12px;" id="update-ftime">
+            </div>
+          </div>
+        `;
+      } else if (status === 'Payment Done' && subStatus === 'Payment Verified') {
+        html = `
+          <div>
+            <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Payment Proof Upload *</label>
+            <input type="file" class="form-control" style="padding:6px; font-size:12px;" id="update-proof" onchange="validateStatusUpdate()">
+          </div>
+        `;
+      } else if (status === 'Policy Issued') {
+        html = `
+          <div>
+            <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Policy Copy Upload *</label>
+            <input type="file" class="form-control" style="padding:6px; font-size:12px;" id="update-policy">
+          </div>
+        `;
+      }
+      
+      let remarksMandatory = (status === 'Counter Offer') || (status === 'Payment Done' && subStatus === 'Verification Failed');
+      html += `
+        <div>
+          <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Remarks ${remarksMandatory ? '*' : ''}</label>
+          <textarea class="form-control" rows="2" style="padding:6px; font-size:12px;" id="update-remarks" onkeyup="validateStatusUpdate()"></textarea>
+        </div>
+      `;
+      
+      const df = document.getElementById('dynamic-fields');
+      if(df) df.innerHTML = html;
+      validateStatusUpdate();
+    };
+
+    window.validateStatusUpdate = function() {
+      const status = document.getElementById('update-status').value;
+      const subStatus = document.getElementById('update-substatus').value;
+      const btn = document.getElementById('update-status-btn');
+      if(!btn) return;
+      
+      let valid = true;
+      if (status === 'Payment Done' && subStatus === 'Payment Verified') {
+         const proof = document.getElementById('update-proof');
+         if (!proof || !proof.value) valid = false;
+      }
+      if ((status === 'Counter Offer') || (status === 'Payment Done' && subStatus === 'Verification Failed')) {
+         const remarks = document.getElementById('update-remarks');
+         if (!remarks || !remarks.value.trim()) valid = false;
+      }
+      
+      btn.disabled = !valid;
+    };
+
+    function renderRightPanel() {
+      const l = currentLead;
+      let nextAction = '';
+      let blocker = '';
+
+      if(l.bucket === 'New') {
+        nextAction = 'Call Customer to pitch ' + getProductLabel(l.finalProduct || l.initialProduct);
+        blocker = 'None';
+      } else if(l.bucket === 'Contacted') {
+        nextAction = 'Generate & Share Quote';
+        blocker = 'Customer needs time to decide';
+      } else if(l.bucket === 'Quote') {
+        nextAction = 'Share Quote via WhatsApp';
+        blocker = 'Awaiting customer confirmation';
+      } else if(l.bucket === 'Processing') {
+        nextAction = 'Review Milestones';
+        blocker = 'Processing with Operations';
+      } else if(l.bucket === 'Policy') {
+        nextAction = 'Share Policy Document';
+        blocker = 'Waiting for MIS Submission';
+      } else {
+        nextAction = 'Review Lead';
+        blocker = 'None';
+      }
+
+      let currentStatusOptions = STATUS_MAP[l.bucket] || [];
+      if (l.status && !currentStatusOptions.includes(l.status)) {
+         currentStatusOptions = [l.status, ...currentStatusOptions];
+      }
+      let statusOptions = currentStatusOptions.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('');
+      
+      let currentSubOptions = SUBSTATUS_MAP[l.status] || [];
+      if (l.subStatus && !currentSubOptions.includes(l.subStatus)) {
+         currentSubOptions = [l.subStatus, ...currentSubOptions];
+      }
+      let subStatusOptions = currentSubOptions.map(s => `<option value="${s}" ${s === l.subStatus ? 'selected' : ''}>${s}</option>`).join('');
+
+      let html = `
+        <div class="card" style="padding: 24px 16px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); background:var(--white); border-radius:12px;">
+          <div style="font-weight:700; margin-bottom:16px;">Update Status</div>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+            <div>
+              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Status</label>
+              <select class="form-control" style="padding:6px; font-size:12px;" id="update-status" onchange="handleStatusChange(this.value)">
+                ${statusOptions}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Sub Status</label>
+              <select class="form-control" style="padding:6px; font-size:12px;" id="update-substatus" onchange="handleSubStatusChange()">
+                ${subStatusOptions}
+              </select>
+            </div>
+            <div id="dynamic-fields" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+          <button id="update-status-btn" class="btn btn-primary" style="width:100%; border-radius:8px;" onclick="saveStatusUpdate()">Update Status</button>
+        </div>
+      `;
+      document.getElementById('detail-right').innerHTML = html;
+      
+      // Initialize dynamic fields based on current selected status
+      const initialStatus = document.getElementById('update-status').value;
+      handleStatusChange(initialStatus);
+      // Restore previously saved sub-status
+      document.getElementById('update-substatus').value = l.subStatus || document.getElementById('update-substatus').value;
+      handleSubStatusChange();
+    }
+    
+    window.completeTask = function(taskId) {
+      const task = window.G_TASKS.find(t => t.id === taskId);
+      if (task) {
+        task.status = 'completed';
+        showToast('Task marked complete');
+        renderLeadDetail();
+      }
+    };
+
+    function saveStatusUpdate() {
+      const newStatus = document.getElementById('update-status').value;
+      const newSubStatus = document.getElementById('update-substatus').value;
+      
+      // Dynamic fields extraction
+      const remarksEl = document.getElementById('update-remarks');
+      const remarks = remarksEl ? remarksEl.value : '';
+      
+      let followUpDate = '', followUpTime = '';
+      if (newStatus === 'Not Connected' || newStatus === 'Callback') {
+        followUpDate = document.getElementById('update-fdate').value;
+        followUpTime = document.getElementById('update-ftime').value;
+        if (!followUpDate || !followUpTime) {
+          showToast('Follow-up Date and Time are mandatory', false);
+          return;
+        }
+      }
+      
+      if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified') {
+        const proof = document.getElementById('update-proof') ? document.getElementById('update-proof').value : '';
+        if (!proof) {
+          showToast('Payment proof upload is mandatory', false);
+          return;
+        }
+      }
+      
+      if ((newStatus === 'Counter Offer') || (newStatus === 'Payment Done' && newSubStatus === 'Verification Failed')) {
+        if (!remarks.trim()) {
+          showToast('Remarks are mandatory for this status update', false);
+          return;
+        }
+      }
+      
+      if (newStatus === 'Policy Issued') {
+        const doc = document.getElementById('update-policy').value;
+        if (!doc) {
+          showToast('Policy document upload is mandatory', false);
+          return;
+        }
+      }
+      
+      if (newStatus === 'Counter Offer' && newSubStatus === 'Accepted' && !remarks.trim()) {
+        showToast('Remarks are mandatory when accepting a counter offer', false);
+        return;
+      }
+
+      if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified' && currentLead.bucket === 'Quote') {
+         currentLead.paymentVerified = true;
+         currentLead.productStatus = 'locked';
+         currentLead.finalProduct = G_PRODUCT_TAB || 'lp';
+         currentLead.finalInsurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : 'CARE Health Insurance';
+      }
+
+      transitionLeadState(newStatus, newSubStatus, remarks, followUpDate, '');
+      
+      // Task Engine logic
+      if (newStatus === 'Not Connected' || newStatus === 'Callback') {
+        if (!window.G_TASKS) window.G_TASKS = [];
+        window.G_TASKS.push({
+          id: 'task_' + Date.now(),
+          leadId: currentLead.id,
+          leadName: currentLead.name,
+          taskType: newStatus,
+          date: followUpDate,
+          time: followUpTime,
+          status: 'pending'
+        });
+        showToast('Follow-up Task Created Automatically');
+      }
+    }
+
+    let G_CMODAL = 1;
+
+    function openCreateModal() {
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('createModal').style.display = 'flex';
+      G_CMODAL = 1;
+      renderCreateModal();
+    }
+
+    function closeCreateModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('createModal').style.display = 'none';
+    }
+
+    function renderCreateModal() {
+      let html = '';
+      if (G_CMODAL === 1) {
+        html = `
+          <p style="color:var(--text-muted); margin-bottom:24px;">Search for the customer's home loan lead in Sangam. Details will auto-fill.</p>
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="flex:1;">
+              <label class="label">Lead ID</label>
+              <input type="text" class="form-control" placeholder="e.g. 194856" id="s_lid">
+            </div>
+            <div style="color:var(--text-muted); font-weight:600; margin-top:16px;">OR</div>
+            <div style="flex:1;">
+              <label class="label">Mobile Number</label>
+              <input type="text" class="form-control" placeholder="e.g. 9876543210" id="s_mob">
+            </div>
+          </div>
+          <div style="background:var(--bg); border-radius:8px; padding:16px; margin-bottom:32px;">
+            <div style="font-size:11px; font-weight:600; color:var(--primary); margin-bottom:8px;">💡 Try Lead ID '194856' for success, anything else for not found</div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:12px;">
+            <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="searchLead()">Search Lead →</button>
+          </div>
+        `;
+      } else if (G_CMODAL === 2) {
+        html = `
+          <div style="background:#F0FDF4; border:1px solid #16A34A; border-radius:8px; padding:16px; margin-bottom:24px;">
+            <div style="color:#16A34A; font-weight:700; margin-bottom:12px;">✓ Home loan lead found</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:12px;">
+              <div><span style="color:var(--text-muted);">Lead ID:</span> <b>#194856</b></div>
+              <div><span style="color:var(--text-muted);">Customer:</span> <b>Amit Kumar</b></div>
+              <div><span style="color:var(--text-muted);">Loan:</span> <b>₹50L (HDFC)</b></div>
+              <div><span style="color:var(--text-muted);">Stage:</span> <b>Sanctioned</b></div>
+            </div>
+          </div>
+          <h3 style="margin-bottom:16px;">Insurance Details</h3>
+          <div class="form-group">
+            <label>Initial Product Interest (Optional)</label>
+            <select class="form-control"><option value="">Not Sure Yet</option><option value="lp">Loan Protection</option><option value="property">Property Insurance</option><option value="cl">Credit Life</option><option value="term">Term Plan</option></select>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Lead will be created as a generic Insurance Lead. Product is locked only after payment verification.</div>
+          </div>
+          <div class="form-group" style="margin-bottom:32px;">
+            <label>Assign IBM Agent</label>
+            <select class="form-control"><option>Rohit M.</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <button class="btn btn-ghost" onclick="G_CMODAL=1; renderCreateModal()">← Search Again</button>
+            <button class="btn btn-primary" onclick="closeCreateModal(); showToast('Insurance lead created for Amit Kumar')">Create Insurance Lead →</button>
+          </div>
+        `;
+      } else if (G_CMODAL === 4) {
+        html = `
+          <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:12px; margin-bottom:24px; font-size:12px; color:#1D4ED8;">
+            ℹ️ No linked HL lead found. Please enter details manually below.
+          </div>
+          <h3 style="margin-bottom:12px; font-size:14px;">Customer Details</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div class="form-group"><label>First Name *</label><input type="text" class="form-control" id="ml_fname"></div>
+            <div class="form-group"><label>Last Name *</label><input type="text" class="form-control" id="ml_lname"></div>
+            <div class="form-group"><label>Mobile Number *</label><input type="text" class="form-control" id="ml_mob"></div>
+            <div class="form-group"><label>DOB *</label><input type="date" class="form-control" id="ml_dob"></div>
+            <div class="form-group" style="grid-column: span 2;"><label>Email ID</label><input type="text" class="form-control" id="ml_email"></div>
+          </div>
+          <h3 style="margin-bottom:12px; font-size:14px;">Insurance Details</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div class="form-group">
+              <label>Insurance Product *</label>
+              <select class="form-control" id="ml_prod">
+                 <option value="lp">Loan Protection</option>
+                 <option value="property">Property Insurance</option>
+                 <option value="cl">Credit Life</option>
+                 <option value="term">Term Plan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Lead Source *</label>
+              <select class="form-control" id="ml_source">
+                 <option value="Manual">Manual</option>
+                 <option value="D2C">D2C</option>
+                 <option value="Sangam">Sangam</option>
+                 <option value="Saathi">Saathi</option>
+                 <option value="Yoddha">Yoddha</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Assign IBM Agent *</label>
+              <select class="form-control" id="ml_agent">
+                 <option value="Rohit M">Rohit M</option>
+                 <option value="Priya S">Priya S</option>
+              </select>
+            </div>
+          </div>
+          <h3 style="margin-bottom:12px; font-size:14px;">Loan Details</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+            <div class="form-group"><label>Loan Amount *</label><input type="text" class="form-control" id="ml_lamount" placeholder="e.g. 5000000"></div>
+            <div class="form-group"><label>Lender</label><select class="form-control" id="ml_lender"><option value="">Select</option><option>HDFC Bank</option><option>ICICI Bank</option><option>SBI</option></select></div>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between;">
+            <button class="btn btn-ghost" onclick="G_CMODAL=1; renderCreateModal()">← Back</button>
+            <button class="btn btn-primary" onclick="createManualLead()">Create Insurance Lead →</button>
+          </div>
+        `;
+      }
+      document.getElementById('createModalBody').innerHTML = html;
+    }
+
+    function createManualLead() {
+      const fname = document.getElementById('ml_fname').value;
+      const lname = document.getElementById('ml_lname').value;
+      const mob = document.getElementById('ml_mob').value;
+      const dob = document.getElementById('ml_dob').value;
+      const lamount = document.getElementById('ml_lamount').value;
+      
+      if (!fname || !lname || !mob || !dob || !lamount) {
+         showToast('Please fill all required fields (including DOB and Loan Amount)');
+         return;
+      }
+      
+      const newLead = {
+        id: 'INS-' + Math.floor(Math.random() * 90000 + 10000),
+        name: fname + ' ' + lname,
+        phone: mob,
+        bucket: 'New',
+        status: null,
+        subStatus: null,
+        createdDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        initialProduct: document.getElementById('ml_prod').value,
+        source: document.getElementById('ml_source').value,
+        si: parseInt(document.getElementById('ml_lamount').value) || 0,
+        hlLead: {
+          id: 'HL-' + Math.floor(Math.random() * 90000),
+          bank: document.getElementById('ml_lender').value || 'Unknown',
+          hlStage: 'Unknown',
+          rm: document.getElementById('ml_agent').value
+        },
+        log: [
+          { dot: 'var(--primary)', text: 'Lead manually created in system', time: 'Just now' }
+        ]
+      };
+      
+      LEADS.unshift(newLead);
+      closeCreateModal();
+      showToast('Insurance Lead Created Successfully!');
+      currentLead = newLead;
+      renderLeadDetail();
+      renderLeadTable();
+      renderPipelineCards();
+    }
+
+    function searchLead() {
+      let lid = document.getElementById('s_lid')?.value;
+      if (lid === '194856') G_CMODAL = 2;
+      else G_CMODAL = 4;
+      renderCreateModal();
+    }
+
+    window.openPBDrawer = function(product) {
+      document.getElementById('pbOverlay').classList.add('open');
+      document.getElementById('pbDrawer').classList.add('open-right');
+      
+      let prodName = 'Property Insurance';
+      if (product === 'cl') prodName = 'Credit Life';
+      if (product === 'term') prodName = 'Term Plan';
+      
+      let html = `
+        <div style="padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:white;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="font-weight:700; font-size:18px;">PolicyBazaar Workspace</div>
+            <div class="badge" style="background:#EFF6FF; color:#1E3A8A;">${prodName}</div>
+          </div>
+          <button class="btn btn-ghost" onclick="closePolicyBazaar()">✕ Close</button>
+        </div>
+        <div style="flex:1; padding:24px; overflow-y:auto; background:#F3F4F6;">
+          <!-- Mock PB UI -->
+          <div style="background:white; border-radius:12px; height:100%; min-height:600px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px dashed #D1D5DB;">
+             <div style="font-size:24px; color:var(--text-muted); margin-bottom:16px;">PolicyBazaar Portal</div>
+             <div style="font-size:14px; color:#6B7280; margin-bottom:24px; max-width:400px; text-align:center;">Customer details are pre-filled. Agent compares plans, selects one, and reaches the payment page inside this view.</div>
+          </div>
+        </div>
+        <div style="padding:16px 24px; border-top:1px solid var(--border); background:white; display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:12px; color:var(--text-muted);">After finalizing the plan, copy the link to share.</div>
+          <button class="btn btn-primary" onclick="copyPBLink()">Copy Payment Link</button>
+        </div>
+      `;
+      document.getElementById('pbContent').innerHTML = html;
+    };
+
+    window.closePolicyBazaar = function() {
+      document.getElementById('pbOverlay').classList.remove('open');
+      document.getElementById('pbDrawer').classList.remove('open-right');
+    };
+
+    window.copyPBLink = function() {
+      showToast('Payment Link Copied! (Dummy)');
+    };
+
+    // Init
+    renderPipelineCards();
+    renderLeadTable();
+  </script>
+</body>
+</html>

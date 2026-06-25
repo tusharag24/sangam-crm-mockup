@@ -4073,8 +4073,7 @@ https://ambak.in/quote/x920dj</textarea>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
             <div class="form-group"><label>First Name *</label><input type="text" class="form-control" id="ml_fname"></div>
             <div class="form-group"><label>Last Name *</label><input type="text" class="form-control" id="ml_lname"></div>
-            <div class="form-group"><label>Mobile Number *</label><input type="text" class="form-control" id="ml_mob"></div>
-            <div class="form-group"><label>DOB *</label><input type="date" class="form-control" id="ml_dob"></div>
+            <div class="form-group" style="grid-column: span 2;"><label>Mobile Number *</label><input type="text" class="form-control" id="ml_mob"></div>
             <div class="form-group">
               <label>Insurance Product *</label>
               <select class="form-control" id="ml_prod">
@@ -4110,11 +4109,10 @@ https://ambak.in/quote/x920dj</textarea>
       const fname = document.getElementById('ml_fname').value;
       const lname = document.getElementById('ml_lname').value;
       const mob = document.getElementById('ml_mob').value;
-      const dob = document.getElementById('ml_dob').value;
       const lamount = document.getElementById('ml_lamount').value;
       
-      if (!fname || !lname || !mob || !dob || !lamount) {
-         showToast('Please fill all required fields (including DOB and Loan Amount)');
+      if (!fname || !lname || !mob || !lamount) {
+         showToast('Please fill all required fields (including Loan Amount)');
          return;
       }
       

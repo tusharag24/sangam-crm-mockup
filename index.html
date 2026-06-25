@@ -2101,9 +2101,12 @@ https://ambak.in/quote/x920dj</textarea>
       let html = `
         <div class="detail-body" style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
           <div id="detail-meta" style="flex-shrink: 0;"></div>
-          <div class="sangam-workspace" style="display: flex; flex: 1; overflow: hidden; margin-top: 0; gap: 0;">
+          <div class="sangam-workspace" style="display: flex; flex: 1; overflow: hidden; margin-top: 0; gap: 0; position: relative;">
             <div id="detail-center" style="flex: 1; overflow-y: auto; background: #F9FAFB;"></div>
             <div id="detail-right" style="width: 300px; min-width: 300px; flex-shrink: 0; border-left: 1px solid #E5E7EB; background: white; overflow-y: auto;"></div>
+            
+            <div id="drawer-overlay" style="display: none; position: absolute; left: 0; top: 0; bottom: 0; right: 300px; background: rgba(0,0,0,0.2); z-index: 40;" onclick="closeLeadDetailsDrawer()"></div>
+            <div id="lead-details-drawer" style="position: absolute; left: 0; top: 0; bottom: 0; width: 480px; background: white; z-index: 50; transform: translateX(-100%); transition: transform 0.25s ease; box-shadow: 4px 0 24px rgba(0,0,0,0.08); display: flex; flex-direction: column;"></div>
           </div>
         </div>
       `;
@@ -2151,7 +2154,7 @@ https://ambak.in/quote/x920dj</textarea>
               <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">INSURANCE ID</div>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="font-size: 13px; font-weight: 700; color: #473391;">${l.id || '—'}</div>
-                <div style="color: #473391; font-size: 10px; cursor: pointer; font-weight: 600;" onclick="showToast('Opening lead details drawer...')">Lead Details →</div>
+                <div style="color: #473391; font-size: 10px; cursor: pointer; font-weight: 600;" onclick="openLeadDetailsDrawer()">Lead Details →</div>
               </div>
               <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.name || '—'}</div>
               <div style="font-size: 11px; color: #6B7280;">${l.phone || '—'} · Age 42</div>
@@ -3964,6 +3967,381 @@ https://ambak.in/quote/x920dj</textarea>
 
     window.copyPBLink = function() {
       showToast('Payment Link Copied! (Dummy)');
+    };
+
+    function renderLeadDetailsDrawer() {
+      let html = `
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; background: white;">
+          <div style="font-size: 16px; font-weight: 700; color: #111827;">Lead Details</div>
+          <div style="font-size: 16px; color: #9CA3AF; cursor: pointer;" onclick="closeLeadDetailsDrawer()">✕</div>
+        </div>
+        <div style="flex: 1; overflow-y: auto; background: white;" id="drawer-accordion-container">
+          <!-- Section 1 -->
+          <div class="drawer-section" id="drawer-sec-1">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-1')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Insurance Details</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s;">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Recommended Product <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Loan Protection</option>
+                    <option>Property Insurance</option>
+                    <option>Credit Life</option>
+                    <option>Term Plan</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Product Status</label>
+                  <div style="width: 100%; height: 36px; display: flex; align-items: center;">
+                    <div style="background: #F3F4F6; color: #4B5563; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 12px;">Draft</div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Sum Insured</label>
+                  <input type="text" placeholder="₹ Amount" value="50,00,000" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Tenure</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option>1 year</option>
+                    <option>2 years</option>
+                    <option>3 years</option>
+                    <option>4 years</option>
+                    <option selected>5 years</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Plan Type</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option>PA Only</option>
+                    <option selected>PA + CI</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Insurer</label>
+                  <input type="text" placeholder="Assigned after quote" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Section 2 -->
+          <div class="drawer-section collapsed" id="drawer-sec-2">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-2')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Customer Details</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s; transform: rotate(-90deg);">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">First Name <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" value="Rajesh" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Last Name <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" value="Kumar" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Mobile <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" value="+91 87654 32109" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Email</label>
+                  <input type="text" value="rajesh.kumar@example.com" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Date of Birth</label>
+                  <input type="date" value="1982-05-14" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Gender</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">PAN Number</label>
+                  <input type="text" value="ABCDE1234F" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Aadhaar Number</label>
+                  <input type="text" value="XXXX XXXX 1234" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Marital Status</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option>Single</option>
+                    <option selected>Married</option>
+                    <option>Divorced</option>
+                    <option>Widowed</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom: 14px;">
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Address</label>
+                <textarea style="width: 100%; height: 56px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 8px 10px; outline: none; transition: border-color 0.2s, background 0.2s; resize: none;">A-42, Residency Greens, Sector 45, Gurgaon, Haryana 122003</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3 -->
+          <div class="drawer-section collapsed" id="drawer-sec-3">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-3')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Income Details</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s; transform: rotate(-90deg);">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Employment Type</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Salaried</option>
+                    <option>Self-Employed</option>
+                    <option>Business Owner</option>
+                    <option>Retired</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Annual Income <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option>Below 5L</option>
+                    <option>5L–10L</option>
+                    <option selected>10L–25L</option>
+                    <option>25L–50L</option>
+                    <option>50L+</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">ITR Filed</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">CIBIL Score <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" placeholder="Enter score" value="780" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4 -->
+          <div class="drawer-section collapsed" id="drawer-sec-4">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-4')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Property Details</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s; transform: rotate(-90deg);">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Property Value <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" placeholder="₹ Market value" value="85,00,000" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Property Type</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Flat</option>
+                    <option>Independent House</option>
+                    <option>Villa</option>
+                    <option>Plot</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Pin Code <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" value="122003" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">City <span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">HL</span></label>
+                  <input type="text" value="Gurgaon" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Construction Year</label>
+                  <input type="text" placeholder="YYYY" value="2018" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+              <div style="margin-bottom: 14px;">
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Property Address</label>
+                <textarea style="width: 100%; height: 56px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 8px 10px; outline: none; transition: border-color 0.2s, background 0.2s; resize: none;">Tower B, 14th Floor, Sector 45</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5 -->
+          <div class="drawer-section collapsed" id="drawer-sec-5">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-5')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Nominee Details</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s; transform: rotate(-90deg);">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Full Name</label>
+                  <input type="text" value="Priya Kumar" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Relationship</label>
+                  <select style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                    <option selected>Spouse</option>
+                    <option>Parent</option>
+                    <option>Child</option>
+                    <option>Sibling</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Date of Birth</label>
+                  <input type="date" value="1985-08-20" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 4px; display: block;">Share %</label>
+                  <input type="text" placeholder="e.g. 100" value="100" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 6 -->
+          <div class="drawer-section collapsed" id="drawer-sec-6">
+            <div style="padding: 14px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleDrawerSection('drawer-sec-6')">
+              <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #473391;">Health Screening</div>
+              <div class="chevron" style="color: #473391; font-size: 12px; transition: transform 0.2s; transform: rotate(-90deg);">▾</div>
+            </div>
+            <div class="drawer-content" style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: none;">
+              <!-- Q1 -->
+              <div style="padding: 10px 0; border-bottom: 1px solid #F9FAFB; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13px; color: #111827; font-weight: 500; padding-right: 16px;">Does the customer smoke or use tobacco products?</div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                  <button class="yes-btn" onclick="togglePill(this, 'yes')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">Yes</button>
+                  <button class="no-btn" onclick="togglePill(this, 'no')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">No</button>
+                </div>
+              </div>
+              <!-- Q2 -->
+              <div style="padding: 10px 0; border-bottom: 1px solid #F9FAFB; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13px; color: #111827; font-weight: 500; padding-right: 16px;">Does the customer have any pre-existing medical conditions?</div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                  <button class="yes-btn" onclick="togglePill(this, 'yes')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">Yes</button>
+                  <button class="no-btn" onclick="togglePill(this, 'no')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">No</button>
+                </div>
+              </div>
+              <!-- Q3 -->
+              <div style="padding: 10px 0; border-bottom: 1px solid #F9FAFB; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13px; color: #111827; font-weight: 500; padding-right: 16px;">Does the customer have any physical disability?</div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                  <button class="yes-btn" onclick="togglePill(this, 'yes')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">Yes</button>
+                  <button class="no-btn" onclick="togglePill(this, 'no')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">No</button>
+                </div>
+              </div>
+              <!-- Q4 -->
+              <div style="padding: 10px 0; border-bottom: 1px solid #F9FAFB; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13px; color: #111827; font-weight: 500; padding-right: 16px;">Does the customer already have an existing insurance policy?</div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                  <button class="yes-btn" onclick="togglePill(this, 'yes')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">Yes</button>
+                  <button class="no-btn" onclick="togglePill(this, 'no')" style="height: 30px; width: 52px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid #E5E7EB; background: white; color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">No</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        <div style="padding: 14px 20px; border-top: 1px solid #E5E7EB; display: flex; gap: 10px; background: white;">
+          <button style="flex: 1; height: 40px; border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="closeLeadDetailsDrawer()">Cancel</button>
+          <button style="flex: 1; height: 40px; background: #473391; color: white; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer;" onclick="saveLeadDetailsDrawer()">Save Details</button>
+        </div>
+      `;
+      document.getElementById('lead-details-drawer').innerHTML = html;
+      
+      // Inject focus styles globally for the drawer inputs if not already present
+      if (!document.getElementById('drawer-focus-styles')) {
+        let style = document.createElement('style');
+        style.id = 'drawer-focus-styles';
+        style.innerHTML = `
+          #drawer-accordion-container select:focus, 
+          #drawer-accordion-container input:focus, 
+          #drawer-accordion-container textarea:focus {
+            border-color: #473391 !important;
+            background: white !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+
+    window.openLeadDetailsDrawer = function() {
+      if(!document.getElementById('lead-details-drawer').innerHTML) {
+         renderLeadDetailsDrawer();
+      }
+      document.getElementById('drawer-overlay').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('lead-details-drawer').style.transform = 'translateX(0)';
+      }, 10);
+    };
+
+    window.closeLeadDetailsDrawer = function() {
+      document.getElementById('lead-details-drawer').style.transform = 'translateX(-100%)';
+      setTimeout(() => {
+        document.getElementById('drawer-overlay').style.display = 'none';
+      }, 250);
+    };
+
+    window.toggleDrawerSection = function(id) {
+      const sec = document.getElementById(id);
+      const content = sec.querySelector('.drawer-content');
+      const chevron = sec.querySelector('.chevron');
+      if (sec.classList.contains('collapsed')) {
+        sec.classList.remove('collapsed');
+        content.style.display = 'block';
+        chevron.style.transform = 'rotate(0deg)';
+      } else {
+        sec.classList.add('collapsed');
+        content.style.display = 'none';
+        chevron.style.transform = 'rotate(-90deg)';
+      }
+    };
+
+    window.togglePill = function(btn, type) {
+      const parent = btn.parentElement;
+      const yesBtn = parent.querySelector('.yes-btn');
+      const noBtn = parent.querySelector('.no-btn');
+      
+      yesBtn.style.background = 'white'; yesBtn.style.color = '#9CA3AF'; yesBtn.style.borderColor = '#E5E7EB';
+      noBtn.style.background = 'white'; noBtn.style.color = '#9CA3AF'; noBtn.style.borderColor = '#E5E7EB';
+      
+      if (type === 'yes') {
+        yesBtn.style.background = '#FDECEA'; yesBtn.style.color = '#C0392B'; yesBtn.style.borderColor = '#C0392B';
+      } else {
+        noBtn.style.background = '#E6F4ED'; noBtn.style.color = '#1A7A4A'; noBtn.style.borderColor = '#1A7A4A';
+      }
+    };
+    
+    window.saveLeadDetailsDrawer = function() {
+      showToast('Lead details saved successfully!');
+      closeLeadDetailsDrawer();
     };
 
     // Init

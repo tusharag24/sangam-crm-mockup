@@ -2118,142 +2118,106 @@ https://ambak.in/quote/x920dj</textarea>
 
     function renderMetaStrip() {
       const l = currentLead;
+      
+      let stat = l.status || 'Fresh';
+      let statColor = '#111827';
+      let statBg = '#F3F4F6';
+      if(stat === 'Not Connected') { statBg = '#FDECEA'; statColor = '#C0392B'; }
+      else if(stat === 'Call Back') { statBg = '#E8F1FF'; statColor = '#0A58CA'; }
+      else if(stat === 'Interested') { statBg = '#E6F4ED'; statColor = '#1A7A4A'; }
+      else if(stat === 'Quote Shared') { statBg = '#FFF8E1'; statColor = '#856404'; }
+      else if(stat === 'Payment Done') { statBg = '#E6F4ED'; statColor = '#1A7A4A'; }
+      else if(stat === 'Policy Issued') { statBg = '#E0F2FE'; statColor = '#0369A1'; }
+      
+      let fupText = "No Follow Up";
+      let fupColor = "#9CA3AF";
+      let fupWeight = "400";
+      if (l.followUpDate && l.followUpDate !== 'No Follow-up') {
+         if(l.followUpDate.toLowerCase().includes('overdue')) {
+            fupText = l.followUpDate;
+            fupColor = "#C0392B";
+            fupWeight = "700";
+         } else {
+            fupText = l.followUpDate;
+            fupColor = "#4B5563";
+         }
+      }
+
       let html = `
-        <div class="sangam-cards-row">
-          <!-- Card 1: Lead Information -->
-          <div class="sangam-top-card">
-            <div class="stc-grid" style="grid-template-columns: 1fr 1fr 1.5fr;">
-              <div>
-                <div class="stc-label">Insurance Id</div>
-                <div class="stc-val">${l.id}</div>
+        <div style="position: sticky; top: 0; z-index: 100; background: white; border-bottom: 1px solid #E5E7EB; width: 100%; display: flex; flex-direction: column; font-family: 'Poppins', sans-serif;">
+          <!-- ROW 1 -->
+          <div style="display: flex; flex-direction: row; align-items: stretch;">
+            
+            <!-- Block 1 -->
+            <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">INSURANCE ID</div>
+              <div style="font-size: 13px; font-weight: 700; color: #473391;">${l.id || '—'}</div>
+              <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.name || '—'}</div>
+              <div style="font-size: 11px; color: #6B7280;">${l.phone || '—'} · Age 42</div>
+            </div>
+
+            <!-- Block 2 -->
+            <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">PRODUCT</div>
+              <div style="font-size: 13px; font-weight: 700; color: #111827;">${getProductLabel(l.finalProduct || l.initialProduct) || '—'}</div>
+              <div style="font-size: 11px; color: #6B7280;">Insurer: ${l.finalInsurer && l.finalInsurer !== 'Unknown' ? l.finalInsurer : 'PB Partner'}</div>
+              <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                ${l.productStatus === 'locked' ? 
+                  `<span style="background: #E6F4ED; color: #1A7A4A; border-radius: 10px; padding: 2px 8px; font-size: 10px; font-weight: 700; height: 18px; display: inline-flex; align-items: center;">Locked</span>` :
+                  `<span style="background: #F3F4F6; color: #6B7280; border-radius: 10px; padding: 2px 8px; font-size: 10px; font-weight: 700; height: 18px; display: inline-flex; align-items: center;">Draft</span>
+                   <span style="color: #473391; font-size: 10px; cursor: pointer; font-weight: 600;" onclick="showToast('Edit product recommendation')">[Change]</span>`
+                }
               </div>
-              <div>
-                <div class="stc-label">Customer Name</div>
-                <div class="stc-val">${l.name}</div>
+            </div>
+
+            <!-- Block 3 -->
+            <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">LOAN</div>
+              <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.hlLead ? \`₹\${formatLakhs(l.hlLead.si)} · \${l.hlLead.bank}\` : '—'}</div>
+              <div style="font-size: 11px; color: #6B7280;">HL Stage: <span style="font-weight: 700;">${l.hlLead ? getStageLabel(l.hlLead.hlStage) : '—'}</span></div>
+            </div>
+
+            <!-- Block 4 -->
+            <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">SOURCE / CREATED</div>
+              <div style="font-size: 12px; font-weight: 500; color: #111827;">${(l.source || '—').toUpperCase()} / Website</div>
+              <div style="font-size: 11px; color: #6B7280;">${l.createdDate || '—'}</div>
+            </div>
+
+            <!-- Block 5 -->
+            <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">PARTNER / RM</div>
+              <div style="font-size: 12px; font-weight: 500; color: #111827; display: flex; align-items: center; gap: 4px;">
+                E2E Sales (AMB10454) <span style="color: #25D366; font-size: 10px;">📞</span>
               </div>
-              <div>
-                <div class="stc-label">Created Date</div>
-                <div class="stc-val">${l.createdDate}</div>
+              <div style="font-size: 11px; color: #6B7280; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                RM: Ambak BM <span style="color: #473391; font-size: 10px;">📞</span>
               </div>
-              <div style="grid-column: span 2;">
-                <div class="stc-label">Source/Sub Source</div>
-                <div class="stc-val">${l.source.toUpperCase()} / Website</div>
-              </div>
+            </div>
+
+            <!-- Block 6 -->
+            <div style="padding: 10px 20px; flex: 1;">
+              <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">ASSIGNED IBM</div>
+              <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.hlLead ? (l.hlLead.rm || 'Rohit M') : 'Rohit M'}</div>
+              <div style="font-size: 11px; color: #6B7280;">Verification Agent</div>
             </div>
           </div>
 
-          <!-- Card 2: Insurance Details -->
-          <div class="sangam-top-card">
-            <div class="stc-grid">
-              ${l.productStatus === 'locked' ? `
-              <div>
-                <div class="stc-label">Product Status</div>
-                <div class="stc-val"><span class="badge" style="background:#DCFCE7; color:#16A34A; border:1px solid #BBF7D0; font-size:10px; padding:2px 6px;">Locked</span></div>
-              </div>
-              <div style="grid-column: span 2;">
-                <div class="stc-label">Final Product</div>
-                <div class="stc-val" style="font-weight:700; color:var(--primary);">${getProductLabel(l.finalProduct)}</div>
-              </div>
-              <div>
-                <div class="stc-label">Insurer & Premium</div>
-                <div class="stc-val">${l.finalInsurer || '-'} <span style="color:var(--success); font-weight:600;">${formatMoney(l.finalPremium)}</span></div>
-              </div>
-              <div>
-                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Partner <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
-                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">E2E Sales (AMB10454)</div>
-              </div>
-              <div>
-                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Relationship Manager <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
-                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">Ambak Bm</div>
-              </div>
-              ` : `
-              <div>
-                <div class="stc-label">Product Status</div>
-                <div class="stc-val"><span class="badge" style="background:#F3F4F6; color:var(--text-muted); border:1px solid var(--border); font-size:10px; padding:2px 6px;">Draft</span></div>
-              </div>
-              <div style="grid-column: span 2;">
-                <div class="stc-label">Recommended Product</div>
-                <div class="stc-val" style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-weight:600;">${getProductLabel(l.initialProduct)}</span>
-                  <span style="color:var(--primary); font-size:11px; cursor:pointer; font-weight:600;" onclick="showToast('Edit product recommendation')">[Change]</span>
-                </div>
-              </div>
-              <div>
-                <div class="stc-label">Insurer</div>
-                <div class="stc-val" style="color:var(--text-placeholder);">Pending Quote</div>
-              </div>
-              <div>
-                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Partner <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
-                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">E2E Sales (AMB10454)</div>
-              </div>
-              <div>
-                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Relationship Manager <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
-                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">Ambak Bm</div>
-              </div>
-              `}
-            </div>
-          </div>
+          <!-- ROW 2 -->
+          <div style="background: #FAFAFA; border-top: 1px solid #F3F4F6; padding: 7px 20px; display: flex; align-items: center;">
+            <div style="background: ${statBg}; color: ${statColor}; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; height: 24px; display: flex; align-items: center;">${stat}</div>
+            <span style="color: #D1D5DB; margin: 0 8px;">·</span>
+            <div style="font-size: 11px; color: #4B5563;">${l.subStatus || '—'}</div>
+            <span style="color: #D1D5DB; margin: 0 8px;">·</span>
+            <div style="font-size: 11px; color: #9CA3AF;">Updated: ${l.log[0]?.time || l.createdDate || '—'}</div>
+            <span style="color: #D1D5DB; margin: 0 8px;">·</span>
+            <div style="font-size: 11px; color: ${fupColor}; font-weight: ${fupWeight};">📅 ${fupText}</div>
 
-          <!-- Card 3: Home Loan Context -->
-          <div class="sangam-top-card">
-            <div class="stc-grid">
-              <div>
-                <div class="stc-label">Bank Name</div>
-                <div class="stc-val">${l.hlLead ? l.hlLead.bank : '-'}</div>
-              </div>
-              <div>
-                <div class="stc-label">Loan Amount</div>
-                <div class="stc-val">${l.hlLead ? formatLakhs(l.hlLead.si) : '-'}</div>
-              </div>
-              <div>
-                <div class="stc-label">HL Stage</div>
-                <div class="stc-val">${l.hlLead ? getStageLabel(l.hlLead.hlStage) : '-'}</div>
-              </div>
-              <div>
-                <div class="stc-label">Assigned IBM</div>
-                <div class="stc-val">${l.hlLead ? l.hlLead.rm : '-'}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: Status -->
-          <div class="sangam-top-card">
-            <div class="stc-grid">
-              <div>
-                <div class="stc-label">Status</div>
-                <div class="stc-val">${l.status || 'Fresh'}</div>
-              </div>
-              <div>
-                <div class="stc-label">Sub Status</div>
-                <div class="stc-val">${l.subStatus || 'Fresh'}</div>
-              </div>
-              <div>
-                <div class="stc-label">Last Updated</div>
-                <div class="stc-val">${l.log[0]?.time || l.createdDate}</div>
-              </div>
-              <div>
-                <div class="stc-label">Follow Up</div>
-                <div class="stc-val">No Follow Up</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 5: Owner & Communication -->
-          <div class="sangam-top-card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div style="display:flex; justify-content:space-between;">
-              <div>
-                <div class="stc-label">Assigned to</div>
-                <div class="stc-val" style="font-size:12px; font-weight:400;">Verification Agent</div>
-              </div>
-              <div>
-                <div class="stc-label">Communication</div>
-                <div style="display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; max-width:80px;">
-                  <div style="width:24px; height:24px; border-radius:50%; background:#25D366; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">W</div>
-                  <div style="width:24px; height:24px; border-radius:50%; background:#473391; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">@</div>
-                  <div style="width:24px; height:24px; border-radius:50%; background:#0284C7; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">💬</div>
-                  <div style="width:24px; height:24px; border-radius:50%; background:#EA580C; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; cursor:pointer;">📞</div>
-                </div>
-              </div>
+            <div style="margin-left: auto; display: flex; gap: 6px;">
+              <div style="width: 28px; height: 28px; border-radius: 50%; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; font-weight: 600;" title="WhatsApp">W</div>
+              <div style="width: 28px; height: 28px; border-radius: 50%; background: #EA4335; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; font-weight: 600;" title="Email">@</div>
+              <div style="width: 28px; height: 28px; border-radius: 50%; background: #1DA1F2; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; font-weight: 600;" title="SMS">S</div>
+              <div style="width: 28px; height: 28px; border-radius: 50%; background: #473391; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;" title="Call">📞</div>
             </div>
           </div>
         </div>

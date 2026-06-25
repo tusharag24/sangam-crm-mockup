@@ -1442,7 +1442,7 @@ https://ambak.in/quote/x920dj</textarea>
       'Contacted': {
         statuses: {
           'Call Back': {
-            subStatuses: ['Busy, Call Later', 'Need More Information', 'Discussing With Family', 'Call After Loan Sanction', 'Call After Disbursement'],
+            subStatuses: ['Need More Information', 'Discussing With Family', 'Call After Loan Sanction', 'Call After Disbursement'],
             mandatoryFollowUp: true,
             pendingWith: 'Customer',
             nextBucket: 'Contacted'
@@ -1454,7 +1454,7 @@ https://ambak.in/quote/x920dj</textarea>
             nextBucket: 'Quote'
           },
           'Not Interested': {
-            subStatuses: ['Too Expensive', 'Existing Insurance Available', 'No Requirement', 'Loan Cancelled', 'Will Decide Later', 'Other'],
+            subStatuses: ['Existing Insurance', 'Premium High', 'No Requirement', 'Loan Cancelled', 'Other'],
             mandatoryFollowUp: false,
             pendingWith: 'Customer',
             nextBucket: 'Contacted'
@@ -2418,22 +2418,26 @@ https://ambak.in/quote/x920dj</textarea>
 
       let contentHtml = '';
       if(activeTab === 'History') {
-        contentHtml = `
-          <div style="padding: 20px;">
-            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF;">System Update</div>
-                <div style="font-size: 11px; font-weight: 600; color: #473391;">By Verification Agent</div>
-              </div>
-              <div style="font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px;">Call attempt: Not connected</div>
-              <div style="font-size: 12px; color: #4B5563; margin-bottom: 12px;">Automatic call attempt triggered. Customer did not pick up.</div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-size: 11px; color: #9CA3AF;">At Yesterday</div>
-                <div style="font-size: 11px; color: #473391;">From Sangam</div>
+        if (l.bucket === 'Contacted') {
+          contentHtml = renderProductSelection();
+        } else {
+          contentHtml = `
+            <div style="padding: 20px;">
+              <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF;">System Update</div>
+                  <div style="font-size: 11px; font-weight: 600; color: #473391;">By Verification Agent</div>
+                </div>
+                <div style="font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px;">Call attempt: Not connected</div>
+                <div style="font-size: 12px; color: #4B5563; margin-bottom: 12px;">Automatic call attempt triggered. Customer did not pick up.</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: 11px; color: #9CA3AF;">At Yesterday</div>
+                  <div style="font-size: 11px; color: #473391;">From Sangam</div>
+                </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
+        }
       } else if (activeTab === 'FollowUp') {
         contentHtml = `
           <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
@@ -3600,6 +3604,9 @@ https://ambak.in/quote/x920dj</textarea>
 
     function renderRightPanel() {
       const l = currentLead;
+      const bucketConfig = STATE_MACHINE_CONFIG[l.bucket || 'New'];
+      const statusKeys = Object.keys(bucketConfig.statuses);
+      let statusOptionsHtml = statusKeys.map((k, i) => `<option value="${k}" ${i===0?'selected':''}>${k}</option>`).join('');
       
       let html = `
         <style>
@@ -3614,10 +3621,7 @@ https://ambak.in/quote/x920dj</textarea>
             <div>
               <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">STATUS</label>
               <select id="detail-status" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;" onchange="handleDetailStatusChange()">
-                <option value="Not Connected" selected>Not Connected</option>
-                <option value="Call Back">Call Back</option>
-                <option value="Interested">Interested</option>
-                <option value="Not Interested">Not Interested</option>
+                ${statusOptionsHtml}
               </select>
             </div>
             <div>
@@ -3665,30 +3669,41 @@ https://ambak.in/quote/x920dj</textarea>
     };
 
     window.handleDetailStatusChange = function() {
+      if(!currentLead) return;
       const status = document.getElementById('detail-status').value;
       const subSelect = document.getElementById('detail-substatus');
       
-      let options = [];
-      if (status === 'Not Connected') {
-        options = ['Customer Busy', 'Not Reachable', 'Switched Off', 'Ringing No Answer', 'Voicemail', 'Customer Disconnected'];
-      } else if (status === 'Call Back') {
-        options = ['Busy Call Later', 'Partial Discussion', 'Language Barrier', 'Customer Disconnected'];
-      } else if (status === 'Interested') {
-        options = ['Need Quote'];
-      } else if (status === 'Not Interested') {
-        options = ['Too Expensive', 'Already Insured', 'Not Required', 'Family Not Interested', 'Will Decide Later', 'Other'];
-      }
+      const bucketConfig = STATE_MACHINE_CONFIG[currentLead.bucket || 'New'];
+      const statusConfig = bucketConfig.statuses[status];
+      
+      let options = statusConfig ? statusConfig.subStatuses : [];
       
       subSelect.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+      
+      // Auto-select if there is only one option and disable it
+      if (options.length === 1) {
+         subSelect.value = options[0];
+         subSelect.disabled = true;
+         subSelect.style.background = '#F3F4F6';
+         subSelect.style.color = '#6B7280';
+      } else {
+         subSelect.disabled = false;
+         subSelect.style.background = '#FAFAFA';
+         subSelect.style.color = '#111827';
+      }
       
       window.handleDetailSubStatusChange();
     };
 
     window.handleDetailSubStatusChange = function() {
+      if(!currentLead) return;
       const status = document.getElementById('detail-status').value;
       const fupWrapper = document.getElementById('detail-fup-wrapper');
       
-      if (status === 'Not Connected' || status === 'Call Back') {
+      const bucketConfig = STATE_MACHINE_CONFIG[currentLead.bucket || 'New'];
+      const statusConfig = bucketConfig.statuses[status];
+      
+      if (statusConfig && statusConfig.mandatoryFollowUp) {
         fupWrapper.style.display = 'flex';
       } else {
         fupWrapper.style.display = 'none';
@@ -4342,6 +4357,78 @@ https://ambak.in/quote/x920dj</textarea>
     window.saveLeadDetailsDrawer = function() {
       showToast('Lead details saved successfully!');
       closeLeadDetailsDrawer();
+    };
+
+    function renderProductSelection() {
+      const products = [
+        { code: 'LP', name: 'Loan Protection', desc: 'Covers the outstanding home loan amount in case of death or disability. Ensures the family keeps their home.', benefit: 'Loan liability fully covered — family never inherits debt', insurers: 'CARE Health, TATA AIG' },
+        { code: 'PR', name: 'Property Insurance', desc: 'Protects the physical property against fire, natural disasters, and structural damage. Annual renewable policy.', benefit: 'Property value protected against unforeseen damage', insurers: 'Bajaj General, HDFC Ergo, SBI General' },
+        { code: 'CL', name: 'Credit Life', desc: "Covers the borrower's life for the loan tenure. If the borrower passes away, the insurer repays the outstanding loan.", benefit: 'Decreasing cover that matches loan outstanding — cost-effective', insurers: 'PB Partners (via PolicyBazaar)' },
+        { code: 'TP', name: 'Term Plan', desc: "Pure life cover at low cost. Pays a lump sum to the nominee on the policyholder's death during the policy term.", benefit: 'High cover at lowest premium — ideal for income replacement', insurers: 'PB Partners (via PolicyBazaar)' }
+      ];
+
+      const pState = window.selectedProduct || null;
+
+      let cardsHtml = products.map(p => {
+        const isSelected = pState === p.code;
+        const border = isSelected ? '2px solid #473391' : '2px solid #E5E7EB';
+        const bg = isSelected ? '#F0EEFB' : 'white';
+        const tagBg = isSelected ? '#473391' : '#F0EEFB';
+        const tagColor = isSelected ? 'white' : '#473391';
+        const nameColor = isSelected ? '#473391' : '#111827';
+        
+        let radioHtml = '';
+        if (isSelected) {
+          radioHtml = `<div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #473391; background: #473391; display: flex; align-items: center; justify-content: center;"><div style="width: 6px; height: 6px; border-radius: 50%; background: white;"></div></div>`;
+        } else {
+          radioHtml = `<div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #E5E7EB; background: transparent;"></div>`;
+        }
+
+        return `
+          <div style="background: ${bg}; border: ${border}; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.15s;" onclick="selectProduct('${p.code}')">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="width: 32px; height: 32px; background: ${tagBg}; color: ${tagColor}; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: center; line-height: 32px;">${p.code}</div>
+              ${radioHtml}
+            </div>
+            <div style="font-size: 14px; font-weight: 700; color: ${nameColor}; margin-top: 10px;">${p.name}</div>
+            <div style="font-size: 11px; color: #6B7280; line-height: 1.5; margin-top: 4px;">${p.desc}</div>
+            <div style="font-size: 11px; color: #1A7A4A; font-weight: 600; margin-top: 8px;">✓ ${p.benefit}</div>
+            <div style="font-size: 11px; margin-top: 6px;"><span style="color: #9CA3AF;">Insurers:</span> <span style="color: #4B5563; font-weight: 600;">${p.insurers}</span></div>
+          </div>
+        `;
+      }).join('');
+
+      const btnBg = pState ? '#473391' : '#C5C0F5';
+      const btnCursor = pState ? 'pointer' : 'not-allowed';
+      const btnOpacity = pState ? '1' : '0.6';
+      
+      return `
+        <div style="padding: 30px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="font-size: 18px; font-weight: 700; color: #111827;">Select Insurance Product</div>
+            <div style="font-size: 13px; color: #6B7280; margin-top: 4px;">Understand the customer's needs and select the right product.</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            ${cardsHtml}
+          </div>
+          <button style="width: 100%; height: 48px; margin-top: 20px; background: ${btnBg}; color: white; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: Poppins; border: none; cursor: ${btnCursor}; opacity: ${btnOpacity}; transition: opacity 0.2s;" ${pState ? 'onclick="generateQuote()"' : ''}>Generate Quote →</button>
+        </div>
+      `;
+    }
+
+    window.selectProduct = function(code) {
+      window.selectedProduct = code;
+      renderLeadDetail();
+    };
+
+    window.generateQuote = function() {
+      if (!window.selectedProduct) return;
+      
+      currentLead.bucket = 'Quote';
+      showToast('Lead moved to Quote bucket');
+      
+      window.selectedProduct = null; // reset
+      renderLeadDetail(); // Will re-render the whole screen since stage changed
     };
 
     // Init

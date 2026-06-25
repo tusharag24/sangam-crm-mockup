@@ -2099,19 +2099,17 @@ https://ambak.in/quote/x920dj</textarea>
       if (!currentLead) return;
       
       let html = `
-        <div class="detail-body">
-          <div id="detail-meta"></div>
-          <div class="sangam-workspace" style="margin-top:24px;">
-            <div class="sangam-left" id="detail-left"></div>
-            <div class="sangam-center" id="detail-center"></div>
-            <div class="sangam-right" id="detail-right"></div>
+        <div class="detail-body" style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+          <div id="detail-meta" style="flex-shrink: 0;"></div>
+          <div class="sangam-workspace" style="display: flex; flex: 1; overflow: hidden; margin-top: 0; gap: 0;">
+            <div id="detail-center" style="flex: 1; overflow-y: auto; background: #F9FAFB;"></div>
+            <div id="detail-right" style="width: 300px; min-width: 300px; flex-shrink: 0; border-left: 1px solid #E5E7EB; background: white; overflow-y: auto;"></div>
           </div>
         </div>
       `;
       document.getElementById('screen-detail').innerHTML = html;
       
       renderMetaStrip();
-      renderLeftSidebar();
       renderCenterPanel();
       renderRightPanel();
     }
@@ -2151,7 +2149,10 @@ https://ambak.in/quote/x920dj</textarea>
             <!-- Block 1 -->
             <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
               <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">INSURANCE ID</div>
-              <div style="font-size: 13px; font-weight: 700; color: #473391;">${l.id || '—'}</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="font-size: 13px; font-weight: 700; color: #473391;">${l.id || '—'}</div>
+                <div style="color: #473391; font-size: 10px; cursor: pointer; font-weight: 600;" onclick="showToast('Opening lead details drawer...')">Lead Details →</div>
+              </div>
               <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.name || '—'}</div>
               <div style="font-size: 11px; color: #6B7280;">${l.phone || '—'} · Age 42</div>
             </div>
@@ -2378,168 +2379,90 @@ https://ambak.in/quote/x920dj</textarea>
       document.getElementById('detail-left').innerHTML = html;
     }
 
-    function setSection(sec) {
-      G_SECTION = sec;
-      renderLeftSidebar();
-      renderCenterPanel();
-    }
-
     function renderCenterPanel() {
-      const el = document.getElementById('detail-center');
-      let contentHtml = '';
-
-      if (G_SECTION) {
-        contentHtml = renderSectionForm(G_SECTION);
-        el.innerHTML = contentHtml;
-        return;
-      }
-
-      let trackerHtml = renderStageBar();
-
-      if (currentLead.bucket === 'New') {
-        contentHtml = renderNewStage();
-      } else if (currentLead.bucket === 'Contacted') {
-        contentHtml = renderContactedStage();
-      } else if (currentLead.bucket === 'Payment Done') {
-        contentHtml = renderPaymentDoneStage();
-      } else if (currentLead.bucket === 'Quote') {
-        contentHtml = renderQuoteStage();
-      } else if (currentLead.bucket === 'Policy') {
-        contentHtml = renderPolicyStage();
-      } else if (currentLead.bucket === 'Lost') {
-        contentHtml = renderLostStage();
-      }
-
-      const commonTabsHtml = renderCommonTabsHtml();
-
-      el.innerHTML = trackerHtml + contentHtml + commonTabsHtml;
-    }
-
-    function renderCommonTabsHtml() {
-      const activeTab = currentLead.activeTab || 'History';
+      const l = currentLead;
+      let activeTab = l.activeTab || 'History';
       
+      let stages = ['New', 'Contacted', 'Quote', 'Payment Done', 'Policy'];
+      let currentStageIndex = stages.indexOf(l.bucket);
+      if(currentStageIndex === -1) currentStageIndex = 0;
+      
+      let stageHtml = stages.map((s, idx) => {
+        let isActive = idx === currentStageIndex;
+        let isCompleted = idx < currentStageIndex;
+        let bg = 'white';
+        let text = '#9CA3AF';
+        let border = '1px solid #E5E7EB';
+        
+        if(isActive) {
+           bg = '#473391'; text = 'white'; border = '1px solid #473391';
+        } else if (isCompleted) {
+           bg = '#F0EEFB'; text = '#473391'; border = '1px solid #F0EEFB';
+        }
+        
+        let chevron = `<div style="background: ${bg}; color: ${text}; border: ${border}; border-radius: 4px; padding: 6px 14px; font-size: 12px; font-weight: 600;">${s}</div>`;
+        let arrow = idx < stages.length - 1 ? `<div style="color: #D1D5DB; margin: 0 8px; font-weight: 700;">></div>` : '';
+        return chevron + arrow;
+      }).join('');
+
       let tabsHtml = `
-        <div style="display:flex; gap:12px; margin-bottom:16px;">
-          <button onclick="currentLead.activeTab='History'; renderLeadDetail();" style="background:${activeTab==='History'?'var(--navy)':'white'}; color:${activeTab==='History'?'white':'var(--text-heading)'}; border:${activeTab==='History'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:600; font-size:14px; cursor:pointer;">Activity History</button>
-          <button onclick="currentLead.activeTab='FollowUp'; renderLeadDetail();" style="background:${activeTab==='FollowUp'?'var(--navy)':'white'}; color:${activeTab==='FollowUp'?'white':'var(--text-heading)'}; border:${activeTab==='FollowUp'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:500; font-size:14px; cursor:pointer;">Follow Up</button>
-          <button onclick="currentLead.activeTab='Documents'; renderLeadDetail();" style="background:${activeTab==='Documents'?'var(--navy)':'white'}; color:${activeTab==='Documents'?'white':'var(--text-heading)'}; border:${activeTab==='Documents'?'none':'1px solid #E5E7EB'}; padding:8px 24px; border-radius:20px; font-weight:500; font-size:14px; cursor:pointer;">Documents</button>
+        <div style="display: flex; gap: 20px; border-bottom: 1px solid #E5E7EB; padding: 0 20px;">
+          <div onclick="currentLead.activeTab='History'; renderLeadDetail();" style="padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; color: ${activeTab === 'History' ? '#473391' : '#9CA3AF'}; border-bottom: ${activeTab === 'History' ? '2px solid #473391' : 'none'};">Activity History</div>
+          <div onclick="currentLead.activeTab='FollowUp'; renderLeadDetail();" style="padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; color: ${activeTab === 'FollowUp' ? '#473391' : '#9CA3AF'}; border-bottom: ${activeTab === 'FollowUp' ? '2px solid #473391' : 'none'};">Follow Up</div>
+          <div onclick="currentLead.activeTab='Documents'; renderLeadDetail();" style="padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; color: ${activeTab === 'Documents' ? '#473391' : '#9CA3AF'}; border-bottom: ${activeTab === 'Documents' ? '2px solid #473391' : 'none'};">Documents</div>
         </div>
-        <div style="border-bottom:3px solid #E5E7EB; margin-bottom:24px;"></div>
       `;
 
-      if (activeTab === 'FollowUp') {
-        const leadTasks = (window.G_TASKS || []).filter(t => t.leadId === currentLead.id);
-        let tasksHtml = leadTasks.length === 0 ? `<div style="text-align:center; padding:40px; color:#6B7280;">No follow-ups scheduled for this lead.</div>` : leadTasks.map(t => `
-          <div style="border:1px solid #E5E7EB; border-radius:8px; padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:700; font-size:14px; color:#111827; margin-bottom:4px;">Follow-up: ${t.taskType}</div>
-              <div style="font-size:12px; color:#6B7280; display:flex; gap:12px;">
-                <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> ${t.date}</span>
-                <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${t.time}</span>
+      let contentHtml = '';
+      if(activeTab === 'History') {
+        contentHtml = `
+          <div style="padding: 20px;">
+            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF;">System Update</div>
+                <div style="font-size: 11px; font-weight: 600; color: #473391;">By Verification Agent</div>
+              </div>
+              <div style="font-size: 13px; font-weight: 600; color: #111827; margin-bottom: 4px;">Call attempt: Not connected</div>
+              <div style="font-size: 12px; color: #4B5563; margin-bottom: 12px;">Automatic call attempt triggered. Customer did not pick up.</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 11px; color: #9CA3AF;">At Yesterday</div>
+                <div style="font-size: 11px; color: #473391;">From Sangam</div>
               </div>
             </div>
-            ${t.status === 'pending' ? `<button class="btn btn-primary btn-small" onclick="completeTask('${t.id}')">Mark Complete</button>` : `<span style="color:#10B981; font-weight:600; font-size:12px;">Completed</span>`}
-          </div>
-        `).join('');
-        
-        return `<div style="background:var(--white); margin-top:24px;">${tabsHtml}<div>${tasksHtml}</div></div>`;
-      }
-
-      if (activeTab === 'Documents') {
-        let docsHtml = `
-          <div style="text-align:center; padding:40px; color:#6B7280;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" style="margin-bottom:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            <div style="font-weight:600; font-size:16px; color:#374151; margin-bottom:4px;">No Documents Uploaded</div>
-            <div style="font-size:13px;">Documents will appear here once uploaded during the workflow.</div>
           </div>
         `;
-        return `<div style="background:var(--white); margin-top:24px;">${tabsHtml}<div>${docsHtml}</div></div>`;
+      } else if (activeTab === 'FollowUp') {
+        contentHtml = `
+          <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+            <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 16px; margin-bottom: 16px;"></div>
+            <div style="font-size: 13px; font-weight: 600; color: #6B7280; margin-bottom: 4px;">No follow-up scheduled</div>
+            <div style="font-size: 12px; color: #9CA3AF;">Set a follow-up date from the Update Status panel on the right.</div>
+          </div>
+        `;
+      } else if (activeTab === 'Documents') {
+        contentHtml = `
+          <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+            <div style="width: 80px; height: 80px; background: #F3F4F6; border-radius: 16px; margin-bottom: 16px;"></div>
+            <div style="font-size: 13px; font-weight: 600; color: #6B7280; margin-bottom: 4px;">No documents uploaded yet</div>
+            <div style="font-size: 12px; color: #9CA3AF;">Documents will appear here once uploaded.</div>
+          </div>
+        `;
       }
 
-      return `
-          <div style="background:var(--white); margin-top:24px;">
-            ${tabsHtml}
-            <div style="position:relative; padding-left:24px; padding-right:8px;">
-              <div style="position:absolute; top:8px; bottom:0; left:7px; border-left:2px dotted #E5E7EB;"></div>
-              ${currentLead.log.map((entry, idx) => {
-                let text = entry.text;
-                let title = "Activity Log";
-                if (text.includes("Status updated") || text.includes("Lead marked Lost")) title = "Lead Status Updated";
-                else if (text.includes("Payment")) title = "Payment Update";
-                else if (text.includes("Bucket changed")) title = "Stage Progression";
-                else if (text.includes("Milestone completed")) title = "Processing Milestone";
-                else if (text.includes("Follow-up")) title = "Followup Created";
-                else if (text.includes("Customer expressed interest")) title = "Lead Status Updated";
-
-                let remarksHtml = "";
-                if (text.includes("<br>Remark:")) {
-                    let parts = text.split("<br>Remark:");
-                    text = parts[0].replace(/<br>/g, " ");
-                    let remark = parts[1].trim();
-                    remarksHtml = `
-                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <div>
-                          <div style="font-weight:500; font-size:15px; color:#111827;">Remarks Added</div>
-                          <div style="color:#374151; font-size:14px; margin-top:4px;">${remark}</div>
-                        </div>
-                      </div>
-                    `;
-                } else if (text.includes("<br>Reason:")) {
-                    let parts = text.split("<br>Reason:");
-                    text = parts[0].replace(/<br>/g, " ");
-                    let remark = parts[1].trim();
-                    remarksHtml = `
-                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <div>
-                          <div style="font-weight:500; font-size:15px; color:#111827;">Remarks Added</div>
-                          <div style="color:#374151; font-size:14px; margin-top:4px;">Reason: ${remark}</div>
-                        </div>
-                      </div>
-                    `;
-                } else if (text.includes("<br>Lead moved")) {
-                    let parts = text.split("<br>Lead moved");
-                    text = parts[0].replace(/<br>/g, " ");
-                    let remark = "Lead moved" + parts[1];
-                    remarksHtml = `
-                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <div>
-                          <div style="font-weight:500; font-size:15px; color:#111827;">System Update</div>
-                          <div style="color:#374151; font-size:14px; margin-top:4px;">${remark}</div>
-                        </div>
-                      </div>
-                    `;
-                } else {
-                    remarksHtml = `
-                      <div style="margin-top:12px; display:flex; gap:8px; align-items:start;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <div>
-                          <div style="font-weight:500; font-size:15px; color:#111827;">System Update</div>
-                          <div style="color:#374151; font-size:14px; margin-top:4px;">${text.replace(/<br>/g, " ")}</div>
-                        </div>
-                      </div>
-                    `;
-                }
-
-                let by = text.includes("Bucket changed") || text.includes("verified internally") ? "System" : "Verification Agent";
-                let actualTime = entry.time === 'Just now' ? '19 Jun, 2026, 2:34 PM' : entry.time;
-
-                return `
-                  <div style="position:relative; margin-bottom:0; display:flex; justify-content:space-between; border-bottom:1px solid #E5E7EB; padding-bottom:32px; padding-top:16px;">
-                    <div style="position:absolute; top:20px; left:-23.5px; width:14px; height:14px; border-radius:50%; background:white; border:4px solid #93C5FD; z-index:2;"></div>
-                    
-                    <div style="flex:1;">
-                      <div style="font-size:18px; font-weight:700; color:#111827; margin-bottom:4px;">${title}</div>
-                      ${remarksHtml}
-                      
-                    </div>
-                    
-                    <div style="width:250px; text-align:left; font-size:13px; line-height:1.6; padding-left:24px;">
-                      <div style="margin-bottom:8px;"><span style="color:#5B21B6; font-weight:700;">By</span> <span style="font-weight:700; color:#111827;">${by}</span></div>
-                      <div style="margin-bottom:8px;"><span style="color:#5B21B6; font-weight:700;">At</span> <span style="font-weight:700; color:#111827;">${actualTime}</span></div>
-                      <div><span style="color:#5B21B6; font-weight:700;">From</span> <span style="font-weight:700; color:#111827;">Sangam</span></div>
+      let html = `
+        <div style="background: white; border-bottom: 1px solid #E5E7EB; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center;">
+            ${stageHtml}
+          </div>
+          <button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;">Mark as Lost</button>
+        </div>
+        ${tabsHtml}
+        <div>
+          ${contentHtml}
+        </div>
+      `;
+      document.getElementById('detail-center').innerHTML = html;
+    }v>
                     </div>
                   </div>
                 `;
@@ -3682,128 +3605,59 @@ https://ambak.in/quote/x920dj</textarea>
 
     function renderRightPanel() {
       const l = currentLead;
-      let nextAction = '';
-      let blocker = '';
-
-      if(l.bucket === 'New') {
-        nextAction = 'Call Customer to pitch ' + getProductLabel(l.finalProduct || l.initialProduct);
-        blocker = 'None';
-      } else if(l.bucket === 'Contacted') {
-        nextAction = 'Generate & Share Quote';
-        blocker = 'Customer needs time to decide';
-      } else if(l.bucket === 'Quote') {
-        nextAction = 'Share Quote via WhatsApp';
-        blocker = 'Awaiting customer confirmation';
-      } else if(l.bucket === 'Payment Done') {
-        nextAction = 'Review Milestones';
-        blocker = 'Processing with Operations';
-      } else if(l.bucket === 'Policy') {
-        nextAction = 'Share Policy Document';
-        blocker = 'Waiting for MIS Submission';
-      } else {
-        nextAction = 'Review Lead';
-        blocker = 'None';
-      }
-
-      let currentBucket = l.bucket || 'New';
-      const config = STATE_MACHINE_CONFIG[currentBucket];
-      let statusOptions = '<option value="">Select Status</option>';
-      if (config) {
-        Object.keys(config.statuses).forEach(s => {
-          statusOptions += `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`;
-        });
-      }
-
+      
       let html = `
-        <div class="card" style="padding: 24px 16px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); background:var(--white); border-radius:12px;">
-          <div style="font-weight:700; margin-bottom:16px;">Update Status</div>
-          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+        <style>
+          #detail-right select:focus, #detail-right input:focus, #detail-right textarea:focus {
+            border-color: #473391 !important;
+            background: white !important;
+          }
+        </style>
+        <div style="padding: 20px;">
+          <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">Update Status</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <div>
-              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Status</label>
-              <select class="form-control" style="padding:6px; font-size:12px;" id="detail-status" onchange="handleDetailStatusChange()">
-                ${statusOptions}
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">STATUS</label>
+              <select id="detail-status" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;" onchange="handleDetailStatusChange()">
+                <option value="Not Connected" selected>Not Connected</option>
+                <option value="Call Back">Call Back</option>
+                <option value="Interested">Interested</option>
+                <option value="Not Interested">Not Interested</option>
               </select>
             </div>
             <div>
-              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Sub Status</label>
-              <select class="form-control" style="padding:6px; font-size:12px;" id="detail-substatus" onchange="handleDetailSubStatusChange()">
-                <option value="">Select Sub Status</option>
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">SUB STATUS</label>
+              <select id="detail-substatus" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;" onchange="handleDetailSubStatusChange()">
               </select>
             </div>
-            <div id="detail-fup-wrapper" style="display:none; flex-direction:column; gap:12px;">
-              <div style="display:flex; gap:12px;">
-                <div style="flex:1;">
-                  <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Follow-up Date *</label>
-                  <input type="date" id="detail-fup-date" class="form-control" style="padding:6px; font-size:12px; margin-top:4px;">
-                </div>
-                <div style="flex:1;">
-                  <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Pending With *</label>
-                  <select id="detail-pending-with" class="form-control" style="padding:6px; font-size:12px; margin-top:4px;">
-                    <option>Customer</option>
-                    <option>IBM Agent</option>
-                    <option>PolicyBazaar</option>
-                    <option>Insurer</option>
-                    <option>Ambak Operations</option>
-                    <option>Finance Team</option>
-                    <option>RM / Sales Team</option>
-                  </select>
-                </div>
+            <div id="detail-fup-wrapper" style="display: flex; gap: 8px;">
+              <div style="flex: 1;">
+                <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">FOLLOW-UP DATE <span style="color: #C0392B;">*</span></label>
+                <input type="date" id="detail-fup-date" placeholder="dd/mm/yyyy" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
               </div>
-            </div>
-            
-            <div id="detail-upload-wrapper" style="display:none; flex-direction:column; gap:12px;">
-              <div>
-                <label id="detail-upload-label" style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">UPLOAD PROOF *</label>
-                <input type="file" id="detail-upload-input" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-              </div>
-              <div id="detailPaymentProofFields" style="display:none; flex-direction:column; gap:8px;">
-                <div>
-                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Payment Amount *</label>
-                  <input type="text" id="detailPaymentAmountInput" class="form-control" placeholder="₹" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-                </div>
-                <div>
-                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">UTR Number *</label>
-                  <input type="text" id="detailPaymentUtrInput" class="form-control" placeholder="Enter UTR" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-                </div>
-                <div>
-                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Payment Date *</label>
-                  <input type="date" id="detailPaymentDateInput" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-                </div>
-              </div>
-            </div>
-
-            <div id="detail-co-wrapper" style="display:none; flex-direction:column; gap:12px; background:#F9FAFB; padding:12px; border-radius:8px; border:1px dashed #D1D5DB; margin-top:4px;">
-              <div style="font-size:10px; font-weight:700; color:#4B5563; text-transform:uppercase;">Counter Offer Details</div>
-              <div>
-                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Counter Offer Amount</label>
-                <input type="number" id="detail-co-amount" class="form-control" placeholder="e.g. 5000" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-              </div>
-              <div>
-                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Customer Response</label>
-                <select id="detail-co-response" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-                  <option value="">Select Response</option>
-                  <option>Accepted</option>
-                  <option>Rejected</option>
-                  <option>Negotiating</option>
+              <div style="flex: 1;">
+                <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">PENDING WITH <span style="color: #C0392B;">*</span></label>
+                <select id="detail-pending-with" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                  <option value="Customer" selected>Customer</option>
+                  <option value="IBM Agent">IBM Agent</option>
+                  <option value="PolicyBazaar">PolicyBazaar</option>
+                  <option value="Insurer">Insurer</option>
+                  <option value="Ambak Operations">Ambak Operations</option>
+                  <option value="Finance Team">Finance Team</option>
                 </select>
               </div>
-              <div>
-                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Additional Premium</label>
-                <input type="number" id="detail-co-premium" class="form-control" placeholder="e.g. 1500" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
-              </div>
             </div>
-
             <div>
-              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Remarks</label>
-              <textarea id="detail-remarks" class="form-control" style="padding:6px; font-size:12px; height:60px; resize:none; margin-top:4px;"></textarea>
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">REMARKS</label>
+              <textarea id="detail-remarks" placeholder="Add remarks..." style="width: 100%; height: 72px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 8px 10px; outline: none; resize: none; transition: border-color 0.2s, background 0.2s; box-sizing: border-box;"></textarea>
             </div>
+            <button style="width: 100%; height: 42px; background: #473391; color: white; font-size: 13px; font-weight: 700; border-radius: 8px; margin-top: 16px; border: none; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" onclick="saveDetailStatusUpdate()">Update Status</button>
           </div>
-          <button class="btn btn-primary" style="width:100%; border-radius:8px;" onclick="saveDetailStatusUpdate()">Update Status</button>
         </div>
       `;
       document.getElementById('detail-right').innerHTML = html;
       
-      handleDetailStatusChange(l.subStatus);
+      handleDetailStatusChange();
     }
     
     window.completeTask = function(taskId) {
@@ -3815,72 +3669,34 @@ https://ambak.in/quote/x920dj</textarea>
       }
     };
 
-    window.handleDetailStatusChange = function(preselectSubStatus) {
-      if(!currentLead) return;
-      const bucket = currentLead.bucket || 'New';
+    window.handleDetailStatusChange = function() {
       const status = document.getElementById('detail-status').value;
       const subSelect = document.getElementById('detail-substatus');
       
-      subSelect.innerHTML = '<option value="">Select Sub Status</option>';
-      document.getElementById('detail-fup-wrapper').style.display = 'none';
-      
-      if (!status) return;
-      
-      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
-      if (config && config.subStatuses) {
-        config.subStatuses.forEach(s => {
-          const selected = (s === preselectSubStatus) ? 'selected' : '';
-          subSelect.innerHTML += `<option value="${s}" ${selected}>${s}</option>`;
-        });
+      let options = [];
+      if (status === 'Not Connected') {
+        options = ['Customer Busy', 'Not Reachable', 'Switched Off', 'Ringing No Answer', 'Voicemail', 'Customer Disconnected'];
+      } else if (status === 'Call Back') {
+        options = ['Busy Call Later', 'Partial Discussion', 'Language Barrier', 'Customer Disconnected'];
+      } else if (status === 'Interested') {
+        options = ['Need Quote'];
+      } else if (status === 'Not Interested') {
+        options = ['Too Expensive', 'Already Insured', 'Not Required', 'Family Not Interested', 'Will Decide Later', 'Other'];
       }
-      if(preselectSubStatus) window.handleDetailSubStatusChange();
+      
+      subSelect.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+      
+      window.handleDetailSubStatusChange();
     };
 
     window.handleDetailSubStatusChange = function() {
-      if(!currentLead) return;
-      const bucket = currentLead.bucket || 'New';
       const status = document.getElementById('detail-status').value;
-      const subStatus = document.getElementById('detail-substatus').value;
+      const fupWrapper = document.getElementById('detail-fup-wrapper');
       
-      if (!status || !subStatus) return;
-      
-      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
-      if (config.mandatoryFollowUp) {
-        document.getElementById('detail-fup-wrapper').style.display = 'flex';
+      if (status === 'Not Connected' || status === 'Call Back') {
+        fupWrapper.style.display = 'flex';
       } else {
-        document.getElementById('detail-fup-wrapper').style.display = 'none';
-      }
-      
-      if (config.pendingWith && config.pendingWith !== 'None') {
-        document.getElementById('detail-pending-with').value = config.pendingWith;
-      }
-      
-      if (config.mandatoryUpload && typeof config.mandatoryUpload === 'function') {
-        const uploadLabel = config.mandatoryUpload(subStatus);
-        if (uploadLabel) {
-          document.getElementById('detail-upload-wrapper').style.display = 'flex';
-          document.getElementById('detail-upload-label').innerText = uploadLabel.toUpperCase() + ' *';
-          if (uploadLabel === 'Payment Proof') {
-             document.getElementById('detailPaymentProofFields').style.display = 'flex';
-          } else {
-             document.getElementById('detailPaymentProofFields').style.display = 'none';
-          }
-        } else {
-          document.getElementById('detail-upload-wrapper').style.display = 'none';
-        }
-      } else {
-        document.getElementById('detail-upload-wrapper').style.display = 'none';
-      }
-      
-      if (config.captureCounterOffer && typeof config.captureCounterOffer === 'function') {
-        const showCO = config.captureCounterOffer(subStatus);
-        if (showCO) {
-          document.getElementById('detail-co-wrapper').style.display = 'flex';
-        } else {
-          document.getElementById('detail-co-wrapper').style.display = 'none';
-        }
-      } else {
-        document.getElementById('detail-co-wrapper').style.display = 'none';
+        fupWrapper.style.display = 'none';
       }
     };
 

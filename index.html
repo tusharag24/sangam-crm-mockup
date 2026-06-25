@@ -2173,7 +2173,7 @@ https://ambak.in/quote/x920dj</textarea>
             <!-- Block 3 -->
             <div style="padding: 10px 20px; border-right: 1px solid #F3F4F6; flex: 1;">
               <div style="color: #9CA3AF; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">LOAN</div>
-              <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.hlLead ? \`₹\${formatLakhs(l.hlLead.si)} · \${l.hlLead.bank}\` : '—'}</div>
+              <div style="font-size: 13px; font-weight: 600; color: #111827;">${l.hlLead ? '₹' + formatLakhs(l.hlLead.si) + ' · ' + l.hlLead.bank : '—'}</div>
               <div style="font-size: 11px; color: #6B7280;">HL Stage: <span style="font-weight: 700;">${l.hlLead ? getStageLabel(l.hlLead.hlStage) : '—'}</span></div>
             </div>
 

@@ -159,6 +159,63 @@
     }
     .drawer-overlay.open { display: block; }
     
+    .filter-drawer {
+      position: fixed;
+      top: 0; right: -450px;
+      width: 450px; height: 100vh;
+      background: var(--bg);
+      z-index: 1000;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .filter-drawer.open { right: 0; }
+    
+    .filter-drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .filter-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .filter-drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .filter-section {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+    .filter-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    
     .content-area {
       flex: 1;
       display: flex;
@@ -489,57 +546,80 @@ https://ambak.in/quote/x920dj</textarea>
       </div>
 
       <!-- Filters -->
-      <div class="sangam-filter-bar">
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Stage</label>
-          <select class="sangam-filter-select">
-            <option>All</option>
-            <option>New</option>
-            <option>Contacted</option>
-            <option>Quote</option>
-            <option>Processing</option>
-            <option>Policy</option>
-            <option>Lost</option>
-          </select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Product</label>
-          <select class="sangam-filter-select">
-            <option>All</option>
-            <option>Loan Protection</option>
-            <option>Property</option>
-            <option>Credit Life</option>
-            <option>Term Plan</option>
-          </select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Source</label>
-          <select class="sangam-filter-select">
-            <option>All</option>
-            <option>Yoddha</option>
-            <option>Saathi</option>
-            <option>Sangam</option>
-            <option>D2C</option>
-            <option>Manual</option>
-          </select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Date Range</label>
-          <select class="sangam-filter-select">
-            <option>Date From - Date To</option>
-          </select>
-        </div>
-        <div style="display:flex; align-items:flex-end; gap:8px;">
-          <button class="btn btn-ghost" style="padding:8px 16px; border-radius:20px; font-size:12px; height:34px;">More filter ≡</button>
-        </div>
-        
-        <div style="display:flex; align-items:flex-end; gap:8px; margin-left:auto;">
-          <button class="btn btn-primary" style="padding:8px 24px; border-radius:20px; font-size:12px; height:34px;">Apply</button>
-          <button class="btn btn-ghost" style="padding:8px 24px; border-radius:20px; font-size:12px; height:34px; border-color:#E5E7EB;">Reset</button>
+      <div class="sangam-filter-container" style="background:var(--white); padding:16px; border-radius:12px; border:1px solid var(--border); margin-bottom:24px;">
+        <!-- Primary Filter Bar -->
+        <div class="sangam-filter-bar" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+          <div class="sangam-filter-group">
+            <label class="sangam-filter-label">Stage</label>
+            <select class="sangam-filter-select">
+              <option>All</option>
+              <option>New</option>
+              <option>Contacted</option>
+              <option>Quote</option>
+              <option>Payment Done</option>
+              <option>Policy</option>
+            </select>
+          </div>
+          <div class="sangam-filter-group">
+            <label class="sangam-filter-label">Product</label>
+            <select class="sangam-filter-select">
+              <option>All</option>
+              <option>Loan Protection</option>
+              <option>Property Insurance</option>
+              <option>Credit Life</option>
+              <option>Term Plan</option>
+            </select>
+          </div>
+          <div class="sangam-filter-group">
+            <label class="sangam-filter-label">Source</label>
+            <select class="sangam-filter-select">
+              <option>All</option>
+              <option value="yoddha">Yoddha</option>
+              <option value="saathi">Saathi</option>
+              <option value="sangam">Sangam</option>
+              <option value="manual">Manual</option>
+            </select>
+          </div>
+          <div class="sangam-filter-group">
+            <label class="sangam-filter-label">Status</label>
+            <select class="sangam-filter-select">
+              <option>All</option>
+              <option>Not Connected</option>
+              <option>Call Back</option>
+              <option>Interested</option>
+              <option>Not Interested</option>
+              <option>Quote Shared</option>
+              <option>Payment Link Shared</option>
+              <option>Payment Done</option>
+              <option>Documents</option>
+              <option>KYC</option>
+              <option>Proposal Form</option>
+              <option>Tele-PD</option>
+              <option>Medical</option>
+              <option>Underwriting Approval</option>
+              <option>Policy Copy</option>
+              <option>Policy Issued</option>
+              <option>MIS</option>
+              <option>Commission</option>
+              <option>Freelook Period</option>
+            </select>
+          </div>
+          <div class="sangam-filter-group" style="flex:1;">
+            <label class="sangam-filter-label">Search Lead</label>
+            <div style="display:flex; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0 8px;">
+              <span style="font-size:12px; color:var(--text-muted);">🔍</span>
+              <input type="text" class="sangam-filter-select" placeholder="Search Name, Phone, ID..." style="border:none; width:100%; box-sizing:border-box; background:transparent;">
+            </div>
+          </div>
+          
+          <div style="display:flex; align-items:flex-end; gap:8px;">
+            <button class="btn btn-ghost" style="padding:8px 16px; border-radius:8px; font-size:12px; height:34px; border-color:#E5E7EB; color:var(--text-body);" onclick="toggleMoreFilters()">More Filters ≡</button>
+          </div>
         </div>
       </div>
       
-      <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
+        <div style="font-size:16px; font-weight:700;">Leads Queue</div>
         <div style="font-size:11px; font-weight:600; color:var(--text-heading);">Showing <span id="entry-count">0</span> entries on Page 1/1</div>
       </div>
 
@@ -549,14 +629,15 @@ https://ambak.in/quote/x920dj</textarea>
           <thead>
             <tr>
               <th>Insurance ID</th>
-              <th>Customer Details</th>
-              <th>Product & Source</th>
-              <th>Loan Amount</th>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Loan</th>
               <th>Stage</th>
+              <th>Source</th>
               <th>Status</th>
               <th>Status Update</th>
-              <th>IBM Agent</th>
-              <th>Action</th>
+              <th>Next Follow-up</th>
+              <th>Assignee</th>
             </tr>
           </thead>
           <tbody id="lead-table-body">
@@ -589,7 +670,7 @@ https://ambak.in/quote/x920dj</textarea>
         <select class="search-input" style="min-width:140px;"><option>This Month</option><option>Today</option><option>This Week</option><option>Custom Range</option></select>
         <select class="search-input" style="min-width:140px;"><option>All Products</option><option>Loan Protection</option><option>Property</option><option>Credit Life</option><option>Term Plan</option></select>
         <select class="search-input" style="min-width:140px;"><option>All Insurers</option><option>CARE</option><option>TATA</option><option>HDFC Life</option></select>
-        <select class="search-input" style="min-width:140px;"><option>All Sources</option><option>D2C</option><option>Sathi</option><option>Yoddha</option></select>
+        <select class="search-input" style="min-width:140px;"><option>All Sources</option><option value="yoddha">Yoddha</option><option value="saathi">Saathi</option><option value="sangam">Sangam</option><option value="manual">Manual</option></select>
         <select class="search-input" style="min-width:140px;"><option>All Managers</option></select>
       </div>
 
@@ -1055,6 +1136,228 @@ https://ambak.in/quote/x920dj</textarea>
     <span id="toast-msg">Success</span>
   </div>
 
+  <!-- Update Status Modal -->
+  <div class="drawer-overlay" id="statusModalOverlay" onclick="closeStatusModal()"></div>
+  <div id="statusModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:32px; border-radius:16px; z-index:1001; width:440px; box-shadow:0 10px 40px rgba(0,0,0,0.1);">
+    <div style="font-size:20px; font-weight:800; margin-bottom:24px; color:#2E2E38;">
+      Update Status
+    </div>
+    
+    <input type="hidden" id="statusLeadId">
+    <input type="hidden" id="statusCurrentBucket">
+    
+    <div class="sangam-filter-group" style="margin-bottom:20px;">
+      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">STATUS</label>
+      <select id="statusSelect" class="sangam-filter-select" onchange="handleStatusChange()" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; margin-top:8px;">
+        <!-- Populated via JS based on current bucket -->
+      </select>
+    </div>
+    
+    <div class="sangam-filter-group" style="margin-bottom:20px;">
+      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">SUB STATUS</label>
+      <select id="subStatusSelect" class="sangam-filter-select" onchange="handleSubStatusChange()" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; margin-top:8px;">
+        <!-- Populated via JS -->
+      </select>
+    </div>
+    
+    <div id="followUpGroupWrapper" style="display:none; gap:16px; margin-bottom:20px;">
+      <div class="sangam-filter-group" style="flex:1;">
+        <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">FOLLOW-UP DATE *</label>
+        <div style="position:relative; margin-top:8px;">
+          <input type="date" id="followUpDateInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box;">
+        </div>
+      </div>
+      <div class="sangam-filter-group" style="flex:1;">
+        <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">PENDING WITH *</label>
+        <div style="position:relative; margin-top:8px;">
+          <select id="pendingWithSelect" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box;">
+            <option>Customer</option>
+            <option>IBM Agent</option>
+            <option>PolicyBazaar</option>
+            <option>Insurer</option>
+            <option>Ambak Operations</option>
+            <option>Finance Team</option>
+            <option>RM / Sales Team</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div id="uploadGroupWrapper" style="display:none; margin-bottom:20px;">
+      <label id="uploadGroupLabel" class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">UPLOAD PROOF *</label>
+      <input type="file" id="uploadInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box; margin-top:8px;">
+      <div id="paymentProofFields" style="display:none; flex-direction:column; gap:12px; margin-top:16px;">
+        <div>
+          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Payment Amount *</label>
+          <input type="text" id="paymentAmountInput" class="sangam-filter-select" placeholder="₹" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
+        </div>
+        <div>
+          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">UTR Number *</label>
+          <input type="text" id="paymentUtrInput" class="sangam-filter-select" placeholder="Enter UTR" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
+        </div>
+        <div>
+          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Payment Date *</label>
+          <input type="date" id="paymentDateInput" class="sangam-filter-select" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
+        </div>
+      </div>
+    </div>
+    
+    <div id="coGroupWrapper" style="display:none; flex-direction:column; gap:16px; margin-bottom:20px; background:#F9FAFB; padding:16px; border-radius:8px; border:1px dashed #D1D5DB;">
+      <div style="font-size:12px; font-weight:700; color:#4B5563; text-transform:uppercase;">Counter Offer Details</div>
+      <div>
+        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Counter Offer Amount</label>
+        <input type="number" id="coAmountModal" class="sangam-filter-select" placeholder="e.g. 5000" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
+      </div>
+      <div>
+        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Customer Response</label>
+        <select id="coResponseModal" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
+          <option value="">Select Response</option>
+          <option>Accepted</option>
+          <option>Rejected</option>
+          <option>Negotiating</option>
+        </select>
+      </div>
+      <div>
+        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Additional Premium Received</label>
+        <input type="number" id="coPremiumModal" class="sangam-filter-select" placeholder="e.g. 1500" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
+      </div>
+    </div>
+    
+    <div class="sangam-filter-group" style="margin-bottom:32px;">
+      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">REMARKS</label>
+      <textarea id="remarksInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:14px; color:#111827; margin-top:8px; height:80px; resize:none; width:100%; box-sizing:border-box;"></textarea>
+    </div>
+    
+    <button class="btn" onclick="saveStatusUpdate()" style="background:#42307D; color:white; width:100%; padding:14px; border-radius:8px; font-size:16px; font-weight:600; border:none; cursor:pointer;">Update Status</button>
+  </div>
+
+  <div class="drawer-overlay" id="filterOverlay" onclick="toggleMoreFilters()"></div>
+  <div class="filter-drawer" id="filterDrawer">
+    <div class="filter-drawer-header">
+      <div style="font-size:16px; font-weight:700; color:var(--text-heading);">More Filters</div>
+      <div style="cursor:pointer; font-size:24px; color:var(--text-muted); line-height:1;" onclick="toggleMoreFilters()">&times;</div>
+    </div>
+    <div class="filter-drawer-body">
+      <!-- Lead Filters -->
+      <div class="filter-section">
+        <div class="filter-section-title">Lead Filters</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Assigned Agent</label>
+          <select class="sangam-filter-select"><option>All</option><option>Me</option><option>Unassigned</option><option>Rohit</option><option>Aman</option><option>Priya</option><option>Rahul</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Lead Age</label>
+          <select class="sangam-filter-select"><option>All</option><option>0-2 Days</option><option>3-7 Days</option><option>8-15 Days</option><option>15-30 Days</option><option>30+ Days</option></select>
+        </div>
+      </div>
+
+      <!-- Follow-up Filters -->
+      <div class="filter-section">
+        <div class="filter-section-title">Follow-up Filters</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Follow-up Status</label>
+          <select class="sangam-filter-select"><option>All</option><option>Overdue</option><option>Due Today</option><option>Tomorrow</option><option>This Week</option><option>No Follow-up</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Pending With</label>
+          <select class="sangam-filter-select"><option>All</option><option>Customer</option><option>IBM Agent</option><option>PolicyBazaar</option><option>CARE</option><option>TATA</option><option>Insurer</option><option>Ambak Operations</option></select>
+        </div>
+      </div>
+
+      <!-- Product Filters -->
+      <div class="filter-section">
+        <div class="filter-section-title">Product Filters</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Insurer</label>
+          <select class="sangam-filter-select"><option>All</option><option>CARE</option><option>TATA AIG</option><option>Bajaj Allianz</option><option>ICICI Lombard</option><option>HDFC Ergo</option><option>SBI General</option><option>Max Life</option><option>Tata AIA</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Premium Range</label>
+          <select class="sangam-filter-select"><option>All</option><option>0-5k</option><option>5k-10k</option><option>10k-25k</option><option>25k+</option></select>
+        </div>
+      </div>
+
+      <!-- Processing Filters -->
+      <div class="filter-section">
+        <div class="filter-section-title">Processing Filters</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Payment Status</label>
+          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Verification Pending</option><option>Verified</option><option>Failed</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Document Status</label>
+          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Partial</option><option>Received</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Medical Status</label>
+          <select class="sangam-filter-select"><option>All</option><option>Scheduled</option><option>Completed</option><option>Pending</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Approval Status</label>
+          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Counter Offer</option><option>Approved</option><option>Rejected</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">HL Stage</label>
+          <select class="sangam-filter-select"><option>All</option><option>Fresh</option><option>Login</option><option>Sanctioned</option><option>Disbursed</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Bank</label>
+          <select class="sangam-filter-select"><option>All</option><option>HDFC</option><option>ICICI</option><option>Axis</option><option>Kotak</option><option>SBI</option><option>PNB</option><option>Others</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Loan Amount</label>
+          <select class="sangam-filter-select"><option>All</option><option>0-20L</option><option>20-40L</option><option>40-60L</option><option>60L+</option></select>
+        </div>
+      </div>
+
+      <!-- Date Filters -->
+      <div class="filter-section">
+        <div class="filter-section-title">Date Filters</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Created Date</label>
+          <select class="sangam-filter-select"><option>All</option><option>Today</option><option>Yesterday</option><option>This Week</option><option>This Month</option><option>Custom</option></select>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Status Updated (From - To)</label>
+          <div style="display:flex; gap:8px;">
+            <input type="date" class="sangam-filter-select" style="flex:1;">
+            <input type="date" class="sangam-filter-select" style="flex:1;">
+          </div>
+        </div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Follow-up Date (From - To)</label>
+          <div style="display:flex; gap:8px;">
+            <input type="date" class="sangam-filter-select" style="flex:1;">
+            <input type="date" class="sangam-filter-select" style="flex:1;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sort By -->
+      <div class="filter-section">
+        <div class="filter-section-title">Sorting</div>
+        <div class="sangam-filter-group">
+          <label class="sangam-filter-label">Sort By</label>
+          <select class="sangam-filter-select">
+            <option>Recently Updated</option>
+            <option>Follow-up Due First</option>
+            <option>Overdue Follow-ups</option>
+            <option>Lead Age (Oldest First)</option>
+            <option>Lead Age (Newest First)</option>
+            <option>Quote Shared Waiting Longest</option>
+            <option>Payment Pending Longest</option>
+            <option>Longest in Processing</option>
+            <option>Premium Amount High to Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="filter-drawer-footer">
+      <button class="btn btn-ghost" style="padding:8px 24px; border-radius:8px;" onclick="toggleMoreFilters()">Cancel</button>
+      <button class="btn btn-ghost" style="padding:8px 24px; border-radius:8px;">Reset</button>
+      <button class="btn btn-primary" style="padding:8px 24px; border-radius:8px;" onclick="toggleMoreFilters()">Apply Filters</button>
+    </div>
+  </div>
   <script>
     // === GLOBAL STATE ===
     let currentLead = null;
@@ -1092,32 +1395,173 @@ https://ambak.in/quote/x920dj</textarea>
 
     // Stage definition
     // State Machine Definition
-    const BUCKETS = ['New', 'Contacted', 'Quote', 'Processing', 'Policy', 'Lost'];
+    const BUCKETS = ['New', 'Contacted', 'Quote', 'Payment Done', 'Policy', 'Lost'];
 
-    const STATUS_MAP = {
-      'New': ['Not Connected', 'Call Back', 'Interested', 'Not Interested'],
-      'Contacted': ['Call Back', 'Interested', 'Not Interested'],
-      'Quote': ['Quote Shared', 'Payment Link Shared', 'Payment Done', 'Not Interested'],
-      'Processing': ['Documents', 'Medical', 'Approval', 'Policy Issuance'], 
-      'Policy': ['Active', 'Freelook', 'Payout'],
-      'Lost': []
+    const LOST_STATUS_CONFIG = {
+      subStatuses: [
+        'Not Interested', 'Already Insured', 'Wrong Number', 'Duplicate Lead',
+        'Premium Too High', 'Competitor Chosen', 'No Response',
+        'Payment Not Received', 'Payment Failed',
+        'Counter Offer Rejected', 'Medical Rejected', 'Insurer Rejected'
+      ],
+      mandatoryFollowUp: false,
+      pendingWith: 'None',
+      nextBucket: 'Lost'
     };
 
-    const SUBSTATUS_MAP = {
-      'Not Connected': ['Customer Busy', 'Not Reachable', 'Invalid Number', 'Ringing No Answer', 'Switched Off', 'Voicemail', 'Customer Disconnected'],
-      'Call Back': ['Busy Call Later', 'Call Later - Partial Details Shared', 'Language Barrier', 'Customer Disconnected'],
-      'Interested': [],
-      'Not Interested': ['Already Insured', 'Too Expensive', 'Coverage Not Needed', 'Purchased Elsewhere', 'Bank Insurance Selected', 'Quote Declined', 'Premium Too High', 'No Response'],
-      'Quote Shared': ['Consent Pending', 'Exploring Other Options', 'Visit Requested'],
-      'Payment Link Shared': ['Payment Pending', 'Link Not Working'],
-      'Payment Done': ['Verification Pending', 'Payment Verified', 'Verification Failed'],
-      'Documents': ['Pending', 'Partial', 'Received'],
-      'Medical': ['Scheduled', 'Completed'],
-      'Approval': ['Pending', 'Counter Offer', 'Approved', 'Rejected'],
-      'Policy Issuance': ['Pending', 'Issued'],
-      'Active': ['Policy Shared'],
-      'Freelook': ['Pending', 'Completed', 'Policy Cancelled'],
-      'Payout': ['Pending', 'Received']
+    // === STATE MACHINE CONFIG ===
+    const STATE_MACHINE_CONFIG = {
+      'New': {
+        statuses: {
+          'Not Connected': {
+            subStatuses: ['Customer Busy', 'Not Reachable', 'Switched Off', 'Ringing No Answer', 'Voicemail', 'Customer Disconnected Call'],
+            mandatoryFollowUp: true,
+            pendingWith: 'Customer',
+            nextBucket: 'New'
+          },
+          'Call Back': {
+            subStatuses: ['Busy, Call Later', 'Call Later - Partial Discussion', 'Customer Disconnected Call', 'Language Barrier'],
+            mandatoryFollowUp: true,
+            pendingWith: 'Customer',
+            nextBucket: 'Contacted'
+          },
+          'Interested': {
+            subStatuses: ['Need Quote'],
+            mandatoryFollowUp: false,
+            pendingWith: 'IBM Agent',
+            nextBucket: 'Contacted'
+          },
+          'Not Interested': {
+            subStatuses: ['Too Expensive', 'Already Insured', 'Not Required', 'Will Purchase Later', 'Family Not Interested', 'Other'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Contacted'
+          }
+        }
+      },
+      'Contacted': {
+        statuses: {
+          'Call Back': {
+            subStatuses: ['Busy, Call Later', 'Need More Information', 'Discussing With Family', 'Call After Loan Sanction', 'Call After Disbursement'],
+            mandatoryFollowUp: true,
+            pendingWith: 'Customer',
+            nextBucket: 'Contacted'
+          },
+          'Interested': {
+            subStatuses: ['Need Quote'],
+            mandatoryFollowUp: false,
+            pendingWith: 'IBM Agent',
+            nextBucket: 'Quote'
+          },
+          'Not Interested': {
+            subStatuses: ['Too Expensive', 'Existing Insurance Available', 'No Requirement', 'Loan Cancelled', 'Will Decide Later', 'Other'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Contacted'
+          }
+        }
+      },
+      'Quote': {
+        statuses: {
+          'Quote Shared': {
+            subStatuses: ['Consent Pending', 'Exploring Options', 'Visit Requested'],
+            mandatoryFollowUp: true,
+            pendingWith: 'Customer',
+            nextBucket: 'Quote'
+          },
+          'Payment Link Shared': {
+            subStatuses: ['Awaiting Payment', 'Link Not Working', 'Resend Requested'],
+            mandatoryFollowUp: true,
+            pendingWith: 'Customer',
+            nextBucket: 'Quote'
+          },
+          'Payment Done': {
+            subStatuses: ['Verification Pending', 'Verification Failed', 'Verified'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Ambak Operations',
+            nextBucket: 'Payment Done',
+            conditionNextBucket: (subStatus) => subStatus === 'Verified' ? 'Payment Done' : 'Quote',
+            mandatoryUpload: () => 'Payment Proof'
+          }
+        }
+      },
+      'Payment Done': {
+        statuses: {
+          'Documents': {
+            subStatuses: ['Pending', 'Partial', 'Received'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Payment Done'
+          },
+          'KYC': {
+            subStatuses: ['Pending', 'Completed'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Payment Done'
+          },
+          'Proposal Form': {
+            subStatuses: ['Pending', 'Completed'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Payment Done'
+          },
+          'Tele-PD': {
+            subStatuses: ['Pending', 'Completed'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Payment Done'
+          },
+          'Medical': {
+            subStatuses: ['Scheduled', 'Completed'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Customer',
+            nextBucket: 'Payment Done'
+          },
+          'Underwriting': {
+            subStatuses: ['Pending', 'Counter Offer', 'Approved', 'Rejected'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Insurer',
+            nextBucket: 'Payment Done',
+            captureCounterOffer: (subStatus) => subStatus === 'Counter Offer'
+          },
+          'Policy Copy': {
+            subStatuses: ['Pending', 'Issued'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Ambak Operations',
+            nextBucket: 'Policy',
+            conditionNextBucket: (subStatus) => subStatus === 'Issued' ? 'Policy' : 'Payment Done',
+            mandatoryUpload: (subStatus) => subStatus === 'Issued' ? 'Policy Copy' : null
+          }
+        }
+      },
+      'Policy': {
+        statuses: {
+          'Policy Issued': {
+            subStatuses: ['Shared With Customer', 'Acknowledged'],
+            mandatoryFollowUp: false,
+            pendingWith: 'None',
+            nextBucket: 'Policy'
+          },
+          'MIS': {
+            subStatuses: ['Pending', 'Received'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Ambak Operations',
+            nextBucket: 'Policy'
+          },
+          'Commission': {
+            subStatuses: ['Pending', 'Received'],
+            mandatoryFollowUp: false,
+            pendingWith: 'Finance Team',
+            nextBucket: 'Policy'
+          },
+          'Freelook Period': {
+            subStatuses: ['Active', 'Completed', 'Policy Cancelled'],
+            mandatoryFollowUp: false,
+            pendingWith: 'None',
+            nextBucket: 'Policy'
+          }
+        }
+      }
     };
 
     // === DATA (Mock) ===
@@ -1127,13 +1571,14 @@ https://ambak.in/quote/x920dj</textarea>
         name: 'Priya Sharma', phone: '+91 98765 43210', email: 'priya.s@gmail.com',
         age: 34, income: '₹14L/yr', si: 4500000, loanBank: 'HDFC Bank',
         initialProduct: 'lp', productStatus: 'draft', quotes: [],
-        source: 'd2c', bucket: 'Quote', status: 'Exploring Options', subStatus: 'Comparing Insurers',
-        attempts: 0, createdDate: '14 Jun 2026',
-        hlLead: { id: '#194856', bank: 'HDFC Bank', si: 4500000, hlStage: 'loggedin', rm: 'Rohit M' },
+        source: 'd2c', bucket: 'Quote', status: 'Quote Shared', subStatus: 'Exploring Other Options',
+        attempts: 0, createdDate: '14 Jun 2026', createdAt: new Date(Date.now() - 2*86400000).toISOString(),
+        followUpDate: 'Today 4:30 PM',
+        hlLead: { id: '#194856', bank: 'HDFC Bank', si: 4500000, hlStage: 'Login Done', rm: 'Rohit M' },
         log: [
-          {dot: '#473391', text: 'Bucket changed to Quote', time: 'Today 10:30 AM'},
-          {dot: '#D97706', text: 'Status updated to Exploring Options', time: 'Today 10:20 AM'},
-          {dot: '#3B82F6', text: 'Connected: Call answered', time: 'Today 10:15 AM'},
+          {dot: '#473391', text: 'Bucket changed to Quote', time: '2 hrs ago'},
+          {dot: '#D97706', text: 'Status updated to Quote Shared - Exploring Other Options', time: '3 hrs ago'},
+          {dot: '#3B82F6', text: 'Connected: Call answered', time: '4 hrs ago'},
         ]
       },
       {
@@ -1142,10 +1587,11 @@ https://ambak.in/quote/x920dj</textarea>
         age: 42, income: '₹22L/yr', si: 6000000, loanBank: 'ICICI Bank',
         initialProduct: 'term', productStatus: 'draft', quotes: [],
         source: 'sathi', bucket: 'New', status: 'Not Connected', subStatus: 'Customer Busy',
-        attempts: 1, createdDate: '15 Jun 2026',
-        hlLead: { id: '#194892', bank: 'ICICI Bank', si: 6000000, hlStage: 'sanctioned', rm: 'Rohit M' },
+        attempts: 1, createdDate: '15 Jun 2026', createdAt: new Date(Date.now() - 7*86400000).toISOString(),
+        followUpDate: 'Tomorrow 11:00 AM',
+        hlLead: { id: '#194892', bank: 'ICICI Bank', si: 6000000, hlStage: 'Sanctioned', rm: 'Rohit M' },
         log: [
-          {dot: '#3B82F6', text: 'Call attempt: Not connected (Customer Busy)', time: 'Yesterday 4:00 PM'},
+          {dot: '#3B82F6', text: 'Call attempt: Not connected', time: 'Yesterday'},
         ]
       },
       {
@@ -1154,9 +1600,10 @@ https://ambak.in/quote/x920dj</textarea>
         age: 39, income: '₹18L/yr', si: 3000000, loanBank: 'SBI',
         initialProduct: 'cl', productStatus: 'locked', quotes: [],
         finalProduct: 'cl', finalInsurer: 'HDFC Life', finalPremium: 9500,
-        source: 'd2c', bucket: 'Quote', status: 'Payment Pending', subStatus: 'Customer Will Pay Later',
-        attempts: 0, createdDate: '10 Jun 2026',
-        hlLead: { id: '#194701', bank: 'SBI', si: 3000000, hlStage: 'disbursed', rm: 'Rohit M' },
+        source: 'd2c', bucket: 'Quote', status: 'Payment Link Shared', subStatus: 'Awaiting Payment',
+        attempts: 0, createdDate: '10 Jun 2026', createdAt: new Date(Date.now() - 12*86400000).toISOString(),
+        followUpDate: 'Overdue (2 days)',
+        hlLead: { id: '#194701', bank: 'SBI', si: 3000000, hlStage: 'Disbursed', rm: 'Rohit M' },
         log: [
           {dot: '#2563EB', text: 'Payment link generated & sent', time: 'Today 9:00 AM'},
         ]
@@ -1166,11 +1613,12 @@ https://ambak.in/quote/x920dj</textarea>
         name: 'Amit Singh', phone: '+91 65432 10987', email: 'amit.s@gmail.com',
         age: 45, income: '₹12L/yr', si: null, loanBank: 'NR Associates',
         initialProduct: 'property', productStatus: 'draft', quotes: [],
-        source: 'yoddha', bucket: 'New', status: 'Not Connected', subStatus: '',
-        attempts: 0, createdDate: '16 Jun 2026',
+        source: 'yoddha', bucket: 'New', status: 'Call Back', subStatus: 'Busy, Call Later',
+        attempts: 0, createdDate: '16 Jun 2026', createdAt: new Date(Date.now() - 15*86400000).toISOString(),
+        followUpDate: 'No Follow-up',
         hlLead: null,
         log: [
-          {dot: '#16A34A', text: 'Lead created manually', time: 'Today 11:45 AM'},
+          {dot: '#16A34A', text: 'Lead created manually', time: '15 days ago'},
         ]
       },
       {
@@ -1179,11 +1627,12 @@ https://ambak.in/quote/x920dj</textarea>
         age: 28, income: '₹9L/yr', si: 3500000, loanBank: 'Axis Bank',
         initialProduct: 'lp', productStatus: 'locked', quotes: [],
         finalProduct: 'lp', finalInsurer: 'CARE', finalPremium: 8200,
-        source: 'sathi', bucket: 'Processing', status: 'In Progress', subStatus: '',
-        attempts: 0, createdDate: '01 Jun 2026',
-        hlLead: { id: '#194123', bank: 'Axis Bank', si: 3500000, hlStage: 'disbursed', rm: 'Rohit M' },
+        source: 'sathi', bucket: 'Payment Done', status: 'Medical', subStatus: 'Scheduled',
+        attempts: 0, createdDate: '01 Jun 2026', createdAt: new Date(Date.now() - 22*86400000).toISOString(),
+        followUpDate: 'No Follow-up',
+        hlLead: { id: '#194123', bank: 'Axis Bank', si: 3500000, hlStage: 'Disbursed', rm: 'Rohit M' },
         log: [
-          {dot: '#16A34A', text: 'Payment received successfully', time: 'Yesterday 2:00 PM'},
+          {dot: '#16A34A', text: 'Payment verified', time: '5 mins ago'},
         ]
       },
       {
@@ -1191,16 +1640,21 @@ https://ambak.in/quote/x920dj</textarea>
         name: 'Vikram Mehta', phone: '+91 43210 98765', email: 'vikram.m@gmail.com',
         age: 50, income: '₹35L/yr', si: 8000000, loanBank: 'Kotak Bank',
         initialProduct: 'term', productStatus: 'draft', quotes: [],
-        source: 'd2c', bucket: 'New', status: 'Not Connected', subStatus: '',
-        attempts: 0, createdDate: '17 Jun 2026',
-        hlLead: { id: '#194999', bank: 'Kotak Bank', si: 8000000, hlStage: 'contacted', rm: 'Rohit M' },
+        source: 'd2c', bucket: 'Contacted', status: 'Call Back', subStatus: 'Discussing With Family',
+        attempts: 0, createdDate: '17 Jun 2026', createdAt: new Date(Date.now() - 0*86400000).toISOString(),
+        followUpDate: 'Today 2:00 PM',
+        hlLead: { id: '#194999', bank: 'Kotak Bank', si: 8000000, hlStage: 'Contacted', rm: 'Rohit M' },
         log: [
-          {dot: '#16A34A', text: 'Lead assigned from Sangam', time: '1 hr ago'},
+          {dot: '#16A34A', text: 'Lead assigned from Sangam', time: 'Just now'},
         ]
       }
     ];
 
     // === HELPERS ===
+    function toggleMoreFilters() {
+      document.getElementById('filterDrawer').classList.toggle('open');
+      document.getElementById('filterOverlay').classList.toggle('open');
+    }
     function toggleDrawer() {
       document.getElementById('navDrawer').classList.toggle('open');
       document.getElementById('drawerOverlay').classList.toggle('open');
@@ -1213,6 +1667,267 @@ https://ambak.in/quote/x920dj</textarea>
       t.style.background = isSuccess ? '#16A34A' : '#1A1A2E';
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    // Modal JS Logic
+    function openStatusModal(leadId) {
+      const lead = LEADS.find(l => l.id === leadId);
+      document.getElementById('statusLeadId').value = lead.id;
+      document.getElementById('statusCurrentBucket').value = lead.bucket;
+      
+      const config = STATE_MACHINE_CONFIG[lead.bucket];
+      const statusSelect = document.getElementById('statusSelect');
+      statusSelect.innerHTML = '<option value="">Select Status</option>';
+      if (config) {
+        Object.keys(config.statuses).forEach(status => {
+          statusSelect.innerHTML += `<option value="${status}">${status}</option>`;
+        });
+      }
+      
+      document.getElementById('subStatusSelect').innerHTML = '<option value="">Select Sub Status</option>';
+      document.getElementById('followUpGroupWrapper').style.display = 'none';
+      document.getElementById('followUpDateInput').value = '';
+      document.getElementById('pendingWithSelect').value = 'Customer';
+      document.getElementById('remarksInput').value = '';
+      
+      document.getElementById('statusModalOverlay').classList.add('open');
+      document.getElementById('statusModal').style.display = 'block';
+    }
+
+    function handleStatusChange() {
+      const bucket = document.getElementById('statusCurrentBucket').value;
+      const status = document.getElementById('statusSelect').value;
+      const subSelect = document.getElementById('subStatusSelect');
+      
+      subSelect.innerHTML = '<option value="">Select Sub Status</option>';
+      if (!status) return;
+      
+      const statusConfig = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      statusConfig.subStatuses.forEach(sub => {
+        subSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+      });
+      
+      handleSubStatusChange();
+    }
+
+    function handleSubStatusChange() {
+      const bucket = document.getElementById('statusCurrentBucket').value;
+      const status = document.getElementById('statusSelect').value;
+      const subStatus = document.getElementById('subStatusSelect').value;
+      
+      if (!status || !subStatus) return;
+      
+      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      
+      if (config.mandatoryFollowUp) {
+        document.getElementById('followUpGroupWrapper').style.display = 'flex';
+      } else {
+        document.getElementById('followUpGroupWrapper').style.display = 'none';
+      }
+      
+      if (config.pendingWith && config.pendingWith !== 'None') {
+        document.getElementById('pendingWithSelect').value = config.pendingWith;
+      }
+      
+      if (config.mandatoryUpload && typeof config.mandatoryUpload === 'function') {
+        const uploadLabel = config.mandatoryUpload(subStatus);
+        if (uploadLabel) {
+          document.getElementById('uploadGroupWrapper').style.display = 'block';
+          document.getElementById('uploadGroupLabel').innerText = uploadLabel.toUpperCase() + ' *';
+          if (uploadLabel === 'Payment Proof') {
+             document.getElementById('paymentProofFields').style.display = 'flex';
+          } else {
+             document.getElementById('paymentProofFields').style.display = 'none';
+          }
+        } else {
+          document.getElementById('uploadGroupWrapper').style.display = 'none';
+        }
+      } else {
+        document.getElementById('uploadGroupWrapper').style.display = 'none';
+      }
+      
+      if (config.captureCounterOffer && typeof config.captureCounterOffer === 'function') {
+        const showCO = config.captureCounterOffer(subStatus);
+        if (showCO) {
+          document.getElementById('coGroupWrapper').style.display = 'flex';
+        } else {
+          document.getElementById('coGroupWrapper').style.display = 'none';
+        }
+      } else {
+        document.getElementById('coGroupWrapper').style.display = 'none';
+      }
+    }
+    
+    function closeStatusModal() {
+      document.getElementById('statusModalOverlay').classList.remove('open');
+      document.getElementById('statusModal').style.display = 'none';
+    }
+
+    function saveStatusUpdate() {
+      const id = document.getElementById('statusLeadId').value;
+      const status = document.getElementById('statusSelect').value;
+      const subStatus = document.getElementById('subStatusSelect').value;
+      const bucket = document.getElementById('statusCurrentBucket').value;
+      const dateInput = document.getElementById('followUpDateInput').value;
+      const pendingWith = document.getElementById('pendingWithSelect').value;
+      const remarks = document.getElementById('remarksInput').value;
+      
+      if (!status || !subStatus) {
+        alert("Please select Status and Sub Status."); return;
+      }
+      
+      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      if (config.mandatoryFollowUp && !dateInput) {
+        alert("Follow-up date is mandatory for this status."); return;
+      }
+      
+      let paymentLog = '';
+      if (config.mandatoryUpload && typeof config.mandatoryUpload === 'function') {
+        const uploadLabel = config.mandatoryUpload(subStatus);
+        if (uploadLabel) {
+          if (!document.getElementById('uploadInput').value) {
+             alert(uploadLabel + " is mandatory for this status."); return;
+          }
+          if (uploadLabel === 'Payment Proof') {
+             const amt = document.getElementById('paymentAmountInput').value;
+             const utr = document.getElementById('paymentUtrInput').value;
+             const dt = document.getElementById('paymentDateInput').value;
+             if(!amt || !utr || !dt) {
+                alert("Payment Amount, UTR, and Date are mandatory."); return;
+             }
+             paymentLog = `<br>Payment Amt: ₹${amt} | UTR: ${utr} | Date: ${dt}`;
+          }
+        }
+      }
+      
+      let nextBucket = config.nextBucket;
+      if (config.conditionNextBucket) {
+        nextBucket = config.conditionNextBucket(subStatus);
+      }
+      
+      let coLog = '';
+      if (config.captureCounterOffer && typeof config.captureCounterOffer === 'function') {
+        const showCO = config.captureCounterOffer(subStatus);
+        if (showCO) {
+           const coAmount = document.getElementById('coAmountModal').value;
+           const coResponse = document.getElementById('coResponseModal').value;
+           const coPremium = document.getElementById('coPremiumModal').value;
+           if (coAmount) coLog += `<br>CO Amount: ₹${coAmount}`;
+           if (coResponse) coLog += `<br>Customer Response: ${coResponse}`;
+           if (coPremium) coLog += `<br>Addl Premium: ₹${coPremium}`;
+        }
+      }
+      
+      const lead = LEADS.find(l => l.id === id);
+      lead.bucket = nextBucket;
+      lead.status = status;
+      lead.subStatus = subStatus;
+      
+      if (config.mandatoryFollowUp) {
+        let dateObj = new Date(dateInput + 'T00:00');
+        lead.followUpDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      } else {
+        lead.followUpDate = 'No Follow-up';
+      }
+      
+      let logText = `Status updated to ${status} - ${subStatus} (Pending With: ${pendingWith})`;
+      if (remarks) logText += ` | Remarks: ${remarks}`;
+      logText += coLog;
+      logText += paymentLog;
+      
+      lead.log.unshift({ dot: '#473391', text: logText, time: 'Just now' });
+      
+      closeStatusModal();
+      renderLeadTable();
+      showToast('Status Updated Successfully!');
+    }
+
+    function openLostModal() {
+      if(!currentLead) return;
+      document.getElementById('lostModalOverlay').classList.add('open');
+      document.getElementById('lostModal').style.display = 'block';
+      document.getElementById('lostCategorySelect').value = '';
+      document.getElementById('lostReasonSelect').value = '';
+      document.getElementById('lostReasonSelect').disabled = true;
+      document.getElementById('lostRemarksInput').value = '';
+      document.getElementById('allowReopenCheckbox').checked = true;
+    }
+
+    function closeLostModal() {
+      document.getElementById('lostModalOverlay').classList.remove('open');
+      document.getElementById('lostModal').style.display = 'none';
+    }
+
+    const LOST_REASONS_MAP = {
+      'Customer Related': ['Not Interested', 'Already Insured', 'Wrong Number', 'Duplicate Lead', 'Language Barrier'],
+      'Quote Related': ['Premium Too High', 'Competitor Chosen', 'No Response'],
+      'Payment Related': ['Payment Not Received', 'Payment Failed'],
+      'Underwriting Related': ['Medical Rejected', 'Counter Offer Rejected', 'Insurer Rejected']
+    };
+
+    function updateLostReasons() {
+      const cat = document.getElementById('lostCategorySelect').value;
+      const reasonSelect = document.getElementById('lostReasonSelect');
+      reasonSelect.innerHTML = '<option value="">Select Reason</option>';
+      if (cat && LOST_REASONS_MAP[cat]) {
+        LOST_REASONS_MAP[cat].forEach(r => {
+          reasonSelect.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+        reasonSelect.disabled = false;
+      } else {
+        reasonSelect.disabled = true;
+      }
+    }
+
+    function saveLostState() {
+      const cat = document.getElementById('lostCategorySelect').value;
+      const reason = document.getElementById('lostReasonSelect').value;
+      const remarks = document.getElementById('lostRemarksInput').value;
+      const allowReopen = document.getElementById('allowReopenCheckbox').checked;
+
+      if (!cat || !reason || !remarks.trim()) {
+        showToast('Category, Reason, and Remarks are mandatory.');
+        return;
+      }
+
+      currentLead.lastActiveBucket = currentLead.bucket;
+      currentLead.bucket = 'Lost';
+      currentLead.isLost = true;
+      currentLead.lostMetadata = {
+        category: cat,
+        reason: reason,
+        remarks: remarks,
+        allowReopen: allowReopen,
+        timestamp: new Date().toLocaleString(),
+        agent: 'Verification Agent'
+      };
+
+      currentLead.log.unshift({
+        dot: '#EF4444',
+        text: `Marked as Lost: ${reason} (${cat})<br>Remarks: ${remarks}`,
+        time: 'Just now'
+      });
+
+      closeLostModal();
+      renderLeadTable();
+      renderLeadDetail();
+      showToast('Lead marked as lost');
+    }
+
+    function reopenLead() {
+      if(!currentLead || !currentLead.isLost) return;
+      currentLead.isLost = false;
+      currentLead.bucket = currentLead.lastActiveBucket || 'New';
+      
+      currentLead.log.unshift({
+        dot: '#10B981',
+        text: 'Lead Reopened',
+        time: 'Just now'
+      });
+
+      renderLeadTable();
+      renderLeadDetail();
+      showToast('Lead reopened successfully');
     }
 
     function formatMoney(num) {
@@ -1237,9 +1952,9 @@ https://ambak.in/quote/x920dj</textarea>
       switch(lead.bucket) {
         case 'New': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); gCallOut('call')">Call Now</button>`;
         case 'Contacted': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Follow Up</button>`;
-        case 'Quote': return `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Manage Quotes</button>`;
-        case 'Processing': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Track Progress</button>`;
-        case 'Policy': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">View Policy</button>`;
+        case 'Quote': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">View Quotes</button>`;
+        case 'Payment Done': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">Track Progress</button>`;
+        case 'Policy': return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); window.open('https://firebasestorage.googleapis.com', '_blank')">Download Policy</button>`;
         case 'Lost': return `<button class="btn btn-ghost btn-small" style="color:var(--text-muted);" onclick="event.stopPropagation(); openLead('${lead.id}')">View</button>`;
         default: return `<button class="btn btn-ghost btn-small" onclick="event.stopPropagation(); openLead('${lead.id}')">View</button>`;
       }
@@ -1257,52 +1972,90 @@ https://ambak.in/quote/x920dj</textarea>
       
       LEADS.forEach(l => {
         let siText = l.si ? formatLakhs(l.si) : `<span class="loan-missing">missing</span>`;
-        let bankText = l.loanBank || 'Unknown Bank';
-        let statusText = l.status ? `${l.status}:` : '-';
-        let agentName = l.hlLead ? l.hlLead.rm : 'Unassigned';
+        let bankText = l.hlLead ? l.hlLead.bank : (l.loanBank || 'Unknown Bank');
+        let hlStage = l.hlLead ? l.hlLead.hlStage : '-';
+        let statusText = l.status || '-';
+        let subStatusText = l.subStatus ? `(${l.subStatus})` : '';
+        
+        let insurer = l.finalInsurer || (l.selectedPlan ? l.selectedPlan.insurer : '');
+        let insurerText = insurer ? insurer : 'Unassigned';
+        
+        // Calculate Lead Age
+        let leadAge = 'Just now';
+        if (l.createdAt) {
+           let diffMs = Date.now() - new Date(l.createdAt).getTime();
+           let diffDays = Math.floor(diffMs / 86400000);
+           if (diffDays === 0) leadAge = 'Today';
+           else if (diffDays === 1) leadAge = '1 Day';
+           else leadAge = `${diffDays} Days`;
+        }
+        
+        // Calculate Priority Logic
+        let priority = '⚪ Cold';
+        let isHot = false;
+        let isWarm = false;
+        let fupLower = (l.followUpDate || '').toLowerCase();
+        
+        if (l.status === 'Interested' && fupLower.includes('today')) isHot = true;
+        if (l.status === 'Quote Shared' || l.status === 'Payment Pending') isHot = true;
+        
+        if (!isHot && l.status === 'Not Connected') isWarm = true;
+        
+        if (isHot) priority = '🔥 Hot';
+        else if (isWarm) priority = '🟡 Warm';
+        else priority = '⚪ Cold';
+
+        let nextFup = l.followUpDate || 'No Follow-up';
+        let fupColor = nextFup.toLowerCase().includes('overdue') ? '#DC2626' : 'inherit';
+        
+        const bucketBgMap = { 'New': '#EFF6FF', 'Contacted': '#FFFBEB', 'Quote': '#EEEDFE', 'Payment Done': '#F0FDFA', 'Policy': '#F0FDF4', 'Lost': '#FEF2F2' };
+        const bucketColorMap = { 'New': '#1E40AF', 'Contacted': '#B45309', 'Quote': '#4C1D95', 'Payment Done': '#0F766E', 'Policy': '#15803D', 'Lost': '#991B1B' };
+        let bBg = bucketBgMap[l.bucket] || '#F3F4F6';
+        let bColor = bucketColorMap[l.bucket] || 'var(--text-heading)';
         
         html += `
-          <tr onclick="openLead('${l.id}')">
+          <tr onclick="openLead('${l.id}')" style="cursor:pointer;" class="table-row-hover">
             <td>
-              <div style="font-weight:700; color:var(--text-heading); cursor:pointer;">${l.id}</div>
+              <div style="font-weight:700; color:var(--primary);">${l.id}</div>
             </td>
             <td>
-              <div class="lead-name">${l.name}</div>
-              <div class="lead-phone">${l.phone}</div>
+              <div class="lead-name" style="font-weight:600; color:var(--text-heading);">${l.name}</div>
+              <div class="lead-phone" style="font-size:12px; color:var(--text-muted);">${l.phone}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Age ${l.age}</div>
             </td>
             <td>
-              <div style="display:flex; gap:6px; flex-direction:column; align-items:flex-start;">
-                <span class="badge badge-${l.finalProduct || l.initialProduct}">${getProductLabel(l.finalProduct || l.initialProduct)}</span>
-                <span class="badge badge-${l.source}">${l.source.toUpperCase()}</span>
-              </div>
+              <div style="font-weight:600;">${getProductLabel(l.finalProduct || l.initialProduct)}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${insurerText}</div>
             </td>
             <td>
               <div style="font-weight:600">${siText}</div>
-              <div style="font-size:11px; color:var(--text-muted)">${bankText}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${bankText}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:500;">${hlStage}</div>
             </td>
             <td>
-              ${l.bucket}
+              <span class="badge" style="background:${bBg}; color:${bColor};">${l.bucket}</span>
             </td>
             <td>
-              <div style="font-weight:500;">${statusText}</div>
+              <div style="font-weight:600; font-size:13px; color:var(--text-heading); text-transform:capitalize;">${l.source || 'Yoddha'}</div>
             </td>
-            <td style="font-size:12px; color:var(--text-muted)">
-              ${l.log[0]?.time || 'Just now'}
+            <td>
+              <div style="font-weight:600; font-size:13px;">${statusText}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${subStatusText}</div>
             </td>
-            <td style="font-size:12px;">
-              ${agentName}
+            <td>
+               <div style="font-weight:600; font-size:13px; color:var(--text-heading);">${l.log[0]?.time || '-'}</div>
             </td>
-            <td>${getActionBtn(l)}</td>
+            <td>
+               <div style="font-weight:600; font-size:13px; color:${fupColor};">${nextFup}</div>
+            </td>
+            <td>
+               <select class="search-input" style="min-width:100px; font-size:12px; font-weight:600; padding:4px 8px; height:auto; margin:0; border-radius:6px; cursor:pointer;" onclick="event.stopPropagation()">
+                 <option>Rohit M</option>
+                 <option>Priya S</option>
+               </select>
+            </td>
           </tr>
         `;
-        
-        if (l.followUpDate && l.bucket !== 'Policy' && l.bucket !== 'Lost') {
-           html += `
-             <tr class="alert-row">
-               <td colspan="9">⏰ Upcoming Follow-Up: ${l.followUpDate}</td>
-             </tr>
-           `;
-        }
       });
       if(tbody) tbody.innerHTML = html;
       const ec = document.getElementById('entry-count');
@@ -1342,7 +2095,6 @@ https://ambak.in/quote/x920dj</textarea>
       renderPipelineCards();
     }
 
-    // === RENDERERS: DETAIL SCREEN ===
     function renderLeadDetail() {
       if (!currentLead) return;
       
@@ -1372,7 +2124,7 @@ https://ambak.in/quote/x920dj</textarea>
           <div class="sangam-top-card">
             <div class="stc-grid" style="grid-template-columns: 1fr 1fr 1.5fr;">
               <div>
-                <div class="stc-label">Lead Id</div>
+                <div class="stc-label">Insurance Id</div>
                 <div class="stc-val">${l.id}</div>
               </div>
               <div>
@@ -1406,9 +2158,13 @@ https://ambak.in/quote/x920dj</textarea>
                 <div class="stc-label">Insurer & Premium</div>
                 <div class="stc-val">${l.finalInsurer || '-'} <span style="color:var(--success); font-weight:600;">${formatMoney(l.finalPremium)}</span></div>
               </div>
-              <div style="grid-column: span 2;">
-                <div class="stc-label">Relationship Manager</div>
-                <div class="stc-val">Ambak BM</div>
+              <div>
+                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Partner <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
+                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">E2E Sales (AMB10454)</div>
+              </div>
+              <div>
+                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Relationship Manager <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
+                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">Ambak Bm</div>
               </div>
               ` : `
               <div>
@@ -1426,9 +2182,13 @@ https://ambak.in/quote/x920dj</textarea>
                 <div class="stc-label">Insurer</div>
                 <div class="stc-val" style="color:var(--text-placeholder);">Pending Quote</div>
               </div>
-              <div style="grid-column: span 2;">
-                <div class="stc-label">Relationship Manager</div>
-                <div class="stc-val">Ambak BM</div>
+              <div>
+                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Partner <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
+                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">E2E Sales (AMB10454)</div>
+              </div>
+              <div>
+                <div class="stc-label" style="display:flex; align-items:center; gap:6px;">Relationship Manager <div style="background:#DCFCE7; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">📞</div></div>
+                <div class="stc-val" style="font-weight:600; color:var(--text-heading);">Ambak Bm</div>
               </div>
               `}
             </div>
@@ -1509,7 +2269,7 @@ https://ambak.in/quote/x920dj</textarea>
     function renderStageBar() {
       const displayBuckets = BUCKETS.filter(b => b !== 'Lost');
       const idx = BUCKETS.indexOf(currentLead.bucket);
-      let html = '<div class="sangam-tracker-box"><div class="tracker-row">';
+      let html = '<div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px;"><div class="sangam-tracker-box" style="margin-bottom:0; flex:1;"><div class="tracker-row">';
       
       displayBuckets.forEach((st, i) => {
         // Original index of this step in BUCKETS
@@ -1531,6 +2291,27 @@ https://ambak.in/quote/x920dj</textarea>
         `;
       });
       html += '</div></div>';
+      
+      if (!currentLead.isLost) {
+        html += `<button class="btn btn-ghost" style="color:#EF4444; border:1px solid #EF4444; margin-left:16px; padding:12px 16px; border-radius:8px; font-weight:600;" onclick="openLostModal()">Mark as Lost</button>`;
+      }
+      html += '</div>';
+      
+      if (currentLead.isLost && currentLead.lostMetadata) {
+        let lm = currentLead.lostMetadata;
+        html += `
+          <div style="background:#FEF2F2; border:1px solid #FCA5A5; border-radius:8px; padding:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="color:#991B1B; font-weight:700; font-size:16px; margin-bottom:8px;">Lead Marked as Lost</div>
+              <div style="font-size:13px; color:#7F1D1D; margin-bottom:4px;"><strong>Reason:</strong> ${lm.reason} (${lm.category})</div>
+              <div style="font-size:13px; color:#7F1D1D; margin-bottom:4px;"><strong>Remarks:</strong> ${lm.remarks}</div>
+              <div style="font-size:12px; color:#991B1B; margin-top:8px;">Marked by ${lm.agent} on ${lm.timestamp}</div>
+            </div>
+            ${lm.allowReopen ? `<button class="btn btn-primary" style="background:#EF4444; border-color:#EF4444; padding:8px 16px; font-size:13px;" onclick="reopenLead()">Reopen Lead</button>` : ''}
+          </div>
+        `;
+      }
+      
       return html;
     }
 
@@ -1655,8 +2436,8 @@ https://ambak.in/quote/x920dj</textarea>
         contentHtml = renderNewStage();
       } else if (currentLead.bucket === 'Contacted') {
         contentHtml = renderContactedStage();
-      } else if (currentLead.bucket === 'Processing') {
-        contentHtml = renderProcessingStage();
+      } else if (currentLead.bucket === 'Payment Done') {
+        contentHtml = renderPaymentDoneStage();
       } else if (currentLead.bucket === 'Quote') {
         contentHtml = renderQuoteStage();
       } else if (currentLead.bucket === 'Policy') {
@@ -2195,14 +2976,14 @@ https://ambak.in/quote/x920dj</textarea>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
           <div style="display:flex; align-items:center; gap:12px;">
             <div style="width:36px; height:36px; border-radius:8px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
-              ${product==='lp'?'LP':product==='property'?'PR':product==='credit'?'CL':'TP'}
+              ${product==='lp'?'LP':product==='property'?'PR':product==='cl'?'CL':'TP'}
             </div>
             <div>
               <div style="font-weight:700; font-size:16px; color:var(--text-heading);">${getProductLabel(product)}</div>
-              <div style="font-size:11px; color:var(--text-muted);">${product==='lp'?'Path A — In-House Calculator':'Path B — PolicyBazaar'}</div>
+              <div style="font-size:11px; color:var(--text-muted);">${(product==='lp' || product==='property') ? 'Path A — In-House Calculator' : 'Path B — PolicyBazaar Workspace'}</div>
             </div>
           </div>
-          ${isLocked ? `
+          ${currentLead.paymentVerified ? `
             <div style="display:flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #10B981; border-radius:6px; padding:6px 12px;">
               <div style="width:18px; height:18px; border-radius:50%; background:#10B981; color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;">✓</div>
               <span style="font-weight:600; font-size:12px; color:#065F46;">Payment Verified</span>
@@ -2213,63 +2994,135 @@ https://ambak.in/quote/x920dj</textarea>
 
       let centerAreaHtml = '';
 
-      // Path B: Property, Credit Life, Term → PolicyBazaar
-      if (product === 'property' || product === 'cl' || product === 'term') {
+      if (currentLead.selectedPlan) {
+          const selPlan = currentLead.selectedPlan;
+          centerAreaHtml = `
+            <div style="border:2px solid var(--primary); border-radius:12px; padding:20px; margin-bottom:24px; background:white;">
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
+                <div style="font-weight:700; font-size:16px; color:var(--primary);">Selected Plan: ${selPlan.insurer}</div>
+                ${!isLocked ? `<button class="btn btn-ghost btn-small" onclick="currentLead.selectedPlan=null; currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate</button>` : ''}
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div><div style="font-size:11px; color:var(--text-muted);">Premium</div><div style="font-weight:700; font-size:16px;">${selPlan.premium}</div></div>
+                <div><div style="font-size:11px; color:var(--text-muted);">Coverage / Plan Type</div><div style="font-weight:600; font-size:14px;">${selPlan.coverage} / ${selPlan.planType || 'Standard'}</div></div>
+              </div>
+            </div>
+          `;
+      } else if (product === 'cl' || product === 'term') {
+         // Path B: Credit Life, Term -> PolicyBazaar
          centerAreaHtml = `
-          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:24px; text-align:center;">
-            <div style="width:56px; height:56px; border-radius:12px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;">🔗</div>
-            <div style="font-weight:700; font-size:18px; margin-bottom:8px;">PolicyBazaar Workspace</div>
-            <div style="font-size:13px; color:var(--text-muted); margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto;">Customer details are prefilled. Open the PolicyBazaar workspace to compare plans, generate quotes, and reach the payment screen for <strong>${getProductLabel(product)}</strong>.</div>
-            <button class="btn btn-primary" style="padding:10px 28px; font-size:15px;" onclick="openPBDrawer('${product}')">Open PolicyBazaar Workspace →</button>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:12px;">When PB reaches the payment screen, use "Copy Payment Link" to share via WhatsApp.</div>
+          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="font-size:15px; margin:0;">${getProductLabel(product)} Details</h3>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">DOB *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Smoker Status *</label>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker" checked> Non-Smoker</label>
+                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker"> Smoker</label>
+                </div>
+              </div>
+              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Educational Qualification *</label>
+                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+                  <option>Below 10th</option><option>10th Pass</option><option>12th Pass</option><option>College Graduate & Above</option>
+                </select>
+              </div>
+              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Annual Income *</label>
+                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+                  <option>Below 5L</option><option>5-10L</option><option>10-15L</option><option>15-20L</option><option>Above 20L</option>
+                </select>
+              </div>
+              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Occupation Type *</label>
+                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+                  <option>Salaried</option><option>Self Employed</option>
+                </select>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <button class="btn btn-primary" style="padding:10px 28px; font-size:15px; width:100%;" onclick="openPBDrawer('${product}')">Open PolicyBazaar Workspace →</button>
+            </div>
           </div>
          `;
-      }
-      // Path A: LP only → In-House Calculator (CARE + TATA AIG)
-      else if (product === 'lp') {
-         if (currentLead.selectedPlan && currentLead.selectedPlan.product === 'lp') {
-            const selPlan = currentLead.selectedPlan;
-            centerAreaHtml = `
-              <div style="border:2px solid var(--primary); border-radius:12px; padding:20px; margin-bottom:24px; background:white;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
-                  <div style="font-weight:700; font-size:16px; color:var(--primary);">Selected Plan: ${selPlan.insurer}</div>
-                  ${!isLocked ? `<button class="btn btn-ghost btn-small" onclick="currentLead.selectedPlan=null; currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate</button>` : ''}
+      } else if (product === 'property') {
+         centerAreaHtml = `
+          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="font-size:15px; margin:0;">In-House Property Calculator</h3>
+            </div>
+            ${!currentLead.inHouseQuotesGenerated ? `
+              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">City Name *</label><select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>Mumbai</option><option>Delhi</option><option>Bangalore</option></select></div>
+                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Property Type *</label>
+                  <div style="display:flex; gap:8px; margin-top:8px;">
+                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype" checked> Flat / Apartment</label>
+                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype"> Independent House</label>
+                  </div>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                  <div><div style="font-size:11px; color:var(--text-muted);">Premium</div><div style="font-weight:700; font-size:16px;">${selPlan.premium}</div></div>
-                  <div><div style="font-size:11px; color:var(--text-muted);">Coverage / Tenure</div><div style="font-weight:600; font-size:14px;">${selPlan.coverage} / ${selPlan.tenure || '10 Years'}</div></div>
+                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Market Value *</label><input type="text" class="sangam-filter-select" value="₹50,00,000" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                  <div><div style="font-weight:700; color:var(--primary);">ICICI Lombard</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
+                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹5,800</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('ICICI Lombard', '₹5,800', '₹50L', 'Property Coverage')">Select Plan</button></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                  <div><div style="font-weight:700; color:var(--primary);">Bajaj Allianz</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
+                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹6,100</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('Bajaj Allianz', '₹6,100', '₹50L', 'Property Coverage')">Select Plan</button></div>
                 </div>
               </div>
-            `;
-         } else {
-            centerAreaHtml = `
-              <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                  <h3 style="font-size:15px; margin:0;">In-House Loan Protection Calculator</h3>
+              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
+            `}
+          </div>
+         `;
+      } else if (product === 'lp') {
+         centerAreaHtml = `
+          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="font-size:15px; margin:0;">In-House Loan Protection Calculator</h3>
+            </div>
+            ${!currentLead.inHouseQuotesGenerated ? `
+              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Date of Birth *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Plan Type *</label>
+                  <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>PA + CI</option><option>PA</option></select>
                 </div>
-                ${!currentLead.inHouseQuotesGenerated ? `
-                  <div style="display:flex; gap:12px; margin-bottom:16px;">
-                    <div style="flex:1;"><label class="label">Age</label><input type="number" class="form-control" value="${currentLead.age || 30}"></div>
-                    <div style="flex:1;"><label class="label">Loan Amount</label><input type="text" class="form-control" value="₹${formatLakhs(currentLead.si || 4500000)}"></div>
-                    <div style="flex:1;"><label class="label">Tenure (yrs)</label><input type="number" class="form-control" value="10"></div>
+                <div style="flex:1; min-width:200px;"><label class="sangam-filter-label" style="font-size:10px;">Add-on Covers</label>
+                  <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px; font-size:12px;">
+                    <label><input type="checkbox"> EMI Protection</label>
+                    <label><input type="checkbox"> Loss of Employment</label>
+                    <label><input type="checkbox"> Seasonal Disease Hospitalisation</label>
                   </div>
-                  <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
-                ` : `
-                  <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                      <div><div style="font-weight:700; color:var(--primary);">CARE Health Insurance</div><div style="font-size:11px; color:var(--text-muted);">Comprehensive • ₹${formatLakhs(currentLead.si || 4500000)} Cover</div></div>
-                      <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹14,500</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="currentLead.selectedPlan={product:'lp', insurer:'CARE Health Insurance', premium:'₹14,500', coverage:'₹'+formatLakhs(currentLead.si||4500000), tenure:'10 Years'}; renderLeadDetail();">Select Plan</button></div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                      <div><div style="font-weight:700; color:var(--primary);">TATA AIG</div><div style="font-size:11px; color:var(--text-muted);">Standard • ₹${formatLakhs(currentLead.si || 4500000)} Cover</div></div>
-                      <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹16,200</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="currentLead.selectedPlan={product:'lp', insurer:'TATA AIG', premium:'₹16,200', coverage:'₹'+formatLakhs(currentLead.si||4500000), tenure:'10 Years'}; renderLeadDetail();">Select Plan</button></div>
-                    </div>
-                  </div>
-                  <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
-                `}
+                </div>
               </div>
-            `;
-         }
+              
+              <div style="padding:12px; background:#F9FAFB; border-radius:8px; border:1px solid #E5E7EB; margin-bottom:16px; font-size:12px; color:#4B5563;">
+                <div style="font-weight:700; margin-bottom:8px; color:#111827;">Auto-populated from Home Loan (Read Only)</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                  <div><span style="color:#9CA3AF;">Loan Amount:</span> <br><b>₹${formatLakhs(currentLead.si || 4500000)}</b></div>
+                  <div><span style="color:#9CA3AF;">Bank:</span> <br><b>${currentLead.loanBank || 'HDFC'}</b></div>
+                  <div><span style="color:#9CA3AF;">Loan Stage:</span> <br><b>Sanctioned</b></div>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                  <div><div style="font-weight:700; color:var(--primary);">CARE Insurance</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
+                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹12,500</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('CARE Insurance', '₹12,500', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+                  <div><div style="font-weight:700; color:var(--primary);">TATA AIG</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
+                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹13,200</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('TATA AIG', '₹13,200', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
+                </div>
+              </div>
+              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
+            `}
+          </div>
+         `;
       }
 
       return `
@@ -2445,18 +3298,24 @@ https://ambak.in/quote/x920dj</textarea>
       renderLeadDetail();
     }
 
-    function selectInHousePlan(insurer, premium) {
+    function selectInHousePlan(insurer, premium, coverage, planType) {
       currentLead.selectedPlan = { 
          insurer: insurer, 
          premium: premium, 
-         coverage: formatLakhs(currentLead.si || 4500000), 
-         tenure: '10 Years' 
+         coverage: coverage || formatLakhs(currentLead.si || 4500000), 
+         planType: planType || 'Comprehensive',
+         selectedTimestamp: new Date().toISOString(),
+         selectedBy: 'Verification Agent'
       };
+      
+      let logText = `${insurer} Plan Selected<br>Coverage: ${currentLead.selectedPlan.coverage} | Premium: ${premium}`;
+      currentLead.log.unshift({ dot: 'var(--primary)', text: logText, time: 'Just now' });
+      
       showToast('Plan Selected Successfully');
       renderLeadDetail();
     }
 
-    function renderProcessingStage() {
+    function renderPaymentDoneStage() {
       let product = currentLead.finalProduct || currentLead.initialProduct || 'lp';
       let insurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : '';
       let isTata = insurer === 'TATA AIG';
@@ -2466,35 +3325,34 @@ https://ambak.in/quote/x920dj</textarea>
       if (product === 'property') {
          milestones = [
            { label: 'Payment Verified', helper: 'Payment proof has been uploaded and verified by operations.' },
-           { label: 'KYC Documents', helper: 'Upload Aadhaar + PAN copies for KYC verification.' },
-           { label: 'Policy Issued', helper: 'Insurer issues the policy after KYC approval.' },
-           { label: 'Policy Copy Received', helper: 'Soft copy of the policy document received from insurer.' }
+           { label: 'KYC Pending', helper: 'Upload Aadhaar + PAN copies for KYC verification.' },
+           { label: 'KYC Completed', helper: 'KYC successfully verified.' },
+           { label: 'Policy Issued', helper: 'Insurer issues the policy after KYC approval.' }
          ];
       } else if (product === 'lp' && isTata) {
          milestones = [
            { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
-           { label: 'Tele-PD Scheduled', helper: 'TATA AIG will schedule a tele-personal discussion with the customer.' },
+           { label: 'Tele-PD Pending', helper: 'TATA AIG will schedule a tele-personal discussion with the customer.' },
            { label: 'Tele-PD Completed', helper: 'Tele-PD completed. Awaiting underwriting decision.' },
-           { label: 'Policy Issued', helper: 'TATA AIG issues the policy after PD clearance.' },
-           { label: 'Policy Copy Received', helper: 'Soft copy of the policy received.' }
+           { label: 'Policy Issued', helper: 'TATA AIG issues the policy after PD clearance.' }
          ];
       } else if (product === 'lp') {
          milestones = [
            { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
-           { label: 'Verification', helper: 'CARE Health verifies customer details and eligibility.' },
-           { label: 'Feder Form', helper: 'Customer signs the Feder declaration form.' },
-           { label: 'Policy Issued', helper: 'CARE issues the policy after form submission.' },
-           { label: 'Policy Copy Received', helper: 'Soft copy of the policy received.' }
+           { label: 'Proposal Form Pending', helper: 'Customer needs to fill the proposal form.' },
+           { label: 'Proposal Form Completed', helper: 'Proposal form submitted.' },
+           { label: 'Policy Issued', helper: 'CARE issues the policy after form submission.' }
          ];
       } else {
          // Credit Life & Term Plan
          milestones = [
            { label: 'Payment Verified', helper: 'Payment proof uploaded and verified.' },
-           { label: 'KYC Verification', helper: 'Upload identity and address proof documents.' },
-           { label: 'Income Verification', helper: 'Upload salary slips or ITR for income verification.' },
-           { label: 'Medical Examination', helper: 'Customer undergoes medical tests as required by insurer.' },
+           { label: 'Documents Pending', helper: 'Upload identity and address proof documents.' },
+           { label: 'Documents Received', helper: 'All required documents collected.' },
+           { label: 'Medical Scheduled', helper: 'Customer undergoes medical tests as required by insurer.' },
+           { label: 'Medical Completed', helper: 'Medical reports received.' },
            { label: 'Underwriting Review', helper: 'Insurer reviews all documents and medical reports.' },
-           { label: 'Approval Decision', helper: 'Insurer issues approval, counter-offer, or rejection.' },
+           { label: 'Approval', helper: 'Insurer issues approval, counter-offer, or rejection.' },
            { label: 'Policy Issued', helper: 'Policy issued after approval. Document will be shared.' }
          ];
       }
@@ -2505,42 +3363,31 @@ https://ambak.in/quote/x920dj</textarea>
       let subStatus = currentLead.subStatus;
 
       if (product === 'property') {
-        // Property: 4 milestones
-        if (status === 'Documents' && (subStatus === 'Pending' || subStatus === 'Partial')) activeIdx = 1;
-        else if (status === 'Documents' && subStatus === 'Received') activeIdx = 2;
-        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 2;
-        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 3;
-        else if (status === 'Documents') activeIdx = 1;
-        else if (status === 'Approval') activeIdx = 2;
-        else if (status === 'Policy Issuance') activeIdx = 2;
+        if (status === 'KYC' && subStatus === 'Pending') activeIdx = 1;
+        else if (status === 'KYC' && subStatus === 'Completed') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Pending') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Issued') activeIdx = 3;
+      } else if (product === 'lp' && isTata) {
+        if (status === 'Tele-PD' && subStatus === 'Pending') activeIdx = 1;
+        else if (status === 'Tele-PD' && subStatus === 'Completed') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Pending') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Issued') activeIdx = 3;
       } else if (product === 'lp') {
-        // LP: 5 milestones
-        if (status === 'Documents' && subStatus === 'Pending') activeIdx = 1;
-        else if (status === 'Documents' && (subStatus === 'Partial' || subStatus === 'Received')) activeIdx = 2;
-        else if (status === 'Medical') activeIdx = isTata ? 2 : 2;
-        else if (status === 'Approval' && (subStatus === 'Pending' || subStatus === 'Counter Offer')) activeIdx = 3;
-        else if (status === 'Approval' && (subStatus === 'Approved' || subStatus === 'Rejected')) activeIdx = 3;
-        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 3;
-        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 4;
-        else if (status === 'Documents') activeIdx = 1;
-        else if (status === 'Approval') activeIdx = 3;
-        else if (status === 'Policy Issuance') activeIdx = 3;
+        if (status === 'Proposal Form' && subStatus === 'Pending') activeIdx = 1;
+        else if (status === 'Proposal Form' && subStatus === 'Completed') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Pending') activeIdx = 2;
+        else if (status === 'Policy Copy' && subStatus === 'Issued') activeIdx = 3;
       } else {
-        // CL/Term: 7 milestones
+        // CL/Term
         if (status === 'Documents' && subStatus === 'Pending') activeIdx = 1;
-        else if (status === 'Documents' && subStatus === 'Partial') activeIdx = 2;
-        else if (status === 'Documents' && subStatus === 'Received') activeIdx = 3;
+        else if (status === 'Documents' && subStatus === 'Partial') activeIdx = 1;
+        else if (status === 'Documents' && subStatus === 'Received') activeIdx = 2;
         else if (status === 'Medical' && subStatus === 'Scheduled') activeIdx = 3;
         else if (status === 'Medical' && subStatus === 'Completed') activeIdx = 4;
-        else if (status === 'Approval' && (subStatus === 'Pending' || subStatus === 'Counter Offer')) activeIdx = 4;
-        else if (status === 'Approval' && subStatus === 'Approved') activeIdx = 5;
-        else if (status === 'Approval' && subStatus === 'Rejected') activeIdx = 5;
-        else if (status === 'Policy Issuance' && subStatus === 'Pending') activeIdx = 5;
-        else if (status === 'Policy Issuance' && subStatus === 'Issued') activeIdx = 6;
-        else if (status === 'Documents') activeIdx = 1;
-        else if (status === 'Medical') activeIdx = 3;
-        else if (status === 'Approval') activeIdx = 4;
-        else if (status === 'Policy Issuance') activeIdx = 5;
+        else if (status === 'Underwriting' && (subStatus === 'Pending' || subStatus === 'Counter Offer')) activeIdx = 5;
+        else if (status === 'Underwriting' && (subStatus === 'Approved' || subStatus === 'Rejected')) activeIdx = 6;
+        else if (status === 'Policy Copy' && subStatus === 'Pending') activeIdx = 6;
+        else if (status === 'Policy Copy' && subStatus === 'Issued') activeIdx = 7;
       }
 
       // Payment Verified is always done (first milestone) when in Processing
@@ -2589,7 +3436,7 @@ https://ambak.in/quote/x920dj</textarea>
               <h2 style="margin:0; font-size:20px;">Milestone Tracker</h2>
               <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${productLabel} • ${insurerLabel}</div>
             </div>
-            <div class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Processing</div>
+            <div class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Payment Done</div>
           </div>
           <div style="display:flex; justify-content:space-between; overflow-x:auto; padding-bottom:80px; scrollbar-width:thin;">
              ${milestoneHtml}
@@ -2883,7 +3730,7 @@ https://ambak.in/quote/x920dj</textarea>
       } else if(l.bucket === 'Quote') {
         nextAction = 'Share Quote via WhatsApp';
         blocker = 'Awaiting customer confirmation';
-      } else if(l.bucket === 'Processing') {
+      } else if(l.bucket === 'Payment Done') {
         nextAction = 'Review Milestones';
         blocker = 'Processing with Operations';
       } else if(l.bucket === 'Policy') {
@@ -2894,17 +3741,14 @@ https://ambak.in/quote/x920dj</textarea>
         blocker = 'None';
       }
 
-      let currentStatusOptions = STATUS_MAP[l.bucket] || [];
-      if (l.status && !currentStatusOptions.includes(l.status)) {
-         currentStatusOptions = [l.status, ...currentStatusOptions];
+      let currentBucket = l.bucket || 'New';
+      const config = STATE_MACHINE_CONFIG[currentBucket];
+      let statusOptions = '<option value="">Select Status</option>';
+      if (config) {
+        Object.keys(config.statuses).forEach(s => {
+          statusOptions += `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`;
+        });
       }
-      let statusOptions = currentStatusOptions.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('');
-      
-      let currentSubOptions = SUBSTATUS_MAP[l.status] || [];
-      if (l.subStatus && !currentSubOptions.includes(l.subStatus)) {
-         currentSubOptions = [l.subStatus, ...currentSubOptions];
-      }
-      let subStatusOptions = currentSubOptions.map(s => `<option value="${s}" ${s === l.subStatus ? 'selected' : ''}>${s}</option>`).join('');
 
       let html = `
         <div class="card" style="padding: 24px 16px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); background:var(--white); border-radius:12px;">
@@ -2912,31 +3756,90 @@ https://ambak.in/quote/x920dj</textarea>
           <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
             <div>
               <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Status</label>
-              <select class="form-control" style="padding:6px; font-size:12px;" id="update-status" onchange="handleStatusChange(this.value)">
+              <select class="form-control" style="padding:6px; font-size:12px;" id="detail-status" onchange="handleDetailStatusChange()">
                 ${statusOptions}
               </select>
             </div>
             <div>
               <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Sub Status</label>
-              <select class="form-control" style="padding:6px; font-size:12px;" id="update-substatus" onchange="handleSubStatusChange()">
-                ${subStatusOptions}
+              <select class="form-control" style="padding:6px; font-size:12px;" id="detail-substatus" onchange="handleDetailSubStatusChange()">
+                <option value="">Select Sub Status</option>
               </select>
             </div>
-            <div id="dynamic-fields" style="display:flex; flex-direction:column; gap:12px;">
-              <!-- Populated dynamically -->
+            <div id="detail-fup-wrapper" style="display:none; flex-direction:column; gap:12px;">
+              <div style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                  <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Follow-up Date *</label>
+                  <input type="date" id="detail-fup-date" class="form-control" style="padding:6px; font-size:12px; margin-top:4px;">
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Pending With *</label>
+                  <select id="detail-pending-with" class="form-control" style="padding:6px; font-size:12px; margin-top:4px;">
+                    <option>Customer</option>
+                    <option>IBM Agent</option>
+                    <option>PolicyBazaar</option>
+                    <option>Insurer</option>
+                    <option>Ambak Operations</option>
+                    <option>Finance Team</option>
+                    <option>RM / Sales Team</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div id="detail-upload-wrapper" style="display:none; flex-direction:column; gap:12px;">
+              <div>
+                <label id="detail-upload-label" style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">UPLOAD PROOF *</label>
+                <input type="file" id="detail-upload-input" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+              </div>
+              <div id="detailPaymentProofFields" style="display:none; flex-direction:column; gap:8px;">
+                <div>
+                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Payment Amount *</label>
+                  <input type="text" id="detailPaymentAmountInput" class="form-control" placeholder="₹" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+                </div>
+                <div>
+                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">UTR Number *</label>
+                  <input type="text" id="detailPaymentUtrInput" class="form-control" placeholder="Enter UTR" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+                </div>
+                <div>
+                  <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Payment Date *</label>
+                  <input type="date" id="detailPaymentDateInput" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+                </div>
+              </div>
+            </div>
+
+            <div id="detail-co-wrapper" style="display:none; flex-direction:column; gap:12px; background:#F9FAFB; padding:12px; border-radius:8px; border:1px dashed #D1D5DB; margin-top:4px;">
+              <div style="font-size:10px; font-weight:700; color:#4B5563; text-transform:uppercase;">Counter Offer Details</div>
+              <div>
+                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Counter Offer Amount</label>
+                <input type="number" id="detail-co-amount" class="form-control" placeholder="e.g. 5000" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+              </div>
+              <div>
+                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Customer Response</label>
+                <select id="detail-co-response" class="form-control" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+                  <option value="">Select Response</option>
+                  <option>Accepted</option>
+                  <option>Rejected</option>
+                  <option>Negotiating</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:10px; font-weight:600; color:#6B7280; text-transform:uppercase;">Additional Premium</label>
+                <input type="number" id="detail-co-premium" class="form-control" placeholder="e.g. 1500" style="padding:6px; font-size:12px; margin-top:4px; width:100%;">
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Remarks</label>
+              <textarea id="detail-remarks" class="form-control" style="padding:6px; font-size:12px; height:60px; resize:none; margin-top:4px;"></textarea>
             </div>
           </div>
-          <button id="update-status-btn" class="btn btn-primary" style="width:100%; border-radius:8px;" onclick="saveStatusUpdate()">Update Status</button>
+          <button class="btn btn-primary" style="width:100%; border-radius:8px;" onclick="saveDetailStatusUpdate()">Update Status</button>
         </div>
       `;
       document.getElementById('detail-right').innerHTML = html;
       
-      // Initialize dynamic fields based on current selected status
-      const initialStatus = document.getElementById('update-status').value;
-      handleStatusChange(initialStatus);
-      // Restore previously saved sub-status
-      document.getElementById('update-substatus').value = l.subStatus || document.getElementById('update-substatus').value;
-      handleSubStatusChange();
+      handleDetailStatusChange(l.subStatus);
     }
     
     window.completeTask = function(taskId) {
@@ -2948,76 +3851,152 @@ https://ambak.in/quote/x920dj</textarea>
       }
     };
 
-    function saveStatusUpdate() {
-      const newStatus = document.getElementById('update-status').value;
-      const newSubStatus = document.getElementById('update-substatus').value;
+    window.handleDetailStatusChange = function(preselectSubStatus) {
+      if(!currentLead) return;
+      const bucket = currentLead.bucket || 'New';
+      const status = document.getElementById('detail-status').value;
+      const subSelect = document.getElementById('detail-substatus');
       
-      // Dynamic fields extraction
-      const remarksEl = document.getElementById('update-remarks');
-      const remarks = remarksEl ? remarksEl.value : '';
+      subSelect.innerHTML = '<option value="">Select Sub Status</option>';
+      document.getElementById('detail-fup-wrapper').style.display = 'none';
       
-      let followUpDate = '', followUpTime = '';
-      if (newStatus === 'Not Connected' || newStatus === 'Callback') {
-        followUpDate = document.getElementById('update-fdate').value;
-        followUpTime = document.getElementById('update-ftime').value;
-        if (!followUpDate || !followUpTime) {
-          showToast('Follow-up Date and Time are mandatory', false);
-          return;
-        }
-      }
+      if (!status) return;
       
-      if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified') {
-        const proof = document.getElementById('update-proof') ? document.getElementById('update-proof').value : '';
-        if (!proof) {
-          showToast('Payment proof upload is mandatory', false);
-          return;
-        }
-      }
-      
-      if ((newStatus === 'Counter Offer') || (newStatus === 'Payment Done' && newSubStatus === 'Verification Failed')) {
-        if (!remarks.trim()) {
-          showToast('Remarks are mandatory for this status update', false);
-          return;
-        }
-      }
-      
-      if (newStatus === 'Policy Issued') {
-        const doc = document.getElementById('update-policy').value;
-        if (!doc) {
-          showToast('Policy document upload is mandatory', false);
-          return;
-        }
-      }
-      
-      if (newStatus === 'Counter Offer' && newSubStatus === 'Accepted' && !remarks.trim()) {
-        showToast('Remarks are mandatory when accepting a counter offer', false);
-        return;
-      }
-
-      if (newStatus === 'Payment Done' && newSubStatus === 'Payment Verified' && currentLead.bucket === 'Quote') {
-         currentLead.paymentVerified = true;
-         currentLead.productStatus = 'locked';
-         currentLead.finalProduct = G_PRODUCT_TAB || 'lp';
-         currentLead.finalInsurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : 'CARE Health Insurance';
-      }
-
-      transitionLeadState(newStatus, newSubStatus, remarks, followUpDate, '');
-      
-      // Task Engine logic
-      if (newStatus === 'Not Connected' || newStatus === 'Callback') {
-        if (!window.G_TASKS) window.G_TASKS = [];
-        window.G_TASKS.push({
-          id: 'task_' + Date.now(),
-          leadId: currentLead.id,
-          leadName: currentLead.name,
-          taskType: newStatus,
-          date: followUpDate,
-          time: followUpTime,
-          status: 'pending'
+      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      if (config && config.subStatuses) {
+        config.subStatuses.forEach(s => {
+          const selected = (s === preselectSubStatus) ? 'selected' : '';
+          subSelect.innerHTML += `<option value="${s}" ${selected}>${s}</option>`;
         });
-        showToast('Follow-up Task Created Automatically');
       }
-    }
+      if(preselectSubStatus) window.handleDetailSubStatusChange();
+    };
+
+    window.handleDetailSubStatusChange = function() {
+      if(!currentLead) return;
+      const bucket = currentLead.bucket || 'New';
+      const status = document.getElementById('detail-status').value;
+      const subStatus = document.getElementById('detail-substatus').value;
+      
+      if (!status || !subStatus) return;
+      
+      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      if (config.mandatoryFollowUp) {
+        document.getElementById('detail-fup-wrapper').style.display = 'flex';
+      } else {
+        document.getElementById('detail-fup-wrapper').style.display = 'none';
+      }
+      
+      if (config.pendingWith && config.pendingWith !== 'None') {
+        document.getElementById('detail-pending-with').value = config.pendingWith;
+      }
+      
+      if (config.mandatoryUpload && typeof config.mandatoryUpload === 'function') {
+        const uploadLabel = config.mandatoryUpload(subStatus);
+        if (uploadLabel) {
+          document.getElementById('detail-upload-wrapper').style.display = 'flex';
+          document.getElementById('detail-upload-label').innerText = uploadLabel.toUpperCase() + ' *';
+          if (uploadLabel === 'Payment Proof') {
+             document.getElementById('detailPaymentProofFields').style.display = 'flex';
+          } else {
+             document.getElementById('detailPaymentProofFields').style.display = 'none';
+          }
+        } else {
+          document.getElementById('detail-upload-wrapper').style.display = 'none';
+        }
+      } else {
+        document.getElementById('detail-upload-wrapper').style.display = 'none';
+      }
+      
+      if (config.captureCounterOffer && typeof config.captureCounterOffer === 'function') {
+        const showCO = config.captureCounterOffer(subStatus);
+        if (showCO) {
+          document.getElementById('detail-co-wrapper').style.display = 'flex';
+        } else {
+          document.getElementById('detail-co-wrapper').style.display = 'none';
+        }
+      } else {
+        document.getElementById('detail-co-wrapper').style.display = 'none';
+      }
+    };
+
+    window.saveDetailStatusUpdate = function() {
+      if(!currentLead) return;
+      const bucket = currentLead.bucket || 'New';
+      const status = document.getElementById('detail-status').value;
+      const subStatus = document.getElementById('detail-substatus').value;
+      const fupDate = document.getElementById('detail-fup-date').value;
+      const pendingWith = document.getElementById('detail-pending-with').value;
+      const remarks = document.getElementById('detail-remarks').value;
+      
+      if (!status || !subStatus) {
+        alert("Please select Status and Sub Status."); return;
+      }
+      
+      const config = STATE_MACHINE_CONFIG[bucket].statuses[status];
+      if (config.mandatoryFollowUp && !fupDate) {
+        alert("Follow-up date is mandatory for this status."); return;
+      }
+      
+      let paymentLog = '';
+      if (config.mandatoryUpload && typeof config.mandatoryUpload === 'function') {
+        const uploadLabel = config.mandatoryUpload(subStatus);
+        if (uploadLabel) {
+          if (!document.getElementById('detail-upload-input').value) {
+             alert(uploadLabel + " is mandatory for this status."); return;
+          }
+          if (uploadLabel === 'Payment Proof') {
+             const amt = document.getElementById('detailPaymentAmountInput').value;
+             const utr = document.getElementById('detailPaymentUtrInput').value;
+             const dt = document.getElementById('detailPaymentDateInput').value;
+             if(!amt || !utr || !dt) {
+                alert("Payment Amount, UTR, and Date are mandatory."); return;
+             }
+             paymentLog = `<br>Payment Amt: ₹${amt} | UTR: ${utr} | Date: ${dt}`;
+          }
+        }
+      }
+      
+      let nextBucket = config.nextBucket;
+      if (config.conditionNextBucket) {
+        nextBucket = config.conditionNextBucket(subStatus);
+      }
+      
+      let coLog = '';
+      if (config.captureCounterOffer && typeof config.captureCounterOffer === 'function') {
+        const showCO = config.captureCounterOffer(subStatus);
+        if (showCO) {
+           const coAmount = document.getElementById('detail-co-amount').value;
+           const coResponse = document.getElementById('detail-co-response').value;
+           const coPremium = document.getElementById('detail-co-premium').value;
+           if (coAmount) coLog += `<br>CO Amount: ₹${coAmount}`;
+           if (coResponse) coLog += `<br>Customer Response: ${coResponse}`;
+           if (coPremium) coLog += `<br>Addl Premium: ₹${coPremium}`;
+        }
+      }
+      
+      currentLead.bucket = nextBucket;
+      currentLead.status = status;
+      currentLead.subStatus = subStatus;
+      
+      if (config.mandatoryFollowUp) {
+        let dateObj = new Date(fupDate + 'T00:00');
+        currentLead.followUpDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      } else {
+        currentLead.followUpDate = 'No Follow-up';
+      }
+      
+      let logText = `Status updated to ${status} - ${subStatus} (Pending With: ${pendingWith})`;
+      if (remarks) logText += ` | Remarks: ${remarks}`;
+      logText += coLog;
+      logText += paymentLog;
+      
+      currentLead.log.unshift({ dot: '#473391', text: logText, time: 'Just now' });
+      
+      renderLeadTable();
+      renderLeadDetail();
+      showToast('Status Updated Successfully!');
+    };
 
     let G_CMODAL = 1;
 
@@ -3052,9 +4031,12 @@ https://ambak.in/quote/x920dj</textarea>
           <div style="background:var(--bg); border-radius:8px; padding:16px; margin-bottom:32px;">
             <div style="font-size:11px; font-weight:600; color:var(--primary); margin-bottom:8px;">💡 Try Lead ID '194856' for success, anything else for not found</div>
           </div>
-          <div style="display:flex; justify-content:flex-end; gap:12px;">
-            <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="searchLead()">Search Lead →</button>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="#" onclick="G_CMODAL=4; renderCreateModal(); return false;" style="color:var(--primary); font-weight:600; font-size:13px; text-decoration:none;">Proceed to create lead without home loan</a>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="searchLead()">Search Lead →</button>
+            </div>
           </div>
         `;
       } else if (G_CMODAL === 2) {
@@ -3088,16 +4070,11 @@ https://ambak.in/quote/x920dj</textarea>
           <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:12px; margin-bottom:24px; font-size:12px; color:#1D4ED8;">
             ℹ️ No linked HL lead found. Please enter details manually below.
           </div>
-          <h3 style="margin-bottom:12px; font-size:14px;">Customer Details</h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
             <div class="form-group"><label>First Name *</label><input type="text" class="form-control" id="ml_fname"></div>
             <div class="form-group"><label>Last Name *</label><input type="text" class="form-control" id="ml_lname"></div>
             <div class="form-group"><label>Mobile Number *</label><input type="text" class="form-control" id="ml_mob"></div>
             <div class="form-group"><label>DOB *</label><input type="date" class="form-control" id="ml_dob"></div>
-            <div class="form-group" style="grid-column: span 2;"><label>Email ID</label><input type="text" class="form-control" id="ml_email"></div>
-          </div>
-          <h3 style="margin-bottom:12px; font-size:14px;">Insurance Details</h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
             <div class="form-group">
               <label>Insurance Product *</label>
               <select class="form-control" id="ml_prod">
@@ -3108,27 +4085,16 @@ https://ambak.in/quote/x920dj</textarea>
               </select>
             </div>
             <div class="form-group">
-              <label>Lead Source *</label>
-              <select class="form-control" id="ml_source">
-                 <option value="Manual">Manual</option>
-                 <option value="D2C">D2C</option>
-                 <option value="Sangam">Sangam</option>
-                 <option value="Saathi">Saathi</option>
-                 <option value="Yoddha">Yoddha</option>
-              </select>
-            </div>
-            <div class="form-group" style="grid-column: span 2;">
               <label>Assign IBM Agent *</label>
               <select class="form-control" id="ml_agent">
                  <option value="Rohit M">Rohit M</option>
                  <option value="Priya S">Priya S</option>
               </select>
             </div>
-          </div>
-          <h3 style="margin-bottom:12px; font-size:14px;">Loan Details</h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
-            <div class="form-group"><label>Loan Amount *</label><input type="text" class="form-control" id="ml_lamount" placeholder="e.g. 5000000"></div>
-            <div class="form-group"><label>Lender</label><select class="form-control" id="ml_lender"><option value="">Select</option><option>HDFC Bank</option><option>ICICI Bank</option><option>SBI</option></select></div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Loan Amount *</label>
+              <input type="text" class="form-control" id="ml_lamount" placeholder="e.g. 5000000">
+            </div>
           </div>
           
           <div style="display:flex; justify-content:space-between;">
@@ -3161,11 +4127,11 @@ https://ambak.in/quote/x920dj</textarea>
         subStatus: null,
         createdDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
         initialProduct: document.getElementById('ml_prod').value,
-        source: document.getElementById('ml_source').value,
+        source: 'Manual',
         si: parseInt(document.getElementById('ml_lamount').value) || 0,
         hlLead: {
           id: 'HL-' + Math.floor(Math.random() * 90000),
-          bank: document.getElementById('ml_lender').value || 'Unknown',
+          bank: 'Unknown',
           hlStage: 'Unknown',
           rm: document.getElementById('ml_agent').value
         },

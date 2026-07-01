@@ -2465,7 +2465,7 @@ https://ambak.in/quote/x920dj</textarea>
       
       if (currentLead.status === 'Lost') {
           for (let i = 0; i <= currentIdx; i++) {
-              if (stages[i] === 'New') centerContent += renderAccordion('New', `<div style="font-size: 13px; color: #9CA3AF; text-align: center;">Call the customer and record the outcome in Update Status.</div>`);
+              if (stages[i] === 'New') centerContent += renderAccordion('New', renderOutreachStage(true));
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
@@ -2473,19 +2473,21 @@ https://ambak.in/quote/x920dj</textarea>
           centerContent += `<div style="padding: 24px; text-align: center; color: #C0392B; font-weight: 600; background: #FEF2F2; border-radius: 8px; margin-top: 16px;">This lead was marked as Lost.</div>`;
       } else {
           for (let i = 0; i < currentIdx; i++) {
-              if (stages[i] === 'New') centerContent += renderAccordion('New', `<div style="font-size: 13px; color: #9CA3AF; text-align: center;">Call the customer and record the outcome in Update Status.</div>`);
+              if (stages[i] === 'New') centerContent += renderAccordion('New', renderOutreachStage(true));
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
           }
           
           let activeContent = '';
-          if (l.bucket === 'New') { activeContent = renderOutreachStage(false); } else if (l.bucket === 'Contacted') activeContent = renderProductSelection(false);
+          if (l.bucket === 'New') { activeContent = renderNewStage(false); } 
+          else if (l.bucket === 'Contacted') activeContent = renderProductSelection(false);
           else if (l.bucket === 'Quote') activeContent = renderQuoteStage(false);
           else if (l.bucket === 'Payment Done') activeContent = renderPaymentDoneStage(false);
           else if (l.bucket === 'Policy Issued') activeContent = renderPolicyStage();
           centerContent += activeContent;
       }
+
 
 
       let activeTab = currentLead.activeTab || 'Insurance Details';

@@ -2468,7 +2468,7 @@ https://ambak.in/quote/x920dj</textarea>
               if (stages[i] === 'New') centerContent += renderAccordion('New', `<div style="font-size: 13px; color: #9CA3AF; text-align: center;">Call the customer and record the outcome in Update Status.</div>`);
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
-              if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentStage(true));
+              if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
           }
           centerContent += `<div style="padding: 24px; text-align: center; color: #C0392B; font-weight: 600; background: #FEF2F2; border-radius: 8px; margin-top: 16px;">This lead was marked as Lost.</div>`;
       } else {
@@ -2476,14 +2476,14 @@ https://ambak.in/quote/x920dj</textarea>
               if (stages[i] === 'New') centerContent += renderAccordion('New', `<div style="font-size: 13px; color: #9CA3AF; text-align: center;">Call the customer and record the outcome in Update Status.</div>`);
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
-              if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentStage(true));
+              if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
           }
           
           let activeContent = '';
-          if (l.bucket === 'New') { activeContent = ''; } else if (l.bucket === 'Contacted') activeContent = renderProductSelection(false);
+          if (l.bucket === 'New') { activeContent = renderOutreachStage(false); } else if (l.bucket === 'Contacted') activeContent = renderProductSelection(false);
           else if (l.bucket === 'Quote') activeContent = renderQuoteStage(false);
-          else if (l.bucket === 'Payment Done') activeContent = renderPaymentStage(false);
-          else if (l.bucket === 'Policy Issued') activeContent = renderPolicyIssuedStage();
+          else if (l.bucket === 'Payment Done') activeContent = renderPaymentDoneStage(false);
+          else if (l.bucket === 'Policy Issued') activeContent = renderPolicyStage();
           centerContent += activeContent;
       }
 
@@ -2504,7 +2504,7 @@ https://ambak.in/quote/x920dj</textarea>
       document.getElementById('detail-center').innerHTML = html;
     }
 
-    function renderOutreachStage() {
+    function renderOutreachStage(isReadOnly = false) {
       return `
         <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
           <div class="label" style="color:var(--primary); margin-bottom:16px;">📞 First Contact Action</div>
@@ -2512,7 +2512,7 @@ https://ambak.in/quote/x920dj</textarea>
           <div style="font-size:24px; font-weight:700; margin-bottom:4px;">${currentLead.name}</div>
           <div style="font-size:32px; font-weight:800; color:var(--text-heading); margin-bottom:12px;">
             ${currentLead.phone}
-            <button class="btn btn-ghost btn-small" style="margin-left:8px; vertical-align:middle;" onclick="showToast('Number copied')">Copy</button>
+            ${isReadOnly ? '' : `<button class="btn btn-ghost btn-small" style="margin-left:8px; vertical-align:middle;" onclick="showToast('Number copied')">Copy</button>`}
           </div>
           <div style="background:var(--bg); border-radius:8px; padding:12px; margin-bottom:24px; display:inline-block;">
             <div style="font-size:12px; color:var(--text-muted);">Recommended Product</div>

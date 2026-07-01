@@ -2487,21 +2487,35 @@ https://ambak.in/quote/x920dj</textarea>
           centerContent += activeContent;
       }
 
-      let html = `
-        <div style="background: white; border-bottom: 1px solid #E5E7EB; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-          <div style="display: flex; align-items: center;">
-            ${stageHtml}
+
+      let activeTab = currentLead.activeTab || 'Insurance Details';
+      
+      let html = '';
+      if (activeTab === 'Insurance Details') {
+        html = `
+          <div style="background: white; border-bottom: 1px solid #E5E7EB; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <div style="display: flex; align-items: center;">
+              ${stageHtml}
+            </div>
+            ${currentLead.status === 'Lost' 
+               ? `<button style="border: 1.5px solid #10B981; color: white; background: #10B981; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="reopenLead()">Reopen Lead</button>`
+               : `<button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openLostModal()">Mark as Lost</button>`
+            }
           </div>
-          ${currentLead.status === 'Lost' 
-             ? `<button style="border: 1.5px solid #10B981; color: white; background: #10B981; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="reopenLead()">Reopen Lead</button>`
-             : `<button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openLostModal()">Mark as Lost</button>`
-          }
-        </div>
-        <div style="flex: 1; overflow-y: auto; padding: 24px; background: #FAFAFA;">
-          ${centerContent}
-        </div>
-      `;
+          <div style="flex: 1; overflow-y: auto; padding: 24px; background: #FAFAFA;">
+            ${centerContent}
+          </div>
+        `;
+      } else {
+        html = `
+          <div style="flex: 1; overflow-y: auto; padding: 24px; background: #FAFAFA;">
+            ${getRightPanelTabContent(activeTab)}
+          </div>
+        `;
+      }
+      
       document.getElementById('detail-center').innerHTML = html;
+
     }
 
     function renderOutreachStage(isReadOnly = false) {
@@ -3843,6 +3857,8 @@ https://ambak.in/quote/x920dj</textarea>
       const statusKeys = Object.keys(bucketConfig.statuses);
       let statusOptionsHtml = statusKeys.map((k, i) => `<option value="${k}" ${i===0?'selected':''}>${k}</option>`).join('');
       
+      let activeTab = l.activeTab || 'History';
+      
       let html = `
         <style>
           #detail-right select:focus, #detail-right input:focus, #detail-right textarea:focus {
@@ -3850,53 +3866,52 @@ https://ambak.in/quote/x920dj</textarea>
             background: white !important;
           }
         </style>
-        <div style="padding: 20px;">
-          
-          <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            <div style="background: #FAFAFA; border-bottom: 1px solid #E5E7EB; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #111827; display: flex; align-items: center; justify-content: space-between;">
-              <span>Update Status</span>
-              <span style="font-size: 10px; font-weight: 500; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em;">Agent Action</span>
+        <div style="flex-shrink: 0; padding: 16px 24px; border-bottom: 2px solid #E5E7EB; background: white;">
+          <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">Update Status</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">STATUS</label>
+              <select id="detail-status" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;" onchange="handleDetailStatusChange()">
+                ${statusOptionsHtml}
+              </select>
             </div>
-            <div style="padding: 16px;">
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 6px;">Call Status *</div>
-                <select id="detail-status" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 13px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s; cursor: pointer;" onchange="handleDetailStatusChange()">
-                  ${statusOptionsHtml}
+            <div>
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">SUB STATUS</label>
+              <select id="detail-substatus" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;" onchange="handleDetailSubStatusChange()">
+              </select>
+            </div>
+            <div id="detail-fup-wrapper" style="display: flex; gap: 8px;">
+              <div style="flex: 1;">
+                <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">FOLLOW-UP DATE <span style="color: #C0392B;">*</span></label>
+                <input type="date" id="detail-fup-date" placeholder="dd/mm/yyyy" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+              </div>
+              <div style="flex: 1;">
+                <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">PENDING WITH <span style="color: #C0392B;">*</span></label>
+                <select id="detail-pending-with" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
+                  <option value="Customer" selected>Customer</option>
+                  <option value="IBM Agent">IBM Agent</option>
+                  <option value="PolicyBazaar">PolicyBazaar</option>
+                  <option value="Insurer">Insurer</option>
+                  <option value="Ambak Operations">Ambak Operations</option>
+                  <option value="Finance Team">Finance Team</option>
                 </select>
               </div>
-              <div style="margin-bottom: 12px;">
-                <div style="font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 6px;">Sub Status *</div>
-                <select id="detail-substatus" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 13px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s; cursor: pointer;" onchange="handleDetailSubStatusChange()">
-                </select>
-              </div>
-              <div id="detail-fup-wrapper" style="margin-bottom: 12px; display: none; flex-direction: column;">
-                <div style="font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 6px;">Follow Up Date & Time *</div>
-                <input type="datetime-local" id="detail-fup" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 13px; font-family: Poppins; background: #FAFAFA; padding: 0 10px; outline: none; transition: border-color 0.2s, background 0.2s;">
-              </div>
-              <div style="margin-bottom: 4px;">
-                <div style="font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 6px;">Remarks</div>
-                <textarea id="detail-remarks" placeholder="Add remarks..." style="width: 100%; height: 72px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 8px 10px; outline: none; resize: none; transition: border-color 0.2s, background 0.2s; box-sizing: border-box;"></textarea>
-              </div>
-              <button style="width: 100%; height: 42px; background: #473391; color: white; font-size: 13px; font-weight: 700; border-radius: 8px; margin-top: 16px; border: none; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" onclick="saveDetailStatusUpdate()">Update Status</button>
             </div>
+            <div>
+              <label style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block;">REMARKS</label>
+              <textarea id="detail-remarks" placeholder="Add remarks..." style="width: 100%; height: 72px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-size: 12px; font-family: Poppins; background: #FAFAFA; padding: 8px 10px; outline: none; resize: none; transition: border-color 0.2s, background 0.2s; box-sizing: border-box;"></textarea>
+            </div>
+            <button style="width: 100%; height: 42px; background: #473391; color: white; font-size: 13px; font-weight: 700; border-radius: 8px; margin-top: 16px; border: none; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" onclick="saveDetailStatusUpdate()">Update Status</button>
           </div>
         </div>
+        
       `;
       document.getElementById('detail-right').innerHTML = html;
       
       handleDetailStatusChange();
     }
-
     
-    window.completeTask = function(taskId) {
-      const task = window.G_TASKS.find(t => t.id === taskId);
-      if (task) {
-        task.status = 'completed';
-        showToast('Task marked complete');
-        renderLeadDetail();
-      }
-    };
-
+    window.completeTask
     window.handleDetailStatusChange = function() {
       if(!currentLead) return;
       const status = document.getElementById('detail-status').value;

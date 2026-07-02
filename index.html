@@ -2466,7 +2466,7 @@ https://ambak.in/quote/x920dj</textarea>
       if (currentLead.status === 'Lost') {
           for (let i = 0; i <= currentIdx; i++) {
               if (stages[i] === 'New') centerContent += renderAccordion('New', renderOutreachStage(true));
-              if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
+              if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderContactedStage(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
           }
@@ -2474,14 +2474,14 @@ https://ambak.in/quote/x920dj</textarea>
       } else {
           for (let i = 0; i < currentIdx; i++) {
               if (stages[i] === 'New') centerContent += renderAccordion('New', renderOutreachStage(true));
-              if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderProductSelection(true));
+              if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderContactedStage(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
           }
           
           let activeContent = '';
           if (l.bucket === 'New') { activeContent = renderNewStage(false); } 
-          else if (l.bucket === 'Contacted') activeContent = renderProductSelection(false);
+          else if (l.bucket === 'Contacted') activeContent = renderContactedStage(false);
           else if (l.bucket === 'Quote') activeContent = renderQuoteStage(false);
           else if (l.bucket === 'Payment Done') activeContent = renderPaymentDoneStage(false);
           else if (l.bucket === 'Policy Issued') activeContent = renderPolicyStage();
@@ -2826,6 +2826,20 @@ https://ambak.in/quote/x920dj</textarea>
     };
 
 
+
+    window.handleGenerateQuoteFromNew = function() {
+        // Move to Contacted
+        currentLead.bucket = 'Contacted';
+        
+        let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
+        const TABS = { 'lp': 'Loan Protection', 'property': 'Property Insurance', 'cl': 'Credit Life', 'term': 'Term Plan' };
+        
+        addActivity('System', 'Quote generation initiated from NEW stage', `Product: ${TABS[tab] || tab}`, 'Just now');
+        
+        renderLeadDetail();
+    };
+
+
     window.updateNewStageCompletion = function() {
         let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
         let reqCount = 0;
@@ -2839,10 +2853,97 @@ https://ambak.in/quote/x920dj</textarea>
         if (ind) {
             ind.innerHTML = `<span style="color:#9CA3AF;">${filledCount} of ${reqCount} fields filled</span>`;
         }
+        
+        let btn = document.getElementById('new-stage-generate-btn');
+        if (btn) {
+            // For mockup purposes, let's just make it active if we want, or active if reqCount == filledCount.
+            // Let's assume all fields are filled for the demo, so it's always active.
+            let isComplete = true; // Hardcoded true for mockup demo, or could use logic
+            if (isComplete) {
+                btn.style.background = '#473391';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            } else {
+                btn.style.background = '#C5C0F5';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
+                btn.style.pointerEvents = 'none';
+            }
+        }
     };
 
-    function renderNewStage(isReadOnly = false) {
-      let isLinked = true; // Hardcoded for mockup
+
+    window.handleGenerateQuoteFromNew = function() {
+        currentLead.bucket = 'Contacted';
+        let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
+        const TABS = { 'lp': 'Loan Protection', 'property': 'Property Insurance', 'cl': 'Credit Life', 'term': 'Term Plan' };
+        addActivity('System', 'Quote generation initiated from NEW stage', `Product: ${TABS[tab] || tab}`, 'Just now');
+        currentLead.contactedShowResults = false;
+        renderLeadDetail();
+    };
+
+
+    window.handleGenerateQuoteFromContacted = function() {
+        let tabBox = document.getElementById('new-stage-content');
+        let inputs = tabBox.querySelectorAll('input:not([readonly]), select:not([readonly])');
+        let isValid = true;
+        
+        inputs.forEach(inp => {
+            if (inp.type === 'radio' || inp.type === 'checkbox') return; // skip for mockup simplicity
+            let valContainer = inp.nextElementSibling;
+            if (valContainer && valContainer.className === 'val-err') {
+                valContainer.remove();
+            }
+            if (!inp.value || inp.value === 'Select...') {
+                isValid = false;
+                let err = document.createElement('div');
+                err.className = 'val-err';
+                err.style = 'font-size: 11px; color: #C0392B; margin-top: 4px;';
+                err.innerText = 'This field is required';
+                inp.parentNode.appendChild(err);
+                inp.style.borderColor = '#C0392B';
+            } else {
+                inp.style.borderColor = '#E5E7EB';
+            }
+        });
+
+        if (isValid) {
+            let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
+            const TABS = { 'lp': 'Loan Protection', 'property': 'Property Insurance', 'cl': 'Credit Life', 'term': 'Term Plan' };
+            currentLead.contactedShowResults = true;
+            addActivity('System', 'Quotes generated', `Product: ${TABS[tab] || tab}`, 'Just now');
+            renderLeadDetail();
+        }
+    };
+    
+    window.handleShareQuote = function(method) {
+        showToast('Quote shared successfully');
+        currentLead.bucket = 'Quote';
+        currentLead.status = 'Quote Shared';
+        currentLead.subStatus = 'Consent Pending';
+        addActivity('System', 'Quote shared with customer', `CARE Health Insurance · ₹12,500 · via ${method}`, 'Just now');
+        renderLeadDetail();
+        renderRightPanel();
+    };
+    
+    window.handleOpenPB = function() {
+        showToast('Saving details and opening PolicyBazaar...');
+        currentLead.contactedShowPBStep2 = true;
+        renderLeadDetail();
+        window.open('https://partners.policybazaar.com', '_blank');
+    };
+    
+    window.handleExtractPBQuotes = function() {
+        showToast('Extracting quotes via AI...');
+        setTimeout(() => {
+            currentLead.contactedPBQuotesExtracted = true;
+            renderLeadDetail();
+        }, 1500);
+    };
+
+    window.renderProductTabsUI = function(isContacted, isReadOnly = false) {
+      let isLinked = true; 
       
       let inputClass = isReadOnly ? 'new-form-input form-readonly' : 'new-form-input new-stage-track';
       let clickEvent = isReadOnly ? 'pointer-events:none;' : 'cursor:pointer;';
@@ -2851,9 +2952,7 @@ https://ambak.in/quote/x920dj</textarea>
       
       let activeTab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
       
-      let hlIndicator = '';
-      if (isLinked) {
-          hlIndicator = `
+      let hlIndicator = `
           <div style="background: #F0EEFB; border: 1px solid #C5C0F5; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <div style="color: #473391; font-size: 16px;">🔗</div>
@@ -2864,13 +2963,6 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
             <div style="font-size: 12px; font-weight: 600; color: #473391; text-decoration: underline; cursor: pointer;">View HL Lead →</div>
           </div>`;
-      } else {
-          hlIndicator = `
-          <div style="background: #FFF8E1; border: 1px solid #F5CBA7; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-            <div style="color: #856404; font-size: 16px;">⚠️</div>
-            <div style="font-size: 12px; color: #856404;">No Home Loan lead linked. Details will need to be filled manually.</div>
-          </div>`;
-      }
       
       const TABS = [
           {id: 'lp', label: 'Loan Protection'},
@@ -2879,9 +2971,6 @@ https://ambak.in/quote/x920dj</textarea>
           {id: 'term', label: 'Term Plan'}
       ];
       
-      let recommended = currentLead.finalProduct || currentLead.initialProduct || 'lp';
-      
-
       let tabsHtml = `<div style="display: flex; gap: 8px; margin-bottom: 12px;">`;
       TABS.forEach(t => {
           let isSel = activeTab === t.id;
@@ -2897,7 +2986,6 @@ https://ambak.in/quote/x920dj</textarea>
           `;
       });
       tabsHtml += `</div>`;
-
       
       let hlBadge = `<span style="background: #EEF0FD; color: #473391; font-size: 9px; font-weight: 700; border-radius: 3px; padding: 1px 4px; margin-left: 6px; display: inline-block; vertical-align: middle;">HL</span>`;
       let labelStyle = `font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 5px; display: block;`;
@@ -2906,9 +2994,10 @@ https://ambak.in/quote/x920dj</textarea>
       let lockIcon = `<span style="position: absolute; right: 10px; top: 32px; color: #C5C0F5; font-size: 12px;">🔒</span>`;
       
       let contentHtml = '';
+      let reqCount = 0;
       
-
       if (activeTab === 'lp') {
+          reqCount = 2;
           contentHtml = `
             <div style="margin-bottom: 16px;">
               <div style="font-size: 13px; font-weight: 700; color: #111827;">Loan Protection Details</div>
@@ -2917,7 +3006,7 @@ https://ambak.in/quote/x920dj</textarea>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
               <div>
                 <label style="${labelStyle}">DATE OF BIRTH *</label>
-                <input type="date" style="${inputStyle}" ${readonlyAttr}>
+                <input type="date" style="${inputStyle}" ${readonlyAttr} value="1985-06-15">
               </div>
               <div style="position: relative;">
                 <label style="${labelStyle}">LOAN AMOUNT ${hlBadge}</label>
@@ -2948,6 +3037,7 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
           `;
       } else if (activeTab === 'property') {
+          reqCount = 4;
           contentHtml = `
             <div style="margin-bottom: 16px;">
               <div style="font-size: 13px; font-weight: 700; color: #111827;">Property Insurance Details</div>
@@ -2956,27 +3046,28 @@ https://ambak.in/quote/x920dj</textarea>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
               <div>
                 <label style="${labelStyle}">CITY *</label>
-                <input type="text" placeholder="Enter city" style="${inputStyle}" ${readonlyAttr}>
+                <input type="text" placeholder="Enter city" style="${inputStyle}" ${readonlyAttr} value="Mumbai">
               </div>
               <div>
                 <label style="${labelStyle}">PROPERTY TYPE *</label>
                 <select style="${inputStyle}" ${disabledAttr}>
-                  <option>Flat</option><option>Independent House</option>
+                  <option selected>Flat</option><option>Independent House</option>
                 </select>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
               <div>
                 <label style="${labelStyle}">MARKET VALUE *</label>
-                <input type="number" placeholder="₹ Market value" style="${inputStyle}" ${readonlyAttr}>
+                <input type="number" placeholder="₹ Market value" style="${inputStyle}" ${readonlyAttr} value="6500000">
               </div>
               <div>
                 <label style="${labelStyle}">HOUSEHOLD ITEMS VALUE *</label>
-                <input type="number" placeholder="₹ Household items value" style="${inputStyle}" ${readonlyAttr}>
+                <input type="number" placeholder="₹ Household items value" style="${inputStyle}" ${readonlyAttr} value="1500000">
               </div>
             </div>
           `;
       } else if (activeTab === 'cl' || activeTab === 'term') {
+          reqCount = 6;
           let title = activeTab === 'cl' ? 'Credit Life Details' : 'Term Plan Details';
           contentHtml = `
             <div style="margin-bottom: 16px;">
@@ -2986,7 +3077,7 @@ https://ambak.in/quote/x920dj</textarea>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
               <div>
                 <label style="${labelStyle}">DATE OF BIRTH *</label>
-                <input type="date" style="${inputStyle}" ${readonlyAttr}>
+                <input type="date" style="${inputStyle}" ${readonlyAttr} value="1985-06-15">
               </div>
               <div>
                 <label style="${labelStyle}">GENDER *</label>
@@ -3000,13 +3091,13 @@ https://ambak.in/quote/x920dj</textarea>
               <div>
                 <label style="${labelStyle}">EDUCATIONAL QUALIFICATION *</label>
                 <select style="${inputStyle}" ${disabledAttr}>
-                  <option>Below 10th</option><option>10th</option><option>12th</option><option>Graduate</option><option>Post Graduate</option>
+                  <option>Below 10th</option><option>10th</option><option>12th</option><option selected>Graduate</option><option>Post Graduate</option>
                 </select>
               </div>
               <div>
                 <label style="${labelStyle}">ANNUAL INCOME *</label>
                 <select style="${inputStyle}" ${disabledAttr}>
-                  <option>Below 5L</option><option>5L–10L</option><option>10L–25L</option><option>25L–50L</option><option>50L+</option>
+                  <option>Below 5L</option><option>5L–10L</option><option selected>10L–25L</option><option>25L–50L</option><option>50L+</option>
                 </select>
               </div>
             </div>
@@ -3014,7 +3105,7 @@ https://ambak.in/quote/x920dj</textarea>
               <div>
                 <label style="${labelStyle}">EMPLOYMENT TYPE *</label>
                 <select style="${inputStyle}" ${disabledAttr}>
-                  <option>Salaried</option><option>Self Professional</option>
+                  <option selected>Salaried</option><option>Self Professional</option>
                 </select>
               </div>
               <div>
@@ -3027,102 +3118,189 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
           `;
       }
-
+      
+      let btnAction = isContacted ? 'handleGenerateQuoteFromContacted()' : 'handleGenerateQuoteFromNew()';
       
       let tabBox = `
         <div id="new-stage-content" style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-top: 12px; position: relative;">
           <div id="new-stage-saving" style="position: absolute; right: 20px; top: 20px; font-size: 10px; color: #9CA3AF; font-weight: 600;"></div>
           ${contentHtml}
-          <div id="new-stage-completion" style="text-align: right; margin-top: 16px; font-size: 11px; color: #9CA3AF;">
-             3 of 4 fields filled
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+              <div id="new-stage-completion" style="margin-top: 16px; font-size: 11px; color: #9CA3AF; margin-bottom: 20px;">
+                 ${reqCount} of ${reqCount} fields filled
+              </div>
           </div>
+          ${isReadOnly ? '' : `
+          <button id="new-stage-generate-btn" style="width: 100%; height: 44px; background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;" onclick="${btnAction}">
+            Generate Quote →
+          </button>`}
         </div>
       `;
+      
+      let resultsHtml = '';
+      if (isContacted && currentLead.contactedShowResults) {
+          if (activeTab === 'lp') {
+              resultsHtml = `
+              <div style="margin-top: 24px;">
+                <div style="font-size: 13px; font-weight: 700; color: #111827;">Generated Quotes</div>
+                <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 12px;">CARE Health & TATA AIG · Based on details filled above</div>
+                
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <!-- CARE Health Card -->
+                    <div style="flex: 1; border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 16px; background: white;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏥</div>
+                            <div style="font-size: 13px; font-weight: 700; color: #111827;">CARE Health</div>
+                        </div>
+                        <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 4px;">Group Credit Protect Plus</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #473391;">₹12,500</div>
+                        <div style="font-size: 10px; color: #9CA3AF; margin-bottom: 12px;">incl. GST</div>
+                        <div style="font-size: 11px; color: #4B5563; margin-bottom: 12px;">Cover: ₹${formatLakhs(currentLead.si)}</div>
+                        <hr style="border: none; border-top: 1px solid #E5E7EB; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button style="flex: 1; height: 32px; background: #E6F4ED; color: #1A7A4A; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('WhatsApp')">WhatsApp</button>
+                            <button style="flex: 1; height: 32px; background: #FDECEA; color: #C0392B; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('Email')">Email</button>
+                        </div>
+                    </div>
+                    
+                    <!-- TATA AIG Card -->
+                    <div style="flex: 1; border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 16px; background: white;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 20px;">🛡️</div>
+                            <div style="font-size: 13px; font-weight: 700; color: #111827;">TATA AIG</div>
+                        </div>
+                        <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 4px;">Home Guard Shield</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #473391;">₹14,200</div>
+                        <div style="font-size: 10px; color: #9CA3AF; margin-bottom: 12px;">incl. GST</div>
+                        <div style="font-size: 11px; color: #4B5563; margin-bottom: 12px;">Cover: ₹${formatLakhs(currentLead.si)}</div>
+                        <hr style="border: none; border-top: 1px solid #E5E7EB; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button style="flex: 1; height: 32px; background: #E6F4ED; color: #1A7A4A; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('WhatsApp')">WhatsApp</button>
+                            <button style="flex: 1; height: 32px; background: #FDECEA; color: #C0392B; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('Email')">Email</button>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div style="position: relative; width: 100%;">
+                    <button style="width: 100%; padding: 10px; border: 1.5px solid #473391; background: white; color: #473391; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="document.getElementById('share-all-dropdown').style.display = document.getElementById('share-all-dropdown').style.display === 'block' ? 'none' : 'block'">Share All Quotes</button>
+                    <div id="share-all-dropdown" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 4px; z-index: 10;">
+                        <div style="padding: 12px 16px; font-size: 13px; color: #111827; cursor: pointer; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 8px;" onclick="handleShareQuote('WhatsApp')"><span style="color:#10B981; font-weight:bold;">WA</span> Share via WhatsApp</div>
+                        <div style="padding: 12px 16px; font-size: 13px; color: #111827; cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="handleShareQuote('Email')"><span style="color:#C0392B; font-weight:bold;">@</span> Share via Email</div>
+                    </div>
+                </div>
+
+              </div>
+              `;
+          } else {
+              if (currentLead.contactedShowPBStep2) {
+                  resultsHtml = `
+                    <div style="margin-top: 24px;">
+                      <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 8px; padding: 12px; color: #92400E; font-size: 12px; font-weight: 500; margin-bottom: 16px;">
+                        PolicyBazaar opened in a new tab. Take a screenshot of the quotes list and upload below.
+                      </div>
+                      
+                      <div style="border: 2px dashed #D1D5DB; border-radius: 12px; padding: 32px; text-align: center; background: white; margin-bottom: 16px;">
+                        <div style="font-size: 24px; margin-bottom: 12px;">📸</div>
+                        <div style="font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px;">Upload Quotes Screenshot</div>
+                        <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 16px;">Paste (Cmd+V) or click to browse</div>
+                        <button style="background: #473391; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleExtractPBQuotes()">Extract Quotes with AI</button>
+                      </div>
+                  `;
+                  
+                  if (currentLead.contactedPBQuotesExtracted) {
+                      resultsHtml += `
+
+                        <div style="margin-bottom: 16px;">
+                          <div style="font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 12px;">Extracted Quotes</div>
+                          <div style="border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; background: white; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" checked style="width: 16px; height: 16px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 20px;">🛡️</div>
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 700; color: #111827;">HDFC Ergo</div>
+                                        <div style="font-size: 11px; color: #9CA3AF;">Home Shield Plus</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #473391;">₹4,200</div>
+                                    <div style="font-size: 10px; color: #9CA3AF;">one-time premium</div>
+                                </div>
+                            </div>
+                            <hr style="border: none; border-top: 1px solid #E5E7EB; margin-bottom: 12px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button style="flex: 1; height: 32px; background: #E6F4ED; color: #1A7A4A; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('WhatsApp')">WhatsApp</button>
+                                <button style="flex: 1; height: 32px; background: #FDECEA; color: #C0392B; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('Email')">Email</button>
+                            </div>
+                          </div>
+                          
+                          <div style="border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; background: white; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" style="width: 16px; height: 16px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏢</div>
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 700; color: #111827;">Bajaj Allianz</div>
+                                        <div style="font-size: 11px; color: #9CA3AF;">My Home Insurance</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #473391;">₹380</div>
+                                    <div style="font-size: 10px; color: #9CA3AF;">monthly premium</div>
+                                </div>
+                            </div>
+                            <hr style="border: none; border-top: 1px solid #E5E7EB; margin-bottom: 12px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button style="flex: 1; height: 32px; background: #E6F4ED; color: #1A7A4A; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('WhatsApp')">WhatsApp</button>
+                                <button style="flex: 1; height: 32px; background: #FDECEA; color: #C0392B; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('Email')">Email</button>
+                            </div>
+                          </div>
+                          
+                          <button style="width: 100%; padding: 10px; border: none; background: #473391; color: white; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="handleShareQuote('WhatsApp')">Share Selected Quotes</button>
+                        </div>
+
+                      `;
+                  }
+                  resultsHtml += `</div>`;
+              } else {
+                  resultsHtml = `
+                  <div style="margin-top: 24px; background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #111827;">Ready to generate quotes on PolicyBazaar</div>
+                    <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 14px;">The details below will be pre-filled on PolicyBazaar</div>
+                    
+                    <div style="background: #F9FAFB; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #4B5563;">
+                      ${activeTab === 'property' 
+                        ? 'City: Mumbai · Type: Flat · Market Value: ₹6500000 · Household Items: ₹1500000'
+                        : 'DOB: 1985-06-15 · Gender: Male · Income: 10L–25L · Employment: Salaried · Tobacco: No'
+                      }
+                    </div>
+                    
+                    <button style="width: 100%; height: 44px; background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 16px; cursor: pointer;" onclick="handleOpenPB()">
+                      Open PolicyBazaar Workspace →
+                    </button>
+                  </div>
+                  `;
+              }
+          }
+      }
       
       return `
         <div style="margin-bottom: 24px;">
           ${hlIndicator}
           ${tabsHtml}
           ${tabBox}
+          ${resultsHtml}
         </div>
       `;
     }
 
+    function renderNewStage(isReadOnly = false) {
+        return renderProductTabsUI(false, isReadOnly);
+    }
+    
     function renderContactedStage(isReadOnly = false) {
-      let inputClass = isReadOnly ? 'new-form-input form-readonly' : 'new-form-input new-stage-track';
-      let clickEvent = isReadOnly ? 'pointer-events:none;' : 'cursor:pointer;';
-      let product = currentLead.finalProduct || currentLead.initialProduct || '';
-      
-      const PRODUCTS = {
-        lp: {
-          name: 'Loan Protection',
-          abbr: 'LP',
-          desc: 'Covers the outstanding home loan amount in case of death or disability. Ensures the family keeps their home.',
-          benefit: 'Loan liability fully covered — family never inherits debt',
-          insurers: ['CARE Health', 'TATA AIG']
-        },
-        property: {
-          name: 'Property Insurance',
-          abbr: 'PR',
-          desc: 'Protects the physical property against fire, natural disasters, and structural damage. Annual renewable policy.',
-          benefit: 'Property value protected against unforeseen damage',
-          insurers: ['Bajaj General', 'HDFC Ergo', 'SBI General']
-        },
-        credit: {
-          name: 'Credit Life',
-          abbr: 'CL',
-          desc: "Covers the borrower's life for the loan tenure. If the borrower passes away, the insurer repays the outstanding loan.",
-          benefit: 'Decreasing cover that matches loan outstanding — cost-effective',
-          insurers: ['PB Partners (via PolicyBazaar)']
-        },
-        term: {
-          name: 'Term Plan',
-          abbr: 'TP',
-          desc: "Pure life cover at low cost. Pays a lump sum to the nominee on the policyholder's death during the policy term.",
-          benefit: 'High cover at lowest premium — ideal for income replacement',
-          insurers: ['PB Partners (via PolicyBazaar)']
-        }
-      };
-
-      let html = `
-        <div style="background:var(--white); border-radius:12px; padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:24px;">
-          <div style="text-align:center; margin-bottom:32px;">
-             <h2 style="font-size:24px; margin:0 0 8px;">Select Insurance Product</h2>
-             <div style="color:var(--text-muted); font-size:14px;">Understand the customer's needs and select the right product.</div>
-          </div>
-          
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
-            ${Object.entries(PRODUCTS).map(([key, p]) => {
-              let sel = product === key;
-              return `
-               <div style="border:2px solid ${sel ? 'var(--primary)' : '#E5E7EB'}; border-radius:12px; padding:20px; cursor:pointer; background:${sel?'#EFF6FF':'white'}; transition:all 0.2s;" onclick="currentLead.finalProduct='${key}'; renderLeadDetail()">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                     <div style="width:40px; height:40px; border-radius:8px; background:${sel?'var(--primary)':'#F3F4F6'}; color:${sel?'white':'var(--text-body)'}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">
-                        ${p.abbr}
-                     </div>
-                     <div style="width:20px; height:20px; border-radius:50%; border:2px solid ${sel?'var(--primary)':'#D1D5DB'}; background:${sel?'var(--primary)':'transparent'}; display:flex; align-items:center; justify-content:center;">
-                        ${sel ? '<div style="width:8px; height:8px; border-radius:50%; background:white;"></div>' : ''}
-                     </div>
-                  </div>
-                  <div style="font-weight:700; font-size:16px; margin-bottom:6px; color:${sel?'var(--primary)':'var(--text-heading)'};">${p.name}</div>
-                  <div style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:12px; min-height:36px;">${p.desc}</div>
-                  <div style="font-size:11px; color:#059669; font-weight:600; margin-bottom:10px; display:flex; align-items:start; gap:4px;">
-                    <span style="margin-top:1px;">✓</span> ${p.benefit}
-                  </div>
-                  <div style="font-size:11px; color:var(--text-muted); border-top:1px solid ${sel?'#BFDBFE':'#F3F4F6'}; padding-top:10px;">
-                    <span style="font-weight:600;">Insurers:</span> ${p.insurers.join(', ')}
-                  </div>
-               </div>
-              `;
-            }).join('')}
-          </div>
-          
-          <div style="text-align:center;">
-             ${isReadOnly ? "" : `<button class="btn btn-primary" style="padding:12px 32px; font-size:16px; border-radius:8px;" ${!product ? 'disabled style="padding:12px 32px; font-size:16px; border-radius:8px; opacity:0.5; cursor:not-allowed;"' : ''} onclick="transitionLeadState('Quote Generated', '', 'Product selected: ${product ? getProductLabel(product) : ''}', null, null); renderLeadDetail();">Generate Quote →</button>`}
-          </div>
-        </div>
-      `;
-      return html;
+        return renderProductTabsUI(true, isReadOnly);
     }
 
     function renderLostStage() {
@@ -3141,170 +3319,157 @@ https://ambak.in/quote/x920dj</textarea>
     }
 
 
+
+    window.handleChangePlan = function() {
+        showToast("Change Plan modal will appear here.");
+    };
+
+    window.handleSharePaymentLink = function(method) {
+        showToast("Payment Link Shared via " + method);
+        currentLead.status = 'Payment Link Shared';
+        currentLead.subStatus = 'Awaiting Payment';
+        addActivity('System', 'Payment link shared', `via ${method}`, 'Just now');
+        currentLead.quotePaymentShared = true;
+        renderLeadDetail();
+        renderRightPanel();
+    };
+    
+    window.handleSelectVerification = function(status) {
+        // Mockup restriction
+        if (status === 'Verified') {
+            // Assume IBM Manager is true for mockup, or if role is Agent, show toast
+            // Let's assume we are Manager for the demo
+            currentLead.quoteVerificationSelected = status;
+        } else {
+            currentLead.quoteVerificationSelected = status;
+        }
+        renderLeadDetail();
+    };
+
+    window.handleConfirmPayment = function() {
+        if (currentLead.quoteVerificationSelected === 'Verified') {
+            currentLead.bucket = 'Payment Done';
+            currentLead.status = 'Payment Done';
+            currentLead.subStatus = 'Verified';
+            addActivity('System', 'Payment verified by Manager', `UTR: 1234567890 · ₹12,500 · Just now`, 'Just now');
+            renderLeadDetail();
+            renderRightPanel();
+        } else {
+            showToast("Submitted for Verification");
+        }
+    };
+
     function renderQuoteStage(isReadOnly = false) {
-      let inputClass = isReadOnly ? 'new-form-input form-readonly' : 'new-form-input new-stage-track';
-      let clickEvent = isReadOnly ? 'pointer-events:none;' : 'cursor:pointer;';
-      let product = currentLead.finalProduct || currentLead.initialProduct || 'lp';
-      let isLocked = currentLead.paymentVerified || currentLead.productStatus === 'locked';
+      let isIBMManager = true; // Hardcode for demo purposes
+      
+      let selectedVerification = currentLead.quoteVerificationSelected || '';
+      
+      let verificationPillStyle = (status) => {
+          if (selectedVerification === status) {
+              if (status === 'Verification Pending') return 'background: #FFF8E1; border: 1.5px solid #F5CBA7; color: #856404;';
+              if (status === 'Payment Failed') return 'background: #FDECEA; border: 1.5px solid #F5A4A4; color: #C0392B;';
+              if (status === 'Verified') return 'background: #E6F4ED; border: 1.5px solid #A8D5B5; color: #1A7A4A;';
+          }
+          if (status === 'Verified' && !isIBMManager) {
+              return 'background: #F3F4F6; border: 1.5px solid #E5E7EB; color: #9CA3AF; cursor: not-allowed; opacity: 0.6;';
+          }
+          return 'background: white; border: 1.5px solid #E5E7EB; color: #6B7280;';
+      };
 
-      // Product header badge (read-only — no switching allowed)
-      let productHeaderHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div style="width:36px; height:36px; border-radius:8px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
-              ${product==='lp'?'LP':product==='property'?'PR':product==='cl'?'CL':'TP'}
-            </div>
-            <div>
-              <div style="font-weight:700; font-size:16px; color:var(--text-heading);">${getProductLabel(product)}</div>
-              <div style="font-size:11px; color:var(--text-muted);">${(product==='lp' || product==='property') ? 'Path A — In-House Calculator' : 'Path B — PolicyBazaar Workspace'}</div>
-            </div>
-          </div>
-          ${currentLead.paymentVerified ? `
-            <div style="display:flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #10B981; border-radius:6px; padding:6px 12px;">
-              <div style="width:18px; height:18px; border-radius:50%; background:#10B981; color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;">✓</div>
-              <span style="font-weight:600; font-size:12px; color:#065F46;">Payment Verified</span>
-            </div>
-          ` : ''}
-        </div>
-      `;
-
-      let centerAreaHtml = '';
-
-      if (currentLead.selectedPlan) {
-          const selPlan = currentLead.selectedPlan;
-          centerAreaHtml = `
-            <div style="border:2px solid var(--primary); border-radius:12px; padding:20px; margin-bottom:24px; background:white;">
-              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
-                <div style="font-weight:700; font-size:16px; color:var(--primary);">Selected Plan: ${selPlan.insurer}</div>
-                ${!isLocked ? `<button class="btn btn-ghost btn-small" onclick="currentLead.selectedPlan=null; currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate</button>` : ''}
+      let paymentCardHtml = '';
+      if (currentLead.quotePaymentShared) {
+          paymentCardHtml = `
+            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px;">Payment Link</div>
+              <div style="position: relative;">
+                <input type="text" value="https://pay.careinsurance.com/pay?id=83726492" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; box-sizing: border-box;" readonly>
+                <span style="position: absolute; right: 10px; top: 10px; color: #10B981; font-weight: bold;">✓</span>
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div><div style="font-size:11px; color:var(--text-muted);">Premium</div><div style="font-weight:700; font-size:16px;">${selPlan.premium}</div></div>
-                <div><div style="font-size:11px; color:var(--text-muted);">Coverage / Plan Type</div><div style="font-weight:600; font-size:14px;">${selPlan.coverage} / ${selPlan.planType || 'Standard'}</div></div>
+              <div style="font-size: 11px; color: #473391; margin-top: 8px; cursor: pointer; text-decoration: underline;">Resend link</div>
+            </div>
+          `;
+      } else {
+          paymentCardHtml = `
+            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+              <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px;">Payment Link</div>
+              <input type="text" placeholder="Paste payment link here..." style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; box-sizing: border-box; margin-bottom: 8px;" id="payment-link-input" oninput="document.getElementById('share-btn-wa').disabled = !this.value; document.getElementById('share-btn-em').disabled = !this.value;">
+              <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 12px;">Ensure you paste the correct link for Loan Protection</div>
+              <div style="display: flex; gap: 8px;">
+                <button id="share-btn-wa" disabled style="flex: 1; height: 32px; background: #E6F4ED; color: #1A7A4A; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleSharePaymentLink('WhatsApp')">Send via WhatsApp</button>
+                <button id="share-btn-em" disabled style="flex: 1; height: 32px; background: #FDECEA; color: #C0392B; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="handleSharePaymentLink('Email')">Send via Email</button>
               </div>
             </div>
           `;
-      } else if (product === 'cl' || product === 'term') {
-         // Path B: Credit Life, Term -> PolicyBazaar
-         centerAreaHtml = `
-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-              <h3 style="font-size:15px; margin:0;">${getProductLabel(product)} Details</h3>
-            </div>
-            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">DOB *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Smoker Status *</label>
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker" checked> Non-Smoker</label>
-                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker"> Smoker</label>
-                </div>
-              </div>
-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Educational Qualification *</label>
-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
-                  <option>Below 10th</option><option>10th Pass</option><option>12th Pass</option><option>College Graduate & Above</option>
-                </select>
-              </div>
-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Annual Income *</label>
-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
-                  <option>Below 5L</option><option>5-10L</option><option>10-15L</option><option>15-20L</option><option>Above 20L</option>
-                </select>
-              </div>
-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Occupation Type *</label>
-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
-                  <option>Salaried</option><option>Self Employed</option>
-                </select>
-              </div>
-            </div>
-            <div style="text-align:center;">
-              <button class="btn btn-primary" style="padding:10px 28px; font-size:15px; width:100%;" onclick="openPBDrawer('${product}')">Open PolicyBazaar Workspace →</button>
-            </div>
-          </div>
-         `;
-      } else if (product === 'property') {
-         centerAreaHtml = `
-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-              <h3 style="font-size:15px; margin:0;">In-House Property Calculator</h3>
-            </div>
-            ${!currentLead.inHouseQuotesGenerated ? `
-              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">City Name *</label><select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>Mumbai</option><option>Delhi</option><option>Bangalore</option></select></div>
-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Property Type *</label>
-                  <div style="display:flex; gap:8px; margin-top:8px;">
-                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype" checked> Flat / Apartment</label>
-                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype"> Independent House</label>
-                  </div>
-                </div>
-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Market Value *</label><input type="text" class="sangam-filter-select" value="₹50,00,000" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
-              </div>
-              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
-            ` : `
-              <div style="display:flex; flex-direction:column; gap:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                  <div><div style="font-weight:700; color:var(--primary);">ICICI Lombard</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹5,800</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('ICICI Lombard', '₹5,800', '₹50L', 'Property Coverage')">Select Plan</button></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                  <div><div style="font-weight:700; color:var(--primary);">Bajaj Allianz</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹6,100</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('Bajaj Allianz', '₹6,100', '₹50L', 'Property Coverage')">Select Plan</button></div>
-                </div>
-              </div>
-              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
-            `}
-          </div>
-         `;
-      } else if (product === 'lp') {
-         centerAreaHtml = `
-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-              <h3 style="font-size:15px; margin:0;">In-House Loan Protection Calculator</h3>
-            </div>
-            ${!currentLead.inHouseQuotesGenerated ? `
-              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Date of Birth *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Plan Type *</label>
-                  <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>PA + CI</option><option>PA</option></select>
-                </div>
-                <div style="flex:1; min-width:200px;"><label class="sangam-filter-label" style="font-size:10px;">Add-on Covers</label>
-                  <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px; font-size:12px;">
-                    <label><input type="checkbox"> EMI Protection</label>
-                    <label><input type="checkbox"> Loss of Employment</label>
-                    <label><input type="checkbox"> Seasonal Disease Hospitalisation</label>
-                  </div>
-                </div>
-              </div>
-              
-              <div style="padding:12px; background:#F9FAFB; border-radius:8px; border:1px solid #E5E7EB; margin-bottom:16px; font-size:12px; color:#4B5563;">
-                <div style="font-weight:700; margin-bottom:8px; color:#111827;">Auto-populated from Home Loan (Read Only)</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-                  <div><span style="color:#9CA3AF;">Loan Amount:</span> <br><b>₹${formatLakhs(currentLead.si || 4500000)}</b></div>
-                  <div><span style="color:#9CA3AF;">Bank:</span> <br><b>${currentLead.loanBank || 'HDFC'}</b></div>
-                  <div><span style="color:#9CA3AF;">Loan Stage:</span> <br><b>Sanctioned</b></div>
-                </div>
-              </div>
-
-              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
-            ` : `
-              <div style="display:flex; flex-direction:column; gap:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                  <div><div style="font-weight:700; color:var(--primary);">CARE Insurance</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹12,500</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('CARE Insurance', '₹12,500', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
-                  <div><div style="font-weight:700; color:var(--primary);">TATA AIG</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹13,200</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('TATA AIG', '₹13,200', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
-                </div>
-              </div>
-              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
-            `}
-          </div>
-         `;
       }
 
       return `
-        <div style="margin-top:24px;">
-          ${productHeaderHtml}
-          ${centerAreaHtml}
+        <div>
+          <!-- Section 1 - Selected Plan Summary -->
+          <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 700;">Customer's Selected Plan</div>
+              <div style="background: #E6F4ED; color: #1A7A4A; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700;">Quote Shared</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 16px;">🏥</div>
+              <div style="font-weight: 700; font-size: 12px;">CARE Health</div>
+              <div style="color: #E5E7EB;">|</div>
+              <div style="color: #9CA3AF; font-size: 12px;">Group Credit Protect Plus</div>
+              <div style="color: #E5E7EB;">|</div>
+              <div style="color: #473391; font-weight: 700; font-size: 13px;">₹12,500</div>
+            </div>
+            
+            ${isReadOnly ? '' : `<div style="font-size: 11px; color: #473391; cursor: pointer; text-decoration: underline;" onclick="handleChangePlan()">Change Plan</div>`}
+          </div>
+
+          <!-- Section 2 - Payment Link Card -->
+          ${paymentCardHtml}
+
+          <!-- Section 3 - Payment Verification -->
+          <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 700;">Payment Verification</div>
+              <div style="font-size: 11px; color: #9CA3AF;">To be confirmed by IBM Manager</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+              <div>
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">PAYMENT AMOUNT *</label>
+                <input type="number" placeholder="₹ Amount" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; box-sizing: border-box;" ${isReadOnly ? 'readonly' : ''}>
+              </div>
+              <div>
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">UTR NUMBER *</label>
+                <input type="text" placeholder="Transaction reference" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; box-sizing: border-box;" ${isReadOnly ? 'readonly' : ''}>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+              <div>
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">PAYMENT DATE *</label>
+                <input type="date" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; box-sizing: border-box;" ${isReadOnly ? 'readonly' : ''}>
+              </div>
+              <div>
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">UPLOAD PROOF *</label>
+                <input type="file" style="width: 100%; font-size: 11px;" ${isReadOnly ? 'disabled' : ''}>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 8px; display: block;">VERIFICATION STATUS</label>
+              <div style="display: flex; gap: 8px;">
+                <button style="flex: 1; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: ${isReadOnly ? 'default' : 'pointer'}; ${verificationPillStyle('Verification Pending')}" onclick="${isReadOnly ? '' : 'handleSelectVerification(\'Verification Pending\')'}">Verification Pending</button>
+                <button style="flex: 1; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: ${isReadOnly ? 'default' : 'pointer'}; ${verificationPillStyle('Payment Failed')}" onclick="${isReadOnly ? '' : 'handleSelectVerification(\'Payment Failed\')'}">Payment Failed</button>
+                <button style="flex: 1; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: ${isReadOnly || !isIBMManager ? 'not-allowed' : 'pointer'}; ${verificationPillStyle('Verified')}" onclick="${isReadOnly || !isIBMManager ? '' : 'handleSelectVerification(\'Verified\')'}" title="${!isIBMManager ? 'Only IBM Manager can mark as Verified' : ''}">Verified</button>
+              </div>
+            </div>
+            
+            ${isReadOnly ? '' : `
+            <button style="width: 100%; height: 44px; background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 16px; cursor: pointer;" onclick="handleConfirmPayment()">
+              ${isIBMManager ? 'Confirm Payment Status' : 'Submit for Verification'}
+            </button>
+            `}
+          </div>
         </div>
       `;
     }
@@ -4840,7 +5005,7 @@ https://ambak.in/quote/x920dj</textarea>
       closeLeadDetailsDrawer();
     };
 
-    function renderProductSelection(isReadOnly = false) {
+    function renderContactedStage(isReadOnly = false) {
       let inputClass = isReadOnly ? 'new-form-input form-readonly' : 'new-form-input';
       let clickEvent = isReadOnly ? 'pointer-events:none;' : 'cursor:pointer;';
       const products = [
@@ -4948,6 +5113,20 @@ https://ambak.in/quote/x920dj</textarea>
     };
     
 
+
+    window.handleGenerateQuoteFromNew = function() {
+        // Move to Contacted
+        currentLead.bucket = 'Contacted';
+        
+        let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
+        const TABS = { 'lp': 'Loan Protection', 'property': 'Property Insurance', 'cl': 'Credit Life', 'term': 'Term Plan' };
+        
+        addActivity('System', 'Quote generation initiated from NEW stage', `Product: ${TABS[tab] || tab}`, 'Just now');
+        
+        renderLeadDetail();
+    };
+
+
     window.updateNewStageCompletion = function() {
         let tab = currentLead.newStageActiveTab || currentLead.finalProduct || currentLead.initialProduct || 'lp';
         let reqCount = 0;
@@ -4960,6 +5139,24 @@ https://ambak.in/quote/x920dj</textarea>
         let ind = document.getElementById('new-stage-completion');
         if (ind) {
             ind.innerHTML = `<span style="color:#9CA3AF;">${filledCount} of ${reqCount} fields filled</span>`;
+        }
+        
+        let btn = document.getElementById('new-stage-generate-btn');
+        if (btn) {
+            // For mockup purposes, let's just make it active if we want, or active if reqCount == filledCount.
+            // Let's assume all fields are filled for the demo, so it's always active.
+            let isComplete = true; // Hardcoded true for mockup demo, or could use logic
+            if (isComplete) {
+                btn.style.background = '#473391';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            } else {
+                btn.style.background = '#C5C0F5';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
+                btn.style.pointerEvents = 'none';
+            }
         }
     };
     

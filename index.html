@@ -6435,8 +6435,8 @@ https://ambak.in/quote/x920dj</textarea>
 
 
     <!-- Bulk Upload Modal -->
-    <div class="modal-overlay" id="bulkUploadModal" onclick="if(event.target === this) closeBulkUploadModal()">
-      <div class="modal-content" style="width: 500px;">
+    <div id="bulkUploadModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 4000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onclick="if(event.target === this) closeBulkUploadModal()">
+      <div style="width: 500px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); padding: 24px;">
         <h2 style="font-size: 16px; font-weight: 700; margin: 0; color: #111827;">Bulk Lead Upload</h2>
         <div style="font-size: 13px; color: #6B7280; margin-top: 4px; margin-bottom: 24px;">Upload a CSV file to create multiple insurance leads at once.</div>
         

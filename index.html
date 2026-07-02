@@ -586,6 +586,10 @@ https://ambak.in/quote/x920dj</textarea>
               <input type="text" placeholder="Search" style="border:none; padding:8px; outline:none; font-size:12px;" oninput="renderLeadTable()">
             </div>
           </div>
+                    <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="openBulkUploadModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Bulk Upload
+          </button>
           <button class="btn btn-primary" onclick="openCreateModal()">+ Create Insurance Lead</button>
         </div>
       </div>
@@ -673,16 +677,17 @@ https://ambak.in/quote/x920dj</textarea>
         <table class="sangam-table">
           <thead>
             <tr>
-              <th>Insurance ID</th>
-              <th>Customer</th>
-              <th>Product</th>
-              <th>Loan</th>
-              <th>Stage</th>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Status Update</th>
-              <th>Next Follow-up</th>
-              <th>Assignee</th>
+              <th style="width: 100px;">INSURANCE ID</th>
+              <th style="width: 160px;">CUSTOMER</th>
+              <th style="width: 140px;">PRODUCT</th>
+              <th style="width: 130px;">LOAN</th>
+              <th style="width: 180px;">STAGE & STATUS</th>
+              <th style="width: 120px;">SOURCE / SUB SOURCE</th>
+              <th style="width: 120px;">PARTNER</th>
+              <th style="width: 100px;">RM</th>
+              <th style="width: 140px;">NEXT FOLLOW-UP</th>
+              <th style="width: 110px;">CREATED AT</th>
+              <th style="width: 110px;">ASSIGN TO</th>
             </tr>
           </thead>
           <tbody id="lead-table-body">
@@ -6408,6 +6413,32 @@ https://ambak.in/quote/x920dj</textarea>
         <div style="display:flex; gap:12px;">
            <button style="flex:1; height:44px; background:white; color:#6B7280; border:1px solid #E5E7EB; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeLostModal()">Cancel</button>
            <button id="lostConfirmBtn" style="flex:1; height:44px; background:#C0392B; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; opacity:0.5;" disabled onclick="confirmMarkAsLost()">Confirm & Mark as Lost</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Bulk Upload Modal -->
+    <div class="modal-overlay" id="bulkUploadModal" onclick="if(event.target === this) closeBulkUploadModal()">
+      <div class="modal-content" style="width: 500px;">
+        <h2 style="font-size: 16px; font-weight: 700; margin: 0; color: #111827;">Bulk Lead Upload</h2>
+        <div style="font-size: 13px; color: #6B7280; margin-top: 4px; margin-bottom: 24px;">Upload a CSV file to create multiple insurance leads at once.</div>
+        
+        <div style="border: 2px dashed #C5C0F5; border-radius: 8px; padding: 32px; text-align: center; background: #FAFAFA; margin-bottom: 12px; cursor: pointer;">
+            <div style="color: #473391; margin-bottom: 12px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </div>
+            <div style="font-size: 13px; color: #6B7280; font-weight: 500;">Click to upload or drag and drop</div>
+            <div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">CSV files only · Max 500 rows</div>
+        </div>
+        
+        <div style="margin-bottom: 24px;">
+            <a href="#" style="font-size: 12px; color: #473391; text-decoration: underline; font-weight: 500;">Download Template</a>
+        </div>
+        
+        <div style="display:flex; justify-content: flex-end; gap:12px;">
+           <button style="height:36px; padding: 0 16px; background:white; color:#6B7280; border:1px solid #E5E7EB; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeBulkUploadModal()">Cancel</button>
+           <button style="height:36px; padding: 0 16px; background:#473391; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeBulkUploadModal(); showToast('Uploading leads...');">Upload Leads</button>
         </div>
       </div>
     </div>

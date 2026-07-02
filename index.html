@@ -574,19 +574,7 @@ https://ambak.in/quote/x920dj</textarea>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2>My Insurance Leads</h2>
         <div style="display:flex; gap:12px; align-items:center;">
-          <!-- Sangam Search Bar Style -->
-          <div style="display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; background:var(--white);">
-            <select style="border:none; background:#F9F9FB; padding:8px 12px; border-right:1px solid var(--border); outline:none; font-size:12px; color:var(--text-muted);">
-              <option>Lead Id</option>
-              <option>Name</option>
-              <option>Mobile</option>
-            </select>
-            <div style="display:flex; align-items:center; padding-left:8px;">
-              <span style="font-size:12px; color:var(--text-muted);">🔍</span>
-              <input type="text" placeholder="Search" style="border:none; padding:8px; outline:none; font-size:12px;" oninput="renderLeadTable()">
-            </div>
-          </div>
-                    <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="openBulkUploadModal()">
+          <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="openBulkUploadModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             Bulk Upload
           </button>
@@ -594,24 +582,29 @@ https://ambak.in/quote/x920dj</textarea>
         </div>
       </div>
 
+      <div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
+        <div style="font-size:16px; font-weight:700;">Leads Queue</div>
+        <div style="font-size:11px; font-weight:600; color:var(--text-heading);">Showing <span id="entry-count">0</span> entries on Page 1/1</div>
+      </div>
+
       <!-- Filters -->
-      <div class="sangam-filter-container" style="background:var(--white); padding:16px; border-radius:12px; border:1px solid var(--border); margin-bottom:24px;">
-        <!-- Primary Filter Bar -->
+      <div class="sangam-filter-container" style="background:#FAFAFA; padding:16px; border-radius:8px; margin-bottom:16px;">
         <div class="sangam-filter-bar" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
           <div class="sangam-filter-group">
-            <label class="sangam-filter-label">Stage</label>
-            <select class="sangam-filter-select">
+            <label class="sangam-filter-label" style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block;">Stage</label>
+            <select class="sangam-filter-select" style="padding:8px 12px; border:1px solid #E5E7EB; border-radius:6px; background:white; font-size:13px; min-width:120px; outline:none;">
               <option>All</option>
               <option>New</option>
               <option>Contacted</option>
               <option>Quote</option>
               <option>Payment Done</option>
-              <option>Policy</option>
+              <option>Policy Issued</option>
+              <option>Lost</option>
             </select>
           </div>
           <div class="sangam-filter-group">
-            <label class="sangam-filter-label">Product</label>
-            <select class="sangam-filter-select">
+            <label class="sangam-filter-label" style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block;">Product</label>
+            <select class="sangam-filter-select" style="padding:8px 12px; border:1px solid #E5E7EB; border-radius:6px; background:white; font-size:13px; min-width:140px; outline:none;">
               <option>All</option>
               <option>Loan Protection</option>
               <option>Property Insurance</option>
@@ -620,56 +613,36 @@ https://ambak.in/quote/x920dj</textarea>
             </select>
           </div>
           <div class="sangam-filter-group">
-            <label class="sangam-filter-label">Source</label>
-            <select class="sangam-filter-select">
+            <label class="sangam-filter-label" style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block;">Partner</label>
+            <select class="sangam-filter-select" style="padding:8px 12px; border:1px solid #E5E7EB; border-radius:6px; background:white; font-size:13px; min-width:120px; outline:none;">
               <option>All</option>
-              <option value="yoddha">Yoddha</option>
-              <option value="saathi">Saathi</option>
-              <option value="sangam">Sangam</option>
-              <option value="manual">Manual</option>
+              <option>Ambak</option>
+              <option>HDFC</option>
+              <option>SBI</option>
             </select>
           </div>
           <div class="sangam-filter-group">
-            <label class="sangam-filter-label">Status</label>
-            <select class="sangam-filter-select">
+            <label class="sangam-filter-label" style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block;">RM</label>
+            <select class="sangam-filter-select" style="padding:8px 12px; border:1px solid #E5E7EB; border-radius:6px; background:white; font-size:13px; min-width:120px; outline:none;">
               <option>All</option>
-              <option>Not Connected</option>
-              <option>Call Back</option>
-              <option>Interested</option>
-              <option>Not Interested</option>
-              <option>Quote Shared</option>
-              <option>Payment Link Shared</option>
-              <option>Payment Done</option>
-              <option>Documents</option>
-              <option>KYC</option>
-              <option>Proposal Form</option>
-              <option>Tele-PD</option>
-              <option>Medical</option>
-              <option>Underwriting Approval</option>
-              <option>Policy Copy</option>
-              <option>Policy Issued</option>
-              <option>MIS</option>
-              <option>Commission</option>
-              <option>Freelook Period</option>
+              <option>Rohit M</option>
+              <option>Anil K</option>
+              <option>Sneha P</option>
             </select>
           </div>
+          
           <div class="sangam-filter-group" style="flex:1;">
-            <label class="sangam-filter-label">Search Lead</label>
-            <div style="display:flex; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0 8px;">
-              <span style="font-size:12px; color:var(--text-muted);">🔍</span>
-              <input type="text" class="sangam-filter-select" placeholder="Search Name, Phone, ID..." style="border:none; width:100%; box-sizing:border-box; background:transparent;">
+            <label class="sangam-filter-label" style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block; visibility:hidden;">Search</label>
+            <div style="display:flex; align-items:center; background:white; border:1px solid #E5E7EB; border-radius:6px; padding:0 12px; height:36px; box-sizing:border-box;">
+              <span style="font-size:13px; color:#9CA3AF; margin-right:8px;">🔍</span>
+              <input type="text" placeholder="Search Lead Name, Phone, ID..." style="border:none; width:100%; font-size:13px; outline:none; background:transparent;">
             </div>
           </div>
           
-          <div style="display:flex; align-items:flex-end; gap:8px;">
-            <button class="btn btn-ghost" style="padding:8px 16px; border-radius:8px; font-size:12px; height:34px; border-color:#E5E7EB; color:var(--text-body);" onclick="toggleMoreFilters()">More Filters ≡</button>
+          <div style="display:flex; align-items:flex-end; padding-bottom:1px;">
+             <button class="btn btn-ghost" style="height:36px; padding:0 16px; border-radius:6px; font-size:13px; font-weight:600; border:1px solid #E5E7EB; background:white; color:#4B5563; cursor:pointer;">More Filters ≡</button>
           </div>
         </div>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
-        <div style="font-size:16px; font-weight:700;">Leads Queue</div>
-        <div style="font-size:11px; font-weight:600; color:var(--text-heading);">Showing <span id="entry-count">0</span> entries on Page 1/1</div>
       </div>
 
       <!-- Table -->
@@ -5669,6 +5642,16 @@ https://ambak.in/quote/x920dj</textarea>
         showToast('Lead reopened successfully');
     };
     
+    
+    window.openBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'flex';
+        setTimeout(() => { document.getElementById('bulkUploadModal').style.opacity = '1'; }, 10);
+    };
+    window.closeBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'none';
+        document.getElementById('bulkUploadModal').style.opacity = '0';
+    };
+
     // Init
 
 
@@ -6044,6 +6027,16 @@ https://ambak.in/quote/x920dj</textarea>
         showToast('Lead reopened successfully');
     };
     
+    
+    window.openBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'flex';
+        setTimeout(() => { document.getElementById('bulkUploadModal').style.opacity = '1'; }, 10);
+    };
+    window.closeBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'none';
+        document.getElementById('bulkUploadModal').style.opacity = '0';
+    };
+
     // Init
 
 
@@ -6386,6 +6379,16 @@ https://ambak.in/quote/x920dj</textarea>
         showToast('Lead reopened successfully');
     };
     
+    
+    window.openBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'flex';
+        setTimeout(() => { document.getElementById('bulkUploadModal').style.opacity = '1'; }, 10);
+    };
+    window.closeBulkUploadModal = function() {
+        document.getElementById('bulkUploadModal').style.display = 'none';
+        document.getElementById('bulkUploadModal').style.opacity = '0';
+    };
+
     // Init
 
 

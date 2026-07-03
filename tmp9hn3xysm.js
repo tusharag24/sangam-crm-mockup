@@ -1,1581 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sangam Insurance CRM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #473391;
-      --primary-hover: #6B59C4;
-      --primary-light: #F0EEFF;
-      --navy: #1B1A3B;
-      --bg: #F7F6FB;
-      --white: #FFFFFF;
-      --text-heading: #2D2D4E;
-      --text-body: #6B6880;
-      --text-muted: #A09AB8;
-      --text-placeholder: #A09AB8;
-      --border: #E8E4F3;
-      --success: #0E6655;
-      --success-bg: #D8F5F0;
-      --success-border: #BBF7D0;
-      --warning: #A06000;
-      --warning-bg: #FFF4E0;
-      --danger: #B03030;
-      --danger-bg: #FFE8E8;
-    }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--bg);
-      color: var(--text-body);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      font-size: 13px;
-    }
-
-    /* Typography */
-    h1, h2, h3, h4 { color: var(--text-heading); }
-    
-    /* Reusable Components */
-    .btn {
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 500;
-      border: none;
-      outline: none;
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 13px;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .btn-primary { background: var(--primary); color: var(--white); }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-ghost { background: var(--white); color: var(--text-muted); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg); color: var(--text-body); }
-    .btn-danger { background: var(--danger); color: var(--white); }
-    .btn-danger:hover { background: #B91C1C; }
-    .btn-small { padding: 5px 13px; font-size: 11px; }
-
-    .card {
-      background: var(--white);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 3px rgba(0,0,0,.07);
-      padding: 16px;
-    }
-    .card-compact { border-radius: 10px; padding: 14px; }
-    .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-heading); }
-    
-    .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-muted); }
-    
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    /* Product Badges */
-    .badge-lp { background: #EEEDFE; color: #473391; }
-    .badge-property { background: #FFF8ED; color: #B45309; }
-    .badge-cl { background: #EFF6FF; color: #1D4ED8; }
-    .badge-term { background: #F0FDF4; color: #15803D; }
-
-    /* Source Badges */
-    .badge-d2c { background: #FFF0EE; color: #C2410C; }
-    .badge-sathi { background: #EEEDFE; color: #473391; }
-    .badge-yoddha { background: #E0F2FE; color: #0369A1; }
-
-    /* Health Badges */
-    .badge-healthy { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
-    .badge-at-risk { background: var(--warning-bg); color: var(--warning); border: 1px solid #FCD34D; }
-    .badge-stuck { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
-
-    /* Secondary Nav */
-    .sec-nav-item {
-      padding: 14px 4px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-    }
-    .sec-nav-item:hover { color: var(--text-heading); }
-    .sec-nav-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
-
-    /* Stage Colors for Pills and Text */
-    .stage-outreach { color: #3B82F6; background: #EFF6FF; }
-    .stage-interest { color: #D97706; background: #FFFBEB; }
-    .stage-quote { color: #473391; background: #EEEDFE; }
-    .stage-payment { color: #2563EB; background: #EFF6FF; }
-    .stage-processing { color: #EA580C; background: #FFF7ED; }
-    .stage-policy { color: #16A34A; background: #F0FDF4; }
-    .stage-closed { color: #0D9488; background: #F0FDFA; }
-
-    /* Shell Layout */
-    .header {
-      height: 58px;
-      background: var(--navy);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      color: var(--white);
-      flex-shrink: 0;
-    }
-    .header-left { display: flex; align-items: center; gap: 16px; }
-    .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 8px; }
-    .header-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
-    .hamburger { cursor: pointer; font-size: 18px; user-select: none; }
-    
-    .nav-drawer {
-      position: fixed;
-      top: 0; left: -380px;
-      width: 380px; height: 100vh;
-      background: var(--navy);
-      z-index: 1000;
-      transition: left 0.3s ease;
-      color: white;
-      padding: 20px;
-      box-shadow: 4px 0 15px rgba(0,0,0,0.2);
-    }
-    .nav-drawer.open { left: 0; }
-    .nav-drawer.open-right { right: 0 !important; }
-    .drawer-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); z-index: 999;
-      display: none;
-    }
-    .drawer-overlay.open { display: block; }
-    
-    .filter-drawer {
-      position: fixed;
-      top: 0; right: -450px;
-      width: 450px; height: 100vh;
-      background: var(--bg);
-      z-index: 1000;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 0;
-      box-shadow: -4px 0 24px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-    }
-    .filter-drawer.open { right: 0; }
-    
-    .filter-drawer-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
-      background: var(--white);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
-    }
-    .filter-drawer-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .filter-drawer-footer {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      background: var(--white);
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-    .filter-section {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid var(--border);
-    }
-    .filter-section-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
-    }
-    
-    .content-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .screen {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 20px 24px;
-    }
-    .screen.active { display: flex; }
-
-    /* List Screen Specific */
-    .pipeline-row { display: flex; gap: 16px; margin-bottom: 24px; }
-    .pipeline-card { flex: 1; border-top-width: 4px; }
-    .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
-    .search-input {
-      min-width: 220px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      outline: none;
-      font-family: inherit;
-      font-size: 13px;
-    }
-    .chip {
-      padding: 6px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--white);
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .chip.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
-
-    .table-container {
-      background: var(--white);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      flex: 1;
-      overflow-y: auto;
-    }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { padding: 12px 16px; border-bottom: 1px solid var(--border); background: #FAFAFA; font-weight: 600; color: var(--text-muted); position: sticky; top: 0; z-index: 10; }
-    td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tbody tr:hover { background: #F9F9FB; cursor: pointer; }
-    
-    /* Sangam-Style Layout Updates */
-    .sangam-table th { background: #473391 !important; color: white !important; font-size: 12px; text-transform: uppercase; font-weight: 700; padding: 14px 16px; border:none; }
-    .sangam-filter-bar { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
-    .sangam-filter-group { display: flex; flex-direction: column; gap: 4px; }
-    .sangam-filter-label { font-size: 11px; font-weight: 600; color: var(--text-heading); }
-    .sangam-filter-select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--white); outline: none; min-width: 140px; font-size: 12px; color: var(--text-body); }
-    .alert-row td { background: #FEF2F2 !important; padding: 8px 16px; font-size: 12px; color: #DC2626; border-top: none !important; font-weight: 500; }
-
-    .lead-name { font-weight: 600; color: var(--text-heading); font-size: 14px; }
-    .lead-phone { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
-    .loan-missing { color: var(--danger); font-style: italic; }
-
-    /* Detail Screen Layout */
-    .detail-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding: 16px 24px; }
-    
-    /* Header Cards */
-    .sangam-cards-row { display: flex; gap: 12px; margin-bottom: 16px; flex-shrink: 0; }
-    .sangam-top-card { background: var(--white); border-radius: 12px; padding: 12px 16px; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .stc-label { font-size: 10px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
-    .stc-val { font-size: 13px; font-weight: 600; color: var(--text-heading); }
-    .stc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
-
-    /* Module Tabs */
-    .sangam-tabs { display: flex; gap: 12px; margin-bottom: 24px; flex-shrink: 0; align-items: center; }
-    .sangam-tab { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-body); background: var(--white); transition: all 0.2s; }
-    .sangam-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
-    
-    /* 3-Column Workspace */
-    .sangam-workspace { display: flex; gap: 24px; flex: 1; }
-    .sangam-left { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
-    .sangam-center { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; background: var(--white); padding: 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .sangam-right { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
-
-    /* Sangam Tracker */
-    .sangam-tracker-box { margin-bottom: 24px; padding: 0; }
-    .tracker-row { display: flex; border-radius: 16px; overflow: hidden; background: var(--white); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); align-items: stretch; }
-    .tracker-step { flex: 1; height: 44px; padding: 0 16px 0 32px; font-size: 13px; font-weight: 500; color: var(--text-muted); position: relative; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 1; }
-    .tracker-step:first-child { padding-left: 16px; }
-    .tracker-step.done { background: var(--primary-light); color: var(--primary); }
-    .tracker-step.active { background: #A78BFA; color: white; font-weight: 600; }
-    .tracker-step.done::after { border-left-color: var(--primary-light); }
-    .tracker-step.active::after { border-left-color: #A78BFA; }
-    .tracker-step::after { content: ''; position: absolute; right: -16px; top: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 16px solid var(--white); z-index: 2; transition: all 0.2s; }
-    .tracker-step::before { content: ''; position: absolute; right: -17px; top: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent; border-left: 17px solid var(--border); z-index: 1; }
-    .tracker-step:last-child::after, .tracker-step:last-child::before { display: none; }
-
-    /* Accordions */
-    .sangam-accordion { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: white; }
-    .sangam-accordion-header { padding: 16px; background: #FAFAFA; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
-    .sangam-accordion-header:hover { background: #F3F4F6; }
-    .sangam-accordion-title { font-weight: 700; font-size: 14px; color: var(--text-heading); display:flex; align-items:center; gap:8px;}
-    .sangam-accordion-body { padding: 24px; display: none; background: white; }
-    .sangam-accordion.active .sangam-accordion-body { display: block; }
-    .sangam-accordion:not(.active) .sangam-accordion-header { border-bottom: none; }
-    .acc-badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; }
-    .acc-badge.complete { background: #DCFCE7; color: #16A34A; }
-    .acc-badge.partial { background: #FEF9C3; color: #CA8A04; }
-    .acc-badge.missing { background: #FEE2E2; color: #DC2626; }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #1A1A2E;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 2000;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* Sidebar & Right Panel Styles */
-    .nav-section { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--text-body); margin-bottom: 4px; transition: background 0.2s; }
-    .nav-section:hover { background: var(--bg); }
-    .nav-section.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
-    .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-    .nav-section.active .nav-dot { background: var(--primary); }
-
-    .hl-card { background: var(--bg); border-radius: 10px; padding: 12px; margin-top: 16px; border: 1px solid var(--border); }
-    
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
-    .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; outline: none; }
-    .form-control:focus { border-color: var(--primary); }
-
-    .log-item { display: flex; gap: 12px; margin-bottom: 16px; position: relative; }
-    .log-item::before { content: ''; position: absolute; left: 3px; top: 12px; bottom: -20px; width: 2px; background: var(--border); }
-    .log-item:last-child::before { display: none; }
-    .log-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; position: relative; z-index: 1; }
-
-    /* Center Panel specific */
-    .call-card { background: linear-gradient(135deg, #F0EEFF, #FFFFFF); border: 1px solid var(--primary-light); padding: 32px; border-radius: 16px; text-align: center; }
-    .stage-card { background: var(--white); border: 1px solid var(--primary); padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(71, 51, 145, 0.08); }
-    .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
-    .btn-outline-primary:hover { background: var(--primary-light); }
-
-    /* Milestones */
-    .ms-timeline { position: relative; padding-left: 24px; margin-top: 16px; }
-    .ms-item { position: relative; margin-bottom: 24px; }
-    .ms-item::before { content: ''; position: absolute; left: -20px; top: 24px; bottom: -24px; width: 2px; background: var(--border); }
-    .ms-item:last-child::before { display: none; }
-    .ms-dot { position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--border); z-index: 1; }
-    .ms-item.done .ms-dot { background: var(--success); }
-    .ms-item.active .ms-dot { background: var(--primary); border: 3px solid var(--primary-light); left: -27px; top: 1px; width: 16px; height: 16px; }
-    .ms-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
-    .ms-item.active .ms-card { border-color: var(--primary); box-shadow: 0 2px 8px rgba(71, 51, 145, 0.1); }
-    .ms-item.done .ms-card { border-color: var(--success-border); background: var(--success-bg); }
-    .progress-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
-    .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
-
-    /* Dashboard Layout Specifics */
-    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; }
-    .dash-col-12 { grid-column: span 12; }
-    .dash-col-8 { grid-column: span 8; }
-    .dash-col-6 { grid-column: span 6; }
-    .dash-col-4 { grid-column: span 4; }
-    .dash-col-3 { grid-column: span 3; }
-    
-    .dash-section-title { font-size: 14px; font-weight: 700; color: var(--text-heading); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    
-    .kpi-card { background: var(--white); border-radius: 12px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-    .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-    .kpi-value { font-size: 24px; font-weight: 800; color: var(--primary); }
-    .kpi-sub { font-size: 11px; font-weight: 500; margin-top: 4px; }
-    .kpi-sub.positive { color: var(--success); }
-    .kpi-sub.negative { color: var(--danger); }
-    .kpi-sub.neutral { color: var(--text-muted); }
-    
-    /* Horizontal Funnel */
-    .funnel-container { display: flex; width: 100%; justify-content: space-between; align-items: stretch; gap: 8px; }
-    .funnel-stage { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; position: relative; }
-    .funnel-stage:not(:last-child)::after { content: '→'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: var(--text-placeholder); z-index: 10; font-size: 16px; }
-    .funnel-stage-name { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .funnel-stage-val { font-size: 20px; font-weight: 700; color: var(--text-heading); }
-    .funnel-stage-conv { font-size: 11px; color: var(--success); font-weight: 600; margin-top: 4px; background: var(--success-bg); padding: 2px 6px; border-radius: 12px; display: inline-block; }
-    .funnel-stage-drop { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; background: var(--danger-bg); padding: 2px 6px; border-radius: 12px; display: inline-block; }
-
-    /* Alert Banner */
-    .alert-banner { display: flex; align-items: center; gap: 12px; background: #FFF4ED; border: 1px solid #FFEDD5; border-left: 4px solid #F97316; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; }
-    .alert-chip { background: white; border: 1px solid #FFEDD5; color: #C2410C; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
-    .alert-chip:hover { background: #FFEDD5; }
-    
-    .dash-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .dash-table th { font-weight: 600; color: var(--text-muted); padding: 8px; border-bottom: 1px solid var(--border); text-align: left; }
-    .dash-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
-    .dash-table tr:last-child td { border-bottom: none; }
-    
-    /* Stacked Bar */
-    .stacked-bar-container { display: flex; height: 12px; border-radius: 6px; overflow: hidden; width: 100%; }
-
-  
-    /* Accordion styles */
-    .accordion-section {
-        background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; margin-bottom: 12px;
-    }
-    .accordion-header {
-        padding: 14px 18px; background: #F9FAFB; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-    }
-    .accordion-header-left {
-        display: flex; align-items: center;
-    }
-    .accordion-header-icon {
-        width: 8px; height: 8px; border-radius: 50%; margin-right: 8px;
-    }
-    .accordion-header-title {
-        font-size: 13px; font-weight: 700; color: #111827;
-    }
-    .accordion-header-summary {
-        font-size: 11px; color: #6B7280; margin-left: 8px;
-    }
-    .accordion-header-chevron {
-        color: #9CA3AF; transition: transform 0.2s;
-    }
-    .accordion-header-chevron.expanded {
-        transform: rotate(180deg);
-    }
-    .accordion-content {
-        padding: 24px; border-top: 1px solid #E5E7EB; display: none;
-    }
-    .accordion-content.expanded {
-        display: block;
-    }
-    .form-readonly {
-        pointer-events: none; background-color: #F9FAFB !important; opacity: 0.8;
-    }
-
-    /* Mark as lost modal */
-    .lost-modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4);
-        z-index: 1000; display: none; align-items: center; justify-content: center;
-    }
-    .lost-modal {
-        width: 480px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); padding: 24px;
-    }
-
-    /* --- Redesign Specific Styles --- */
-    
-    /* Stage Tabs */
-    .stage-tab {
-      border-radius: 20px;
-      padding: 7px 18px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: transparent;
-      color: #A09AB8;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .stage-tab .count-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 10px;
-      background: rgba(0,0,0,0.06);
-    }
-    .stage-tab.active-all { background: #473391; color: white; }
-    .stage-tab.active-new { background: #EEE8FD; color: #473391; }
-    .stage-tab.active-contacted { background: #E3EEFF; color: #2B5FC7; }
-    .stage-tab.active-quote { background: #FFF4E0; color: #A06000; }
-    .stage-tab.active-payment { background: #E0F5EC; color: #1A6E45; }
-    .stage-tab.active-policy { background: #D8F5F0; color: #0E6655; }
-    .stage-tab.active-lost { background: #FFE8E8; color: #B03030; }
-
-    /* Inline Filter Dropdowns */
-    .inline-filter-select {
-      border: 1.5px solid #E8E4F3;
-      border-radius: 8px;
-      background: white;
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #2D2D4E;
-      outline: none;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-    }
-    
-    .search-input-wrapper {
-      display: flex;
-      align-items: center;
-      background: #FAFAFA;
-      border: 1.5px solid #E8E4F3;
-      border-radius: 8px;
-      height: 36px;
-      padding: 0 12px;
-      flex-grow: 1;
-      max-width: 280px;
-      transition: all 0.2s;
-    }
-    .search-input-wrapper:focus-within {
-      border-color: #473391;
-      background: white;
-    }
-    .search-input-wrapper input {
-      border: none;
-      width: 100%;
-      font-size: 12px;
-      outline: none;
-      background: transparent;
-      color: #2D2D4E;
-      font-family: 'Poppins', sans-serif;
-    }
-    .search-input-wrapper input::placeholder {
-      color: #A09AB8;
-    }
-
-    /* Table Redesign */
-    .sangam-table th {
-      background: #EEEAF8;
-      color: #473391;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 11px 16px;
-      border-bottom: 1px solid #E8E4F3;
-    }
-    .sangam-table td {
-      padding: 14px 16px;
-      font-size: 13px;
-      color: #2D2D4E;
-      border-bottom: 1px solid #F0EDF8;
-      vertical-align: middle;
-    }
-    .sangam-table tbody tr {
-      background: white;
-      transition: background 0.1s;
-    }
-    .sangam-table tbody tr.alt-row {
-      background: #FDFCFF;
-    }
-    .sangam-table tbody tr:hover {
-      background: #F5F3FD;
-    }
-    .sangam-table tbody tr.overdue-row {
-      border-left: 3px solid #F4A8A8;
-    }
-    
-    /* Sorting Icons */
-    .sort-icon {
-      color: #C5C0F5;
-      margin-left: 4px;
-      cursor: pointer;
-      display: inline-block;
-      user-select: none;
-    }
-    .sort-icon.asc { color: #473391; }
-    .sort-icon.desc { color: #473391; }
-
-    /* Empty State */
-    .empty-state-icon {
-      width: 80px;
-      height: 80px;
-      background: #EEE8FD;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Drawer Overlay -->
-  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
-  <div class="drawer-overlay" id="pbOverlay" onclick="closePolicyBazaar()" style="z-index:2000;"></div>
-  <div class="drawer-overlay" id="modalOverlay" onclick="closeCreateModal()" style="z-index:3000;"></div>
-
-  <!-- Create Lead Modal -->
-  <div id="createModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:580px; background:var(--white); border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:3001; display:none; flex-direction:column; max-height:90vh;">
-    <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">Create Insurance Lead</h2>
-      <div class="hamburger" onclick="closeCreateModal()">✕</div>
-    </div>
-    <div id="createModalBody" style="padding:24px; overflow-y:auto; flex:1;"></div>
-  </div>
-
-  <!-- Share Quote Modal -->
-  <div id="shareModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:480px; background:var(--white); border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:3001; display:none; flex-direction:column; max-height:90vh;">
-    <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">Share Quote</h2>
-      <div class="hamburger" onclick="closeShareModal()">✕</div>
-    </div>
-    <div style="padding:24px; overflow-y:auto; flex:1;">
-      <div class="form-group">
-        <label>Share via</label>
-        <div style="display:flex; gap:12px; margin-bottom:16px;">
-          <button class="btn btn-primary" style="flex:1; background:#25D366; border-color:#25D366;">WhatsApp</button>
-          <button class="btn btn-ghost" style="flex:1;">Email</button>
-          <button class="btn btn-ghost" style="flex:1;">SMS</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Message Preview</label>
-        <textarea class="form-control" rows="6" style="background:#F9FAFB;">Hi,
-Here is the insurance quote we discussed for your home loan.
-Plan: CARE Health PA+CI
-Tenure: 5 Years
-Cover: ₹45,00,000
-
-Click here to view the detailed quote and proceed with payment:
-https://ambak.in/quote/x920dj</textarea>
-      </div>
-      <button class="btn btn-primary" style="width:100%; margin-top:16px; padding:12px;" onclick="executeShare()">Send Message →</button>
-    </div>
-  </div>
-
-  <!-- Nav Drawer -->
-  <div class="nav-drawer" id="navDrawer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
-      <h2 style="margin:0;">AMBAK Menu</h2>
-      <div class="hamburger" onclick="toggleDrawer()">✕</div>
-    </div>
-    <div style="display:flex; flex-direction:column; gap: 16px;">
-      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">E2E Dashboard</div>
-      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Partner Dashboard</div>
-      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Banker Directory</div>
-      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">LMS</div>
-      <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer;">Marketing Hub</div>
-      
-      <div style="margin-top: 16px;">
-        <div class="label" style="color:rgba(255,255,255,0.5); margin-bottom: 8px;">Manage Leads</div>
-        <div style="padding: 8px 12px; cursor: pointer;">All Leads</div>
-        <div class="nav-item" id="nav-item-list" style="padding: 8px 12px; background: var(--primary); border-radius: 6px; cursor: pointer;" onclick="navigateNav('list')">Insurance CRM</div>
-        <div class="nav-item" id="nav-item-dashboard" style="padding: 8px 12px; cursor: pointer;" onclick="navigateNav('dashboard')">Manager Dashboard</div>
-        <div class="nav-item" id="nav-item-mis" style="padding: 8px 12px; cursor: pointer;" onclick="navigateNav('mis')">MIS & Payouts</div>
-        <div style="padding: 8px 12px; cursor: pointer;">Call List</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PB Drawer -->
-  <div class="nav-drawer" id="pbDrawer" style="width:900px; left:auto; right:-950px; z-index:2001; background:#F9FAFB; color:var(--text-body); padding:0; box-shadow:-10px 0 25px rgba(0,0,0,0.1);">
-    <div id="pbContent" style="height:100%; display:flex; flex-direction:column;"></div>
-  </div>
-
-  <!-- Header -->
-  <header class="header">
-    <div class="header-left">
-      <div class="hamburger" onclick="toggleDrawer()">≡ ≡</div>
-      <div style="width:24px; height:24px; border-radius:50%; background:var(--primary); border:2px solid white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px;">A</div>
-      <div style="font-weight:700; font-size:16px;">AMBAK® <span style="font-weight:400; font-size:12px; opacity:0.8; margin-left:4px;">Simplifying Home Finance</span></div>
-      <div class="header-divider"></div>
-      <div style="opacity:0.6; font-size:13px;">Insurance CRM</div>
-    </div>
-    <div class="header-right">
-      <div style="background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:12px; font-size:11px;">11 groups</div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div style="width:32px; height:32px; border-radius:50%; background:#4A5568; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px;">RM</div>
-        <div style="line-height:1.2;">
-          <div style="font-weight:600; font-size:13px;">Rohit M.</div>
-          <div style="font-size:10px; opacity:0.7; cursor:pointer; text-decoration:underline;" id="ibm-role-label" onclick="toggleIBMRole()" title="Click to toggle between Agent and Manager roles">IBM Agent</div>
-        </div>
-        <div>▼</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <div class="content-area">
-    
-    <!-- Screen 1: Lead List -->
-    <div class="screen active" id="screen-list">
-      
-      <!-- Page Header -->
-      <div style="background: white; border-bottom: 1px solid #E8E4F3; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #2D2D4E;">My Insurance Leads</h2>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer;">Bulk Assign</button>
-          <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer;" onclick="openBulkUploadModal()">Bulk Upload</button>
-          <button style="background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 8px 18px; cursor: pointer;" onclick="openCreateModal()">+ Create Insurance Lead</button>
-        </div>
-      </div>
-
-      <!-- Stage Filter Tabs -->
-      <div style="background: white; padding: 0 28px; border-bottom: 1px solid #E8E4F3; display: flex; gap: 6px; padding-top: 14px; padding-bottom: 14px; overflow-x: auto;">
-        <button class="stage-tab active-all" onclick="setFilterStage('All')">All <span class="count-badge" id="count-all">143</span></button>
-        <button class="stage-tab" onclick="setFilterStage('New')">New <span class="count-badge" id="count-new">12</span></button>
-        <button class="stage-tab" onclick="setFilterStage('Contacted')">Contacted <span class="count-badge" id="count-contacted">34</span></button>
-        <button class="stage-tab" onclick="setFilterStage('Quote')">Quote <span class="count-badge" id="count-quote">45</span></button>
-        <button class="stage-tab" onclick="setFilterStage('Payment Done')">Payment Done <span class="count-badge" id="count-payment">18</span></button>
-        <button class="stage-tab" onclick="setFilterStage('Policy Issued')">Policy Issued <span class="count-badge" id="count-policy">29</span></button>
-        <button class="stage-tab" onclick="setFilterStage('Lost')">Lost <span class="count-badge" id="count-lost">5</span></button>
-      </div>
-
-      <!-- Inline Filter Row -->
-      <div style="background: white; padding: 14px 28px; border-bottom: 1px solid #E8E4F3; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <select class="inline-filter-select" id="filter-product">
-          <option value="All">Product ▾</option>
-          <option value="Loan Protection">Loan Protection</option>
-          <option value="Property Insurance">Property Insurance</option>
-          <option value="Credit Life">Credit Life</option>
-          <option value="Term Plan">Term Plan</option>
-        </select>
-        
-        <select class="inline-filter-select" id="filter-source">
-          <option value="All">Source ▾</option>
-          <option value="Yoddha">Yoddha</option>
-          <option value="Saathi">Saathi</option>
-          <option value="Sangam">Sangam</option>
-          <option value="D2C">D2C</option>
-          <option value="Manual">Manual</option>
-        </select>
-
-        <select class="inline-filter-select" id="filter-status">
-          <option value="All">Status ▾</option>
-        </select>
-
-        <select class="inline-filter-select" id="filter-assigned" style="display:none;">
-          <option value="All">Assigned IBM ▾</option>
-          <option value="Rohit M">Rohit M</option>
-          <option value="Anil K">Anil K</option>
-          <option value="Sneha P">Sneha P</option>
-        </select>
-
-        <select class="inline-filter-select" id="filter-followup">
-          <option value="All">Follow-up ▾</option>
-          <option value="Overdue">Overdue</option>
-          <option value="Due Today">Due Today</option>
-          <option value="Due This Week">Due This Week</option>
-          <option value="No Follow-up">No Follow-up</option>
-        </select>
-
-        <select class="inline-filter-select" id="filter-date">
-          <option value="All">Created Date ▾</option>
-          <option value="Today">Today</option>
-          <option value="This Week">This Week</option>
-          <option value="This Month">This Month</option>
-          <option value="Custom">Custom</option>
-        </select>
-
-        <div class="search-input-wrapper">
-          <span style="font-size:13px; color:#A09AB8; margin-right:8px;">🔍</span>
-          <input type="text" id="filter-search" placeholder="Search name, phone, ID...">
-        </div>
-
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 16px;">
-          <span id="clear-filters-btn" style="font-size: 12px; color: #A09AB8; cursor: pointer; display: none;" onclick="clearFilters()">Clear Filters</span>
-          <select class="inline-filter-select" id="sort-dropdown" style="border-radius: 20px;" onchange="handleSortDropdown()">
-            <option value="default">Sort by ▾</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="fup_asc">Follow-up (Earliest)</option>
-            <option value="updated">Last Updated</option>
-            <option value="premium_desc">Premium (High to Low)</option>
-            <option value="premium_asc">Premium (Low to High)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Results Summary Row -->
-      <div style="padding: 10px 28px; background: #F7F6FB; border-bottom: 1px solid #E8E4F3; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 12px; color: #6B6880;">
-          Showing <strong id="summary-count" style="color: #2D2D4E;">0</strong> leads <span id="summary-filters" style="color: #A09AB8;"></span>
-        </div>
-        <div style="font-size: 12px; color: #A09AB8;">Page 1 of 1</div>
-      </div>
-
-      <!-- Table -->
-      <div class="table-container" style="margin: 16px 28px 24px 28px; border-radius: 12px; border: 1px solid #E8E4F3; overflow: hidden; background: white;">
-        <table class="sangam-table" style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th style="width: 110px;" onclick="toggleSort('id')">INSURANCE ID <span class="sort-icon" id="sort-icon-id">↕</span></th>
-              <th style="width: 160px;">CUSTOMER</th>
-              <th style="width: 150px;">PRODUCT</th>
-              <th style="width: 140px;" onclick="toggleSort('loan')">LOAN <span class="sort-icon" id="sort-icon-loan">↕</span></th>
-              <th style="width: 190px;">STAGE & STATUS</th>
-              <th style="width: 120px;">SOURCE / SUB SOURCE</th>
-              <th style="width: 120px;">PARTNER</th>
-              <th style="width: 100px;">RM</th>
-              <th style="width: 140px;" onclick="toggleSort('fup')">NEXT FOLLOW-UP <span class="sort-icon" id="sort-icon-fup">↕</span></th>
-              <th style="width: 120px;" onclick="toggleSort('created')">CREATED AT <span class="sort-icon" id="sort-icon-created">↕</span></th>
-              <th style="width: 110px;" id="th-assign-to" style="display:none;">ASSIGN TO</th>
-            </tr>
-          </thead>
-          <tbody id="lead-table-body">
-            <!-- Rendered via JS -->
-          </tbody>
-        </table>
-        
-        <!-- Empty State Container -->
-        <div id="empty-state" style="display: none; padding: 60px 0; text-align: center;">
-          <div class="empty-state-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#473391" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div style="font-size: 15px; font-weight: 700; color: #2D2D4E; margin-top: 16px;">No leads found</div>
-          <div style="font-size: 13px; color: #A09AB8; margin-top: 6px; margin-bottom: 24px;">Try adjusting your filters or creating a new lead.</div>
-          <button style="background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 8px 18px; cursor: pointer;" onclick="openCreateModal()">+ Create Insurance Lead</button>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <div style="padding: 0 28px 24px 28px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="font-size: 12px; color: #6B6880;" id="pagination-info">Showing 1–20 of 143 leads</div>
-        <div style="display: flex; gap: 4px; align-items: center;">
-          <button style="background: transparent; color: #6B6880; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer;">←</button>
-          <button style="background: #473391; color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600;">1</button>
-          <button style="background: transparent; color: #6B6880; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;">2</button>
-          <button style="background: transparent; color: #6B6880; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;">3</button>
-          <button style="background: transparent; color: #6B6880; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer;">→</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Screen 2: Lead Detail -->
-    <div class="screen" id="screen-detail" style="padding:0;">
-      <!-- Details populated by JS -->
-    </div>
-
-    <!-- Screen 4: MIS & Payouts -->
-    <div class="screen" id="screen-mis" style="overflow-y:auto; background:var(--bg);">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-        <h2 style="margin:0;">MIS & Payouts</h2>
-      </div>
-
-      <div class="tabs" style="display:flex; gap:24px; border-bottom:1px solid #E5E7EB; margin-bottom:24px;">
-        <div class="tab active" style="padding-bottom:12px; font-weight:600; color:#473391; border-bottom:2px solid #473391; cursor:pointer;" onclick="switchMisTab('uploads', this)">MIS Uploads</div>
-        <div class="tab" style="padding-bottom:12px; font-weight:600; color:#6B7280; cursor:pointer;" onclick="switchMisTab('commission', this)">Commission Tracker</div>
-        <div class="tab" style="padding-bottom:12px; font-weight:600; color:#6B7280; cursor:pointer;" onclick="switchMisTab('freelook', this)">Freelook Tracker</div>
-        <div class="tab" style="padding-bottom:12px; font-weight:600; color:#6B7280; cursor:pointer;" onclick="switchMisTab('discrepancies', this)">Payout Discrepancies</div>
-      </div>
-
-      <div id="mis-tab-content">
-        <!-- populated by JS -->
-      </div>
-    </div>
-
-    <!-- Screen 3: Manager Dashboard -->
-    <div class="screen" id="screen-dashboard" style="overflow-y:auto; background:var(--bg);">
-      
-      <!-- Page Header -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-        <h2 style="margin:0;">Insurance Dashboard</h2>
-        <div style="display:flex; gap:12px;">
-          <button class="btn btn-ghost">Download MIS</button>
-          <button class="btn btn-ghost">Export Report</button>
-          <button class="btn btn-primary" onclick="openCreateModal()">+ Create Insurance Lead</button>
-        </div>
-      </div>
-      
-      <!-- Filters -->
-      <div class="filter-bar" style="margin-bottom:24px;">
-        <select class="search-input" style="min-width:140px;"><option>This Month</option><option>Today</option><option>This Week</option><option>Custom Range</option></select>
-        <select class="search-input" style="min-width:140px;"><option>All Products</option><option>Loan Protection</option><option>Property</option><option>Credit Life</option><option>Term Plan</option></select>
-        <select class="search-input" style="min-width:140px;"><option>All Insurers</option><option>CARE</option><option>TATA</option><option>HDFC Life</option></select>
-        <select class="search-input" style="min-width:140px;"><option>All Sources</option><option value="yoddha">Yoddha</option><option value="saathi">Saathi</option><option value="sangam">Sangam</option><option value="manual">Manual</option></select>
-        <select class="search-input" style="min-width:140px;"><option>All Managers</option></select>
-      </div>
-
-      <!-- Section 14: Alerts & Attention Required -->
-      <div class="alert-banner">
-        <div style="font-size:20px;">🚨</div>
-        <div style="font-weight:700; color:#C2410C;">Attention Required</div>
-        <div style="display:flex; gap:8px; margin-left:16px; overflow-x:auto;">
-          <div class="alert-chip">28 Follow-Ups Overdue</div>
-          <div class="alert-chip">12 Medical Cases > 5 Days</div>
-          <div class="alert-chip">6 Counter Offers Awaiting Customer</div>
-          <div class="alert-chip">14 Payment Links Expiring Today</div>
-          <div class="alert-chip">4 Policies Pending Sharing</div>
-        </div>
-      </div>
-
-      <!-- Section 1: Insurance Funnel Overview & Section 2: Conversion Funnel -->
-      <div class="dashboard-grid">
-        <div class="dash-col-12">
-          <div class="dash-section-title">Insurance Funnel Performance</div>
-          <div class="funnel-container" style="margin-bottom:24px;">
-            <div class="funnel-stage">
-              <div class="funnel-stage-name">New</div>
-              <div class="funnel-stage-val">1,250</div>
-              <div class="kpi-sub positive">+128 this week</div>
-            </div>
-            <div class="funnel-stage">
-              <div class="funnel-stage-name">Contacted</div>
-              <div class="funnel-stage-val">900</div>
-              <div class="funnel-stage-conv">72% Conv</div>
-            </div>
-            <div class="funnel-stage">
-              <div class="funnel-stage-name">Quote</div>
-              <div class="funnel-stage-val">540</div>
-              <div class="funnel-stage-conv">60% Conv</div>
-            </div>
-            <div class="funnel-stage">
-              <div class="funnel-stage-name">Payment</div>
-              <div class="funnel-stage-val">210</div>
-              <div class="funnel-stage-drop">Largest Drop: 61%</div>
-            </div>
-            <div class="funnel-stage">
-              <div class="funnel-stage-name">Processing</div>
-              <div class="funnel-stage-val">180</div>
-              <div class="funnel-stage-conv">85% Conv</div>
-            </div>
-            <div class="funnel-stage" style="border-color:var(--success);">
-              <div class="funnel-stage-name" style="color:var(--success);">Policy Issued</div>
-              <div class="funnel-stage-val" style="color:var(--success);">150</div>
-              <div class="funnel-stage-conv">83% Conv</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 3: Lead Health -->
-        <div class="dash-col-6">
-          <div class="dash-section-title">Lead Health</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <div class="kpi-card" style="border-left:4px solid var(--text-muted); cursor:pointer;" onclick="showToast('Loading unattempted leads')">
-              <div class="kpi-title">Unattempted Leads</div>
-              <div class="kpi-value">342</div>
-              <div class="kpi-sub neutral">Created but no activity</div>
-            </div>
-            <div class="kpi-card" style="border-left:4px solid var(--danger); cursor:pointer;" onclick="showToast('Loading missed SLA leads')">
-              <div class="kpi-title">Missed SLA</div>
-              <div class="kpi-value" style="color:var(--danger);">84</div>
-              <div class="kpi-sub negative">SLA Breached</div>
-            </div>
-            <div class="kpi-card" style="border-left:4px solid var(--warning); cursor:pointer;" onclick="showToast('Loading >7 days aging leads')">
-              <div class="kpi-title">Aging Leads (> 7 Days)</div>
-              <div class="kpi-value" style="color:var(--warning);">156</div>
-              <div class="kpi-sub neutral">Stuck in same stage</div>
-            </div>
-            <div class="kpi-card" style="border-left:4px solid var(--danger); cursor:pointer;" onclick="showToast('Loading >15 days aging leads')">
-              <div class="kpi-title">Aging Leads (> 15 Days)</div>
-              <div class="kpi-value" style="color:var(--danger);">42</div>
-              <div class="kpi-sub negative">Critical review needed</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 9: Follow-Up Dashboard -->
-        <div class="dash-col-6">
-          <div class="dash-section-title">Follow-Up Dashboard</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <div class="kpi-card" style="background:#FFFBEB; border-color:#FCD34D;">
-              <div class="kpi-title" style="color:#D97706;">Due Today</div>
-              <div class="kpi-value" style="color:#D97706;">145</div>
-              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
-                <div style="display:flex; justify-content:space-between;"><span>Customer Follow-Up</span><b>80</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>Payment Follow-Up</span><b>45</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>Processing Follow-Up</span><b>20</b></div>
-              </div>
-            </div>
-            <div class="kpi-card" style="background:#FEF2F2; border-color:#FCA5A5;">
-              <div class="kpi-title" style="color:var(--danger);">Overdue Follow-Ups</div>
-              <div class="kpi-value" style="color:var(--danger);">62</div>
-              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
-                <div style="display:flex; justify-content:space-between;"><span>1 Day Overdue</span><b>34</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>3 Days Overdue</span><b>18</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>7+ Days Overdue</span><b>10</b></div>
-              </div>
-            </div>
-            <div class="kpi-card dash-col-6" style="grid-column: span 2; background:var(--white);">
-              <div class="kpi-title">Upcoming This Week</div>
-              <div class="kpi-value">310</div>
-              <div class="progress-track" style="margin-top:8px; margin-bottom:0;"><div class="progress-fill" style="width:100%; background:#9CA3AF;"></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 4: Quote Pipeline -->
-        <div class="dash-col-4">
-          <div class="dash-section-title">Quote Pipeline</div>
-          <div class="kpi-card" style="margin-bottom:12px;">
-            <div class="kpi-title">Quotes Shared</div>
-            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-              <div class="kpi-value">540</div>
-              <div style="text-align:right; font-size:11px; color:var(--text-muted);">
-                <div style="display:flex; gap:12px; margin-bottom:4px;"><span>WhatsApp: <b>320</b></span><span>Email: <b>220</b></span></div>
-              </div>
-            </div>
-            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-size:12px;">
-              <span>Awaiting Customer Decision</span><b style="color:var(--warning);">120</b>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Payment Links</div>
-            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-              <div class="kpi-value">380</div>
-              <div class="kpi-sub positive">Generated</div>
-            </div>
-            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-size:12px;">
-              <span style="cursor:pointer;" onclick="showToast('Loading pending payments')">Payment Pending</span><b style="color:var(--warning);">80</b>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:6px;">
-              <span>Payment Failed</span><b style="color:var(--danger);">24</b>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 5: Processing Dashboard & Section 11: Processing Bottlenecks -->
-        <div class="dash-col-8">
-          <div class="dash-section-title">Processing & Bottlenecks</div>
-          <div style="display:flex; gap:16px; margin-bottom:16px;">
-            <div class="kpi-card" style="flex:1;">
-              <div class="kpi-title">Policies In Processing</div>
-              <div class="kpi-value">180</div>
-              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                <div>Property: <b>45</b></div><div>Loan Prot.: <b>80</b></div>
-                <div>Credit Life: <b>35</b></div><div>Term Plan: <b>20</b></div>
-              </div>
-            </div>
-            <div class="kpi-card" style="flex:1; background:#F9FAFB;">
-              <div class="kpi-title">Average Processing TAT</div>
-              <div class="kpi-value" style="font-size:18px; color:var(--text-heading);">Overall: 3.2 Days</div>
-              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                <div>Property: <b style="color:var(--success);">0.5d</b></div><div>LP CARE: <b style="color:var(--success);">1d</b></div>
-                <div>Credit Life: <b style="color:var(--warning);">8d</b></div><div>Term Plan: <b style="color:var(--warning);">9d</b></div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="kpi-card">
-            <div style="font-weight:600; font-size:12px; margin-bottom:12px; color:var(--danger);">🚨 Stuck Cases & Bottlenecks</div>
-            <div style="display:flex; gap:12px;">
-              <div style="flex:1; background:#FEF2F2; padding:10px; border-radius:6px; border:1px solid #FECACA; text-align:center; cursor:pointer;" onclick="showToast('Loading medical pending')">
-                <div style="font-size:18px; font-weight:700; color:var(--danger);">42</div>
-                <div style="font-size:10px; font-weight:600; color:var(--danger); text-transform:uppercase;">Medical Pending</div>
-                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 4.2d</div>
-              </div>
-              <div style="flex:1; background:#FFFBEB; padding:10px; border-radius:6px; border:1px solid #FCD34D; text-align:center; cursor:pointer;" onclick="showToast('Loading docs pending')">
-                <div style="font-size:18px; font-weight:700; color:#D97706;">28</div>
-                <div style="font-size:10px; font-weight:600; color:#D97706; text-transform:uppercase;">Docs Pending</div>
-                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 2.1d</div>
-              </div>
-              <div style="flex:1; background:#EFF6FF; padding:10px; border-radius:6px; border:1px solid #BFDBFE; text-align:center; cursor:pointer;" onclick="showToast('Loading UW pending')">
-                <div style="font-size:18px; font-weight:700; color:#1D4ED8;">15</div>
-                <div style="font-size:10px; font-weight:600; color:#1D4ED8; text-transform:uppercase;">UW Pending</div>
-                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 5.5d</div>
-              </div>
-              <div style="flex:1; background:#F3F4F6; padding:10px; border-radius:6px; border:1px solid var(--border); text-align:center; cursor:pointer;" onclick="showToast('Loading counter offers')">
-                <div style="font-size:18px; font-weight:700; color:var(--text-heading);">8</div>
-                <div style="font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Counter Offer</div>
-                <div style="font-size:10px; margin-top:4px; opacity:0.8;">Avg Age: 1.5d</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 6: Product Performance -->
-        <div class="dash-col-12">
-          <div class="dash-section-title">Product Performance</div>
-          <div style="display:flex; gap:16px;">
-            <div class="kpi-card" style="flex:1;">
-              <div style="font-weight:700; margin-bottom:12px; color:var(--primary);">Loan Protection</div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>500</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>300</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>180</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>140</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--success);"><span>Conversion</span><span>28%</span></div>
-            </div>
-            <div class="kpi-card" style="flex:1;">
-              <div style="font-weight:700; margin-bottom:12px; color:#B45309;">Property Insurance</div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>300</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>250</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>200</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>190</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--success);"><span>Conversion</span><span>63%</span></div>
-            </div>
-            <div class="kpi-card" style="flex:1;">
-              <div style="font-weight:700; margin-bottom:12px; color:#1D4ED8;">Credit Life</div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>250</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>150</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>80</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>45</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--danger);"><span>Conversion</span><span>18%</span></div>
-            </div>
-            <div class="kpi-card" style="flex:1;">
-              <div style="font-weight:700; margin-bottom:12px; color:#15803D;">Term Insurance</div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Leads</span><b>200</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Quotes</span><b>120</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Payments</span><b>40</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Policies</span><b>25</b></div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--danger);"><span>Conversion</span><span>12%</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 7: Insurer Performance -->
-        <div class="dash-col-12">
-          <div class="dash-section-title">Insurer Performance</div>
-          <div class="card" style="padding:0; overflow:hidden;">
-            <table class="dash-table">
-              <thead style="background:#F9FAFB;">
-                <tr>
-                  <th>Insurer</th>
-                  <th>Quotes</th>
-                  <th>Payments</th>
-                  <th>Policies</th>
-                  <th>Approval %</th>
-                  <th>Counter %</th>
-                  <th>Rejection %</th>
-                  <th>Avg TAT</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="cursor:pointer;" onclick="showToast('Loading CARE leads')">
-                  <td><div style="font-weight:600; color:var(--text-heading);">CARE Health</div></td>
-                  <td>280</td><td>150</td><td>135</td>
-                  <td><div class="badge badge-healthy">90%</div></td>
-                  <td>5%</td><td>5%</td>
-                  <td>1.2 Days</td>
-                </tr>
-                <tr style="cursor:pointer;" onclick="showToast('Loading TATA leads')">
-                  <td><div style="font-weight:600; color:var(--text-heading);">TATA AIG</div></td>
-                  <td>320</td><td>210</td><td>195</td>
-                  <td><div class="badge badge-healthy">92%</div></td>
-                  <td>3%</td><td>5%</td>
-                  <td>0.8 Days</td>
-                </tr>
-                <tr style="cursor:pointer;" onclick="showToast('Loading HDFC Life leads')">
-                  <td><div style="font-weight:600; color:var(--text-heading);">HDFC Life</div></td>
-                  <td>120</td><td>65</td><td>40</td>
-                  <td><div class="badge badge-at-risk">61%</div></td>
-                  <td>15%</td><td>24%</td>
-                  <td>8.5 Days</td>
-                </tr>
-                <tr style="cursor:pointer;" onclick="showToast('Loading ICICI leads')">
-                  <td><div style="font-weight:600; color:var(--text-heading);">ICICI Prudential</div></td>
-                  <td>80</td><td>45</td><td>30</td>
-                  <td><div class="badge badge-at-risk">66%</div></td>
-                  <td>10%</td><td>24%</td>
-                  <td>7.2 Days</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 8: Agent Performance -->
-        <div class="dash-col-8">
-          <div class="dash-section-title">Agent Performance (Leaderboard)</div>
-          <div class="card" style="padding:0; overflow:hidden;">
-            <table class="dash-table">
-              <thead style="background:#F9FAFB;">
-                <tr>
-                  <th>Agent</th>
-                  <th>Leads</th>
-                  <th>Calls</th>
-                  <th>Quotes</th>
-                  <th>Payments</th>
-                  <th>Policies</th>
-                  <th>Conv. %</th>
-                  <th>Premium</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="background:#F0FDF4;">
-                  <td><div style="font-weight:600; color:var(--text-heading);">⭐ Rohit M.</div></td>
-                  <td>120</td><td>450</td><td>85</td><td>42</td><td>38</td>
-                  <td><div style="color:var(--success); font-weight:700;">31%</div></td>
-                  <td><div style="font-weight:600;">₹4.2L</div></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:600; color:var(--text-heading);">Anjali S.</div></td>
-                  <td>115</td><td>410</td><td>75</td><td>35</td><td>30</td>
-                  <td><div style="color:var(--success); font-weight:700;">26%</div></td>
-                  <td><div style="font-weight:600;">₹3.1L</div></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:600; color:var(--text-heading);">Vikram K.</div></td>
-                  <td>98</td><td>280</td><td>45</td><td>18</td><td>15</td>
-                  <td><div style="color:var(--warning); font-weight:700;">15%</div></td>
-                  <td><div style="font-weight:600;">₹1.8L</div></td>
-                </tr>
-                <tr style="background:#FEF2F2;">
-                  <td><div style="font-weight:600; color:var(--text-heading);">🔻 Priya D.</div></td>
-                  <td>85</td><td>120</td><td>20</td><td>5</td><td>2</td>
-                  <td><div style="color:var(--danger); font-weight:700;">2%</div></td>
-                  <td><div style="font-weight:600;">₹0.2L</div></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Section 10: Lost Lead Analysis -->
-        <div class="dash-col-4">
-          <div class="dash-section-title">Lost Lead Analysis</div>
-          <div class="kpi-card">
-            <div class="kpi-title">Total Lost Leads</div>
-            <div class="kpi-value" style="color:var(--danger);">285</div>
-            
-            <div style="margin-top:16px;">
-              <div style="font-size:11px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">By Customer Reason (65%)</div>
-              <div class="stacked-bar-container" style="margin-bottom:12px;">
-                <div style="width: 40%; background: #3B82F6;" title="Premium Too High"></div>
-                <div style="width: 30%; background: #60A5FA;" title="Already Insured"></div>
-                <div style="width: 20%; background: #93C5FD;" title="Not Interested"></div>
-                <div style="width: 10%; background: #DBEAFE;" title="Bought Through Bank"></div>
-              </div>
-              <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px; margin-bottom:16px;">
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#3B82F6;border-radius:2px;"></div>Premium Too High</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#60A5FA;border-radius:2px;"></div>Already Insured</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#93C5FD;border-radius:2px;"></div>Not Interested</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#DBEAFE;border-radius:2px;"></div>Bought via Bank</div>
-              </div>
-
-              <div style="font-size:11px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">By Operational Reason (35%)</div>
-              <div class="stacked-bar-container" style="margin-bottom:12px;">
-                <div style="width: 45%; background: #EF4444;" title="Insurer Rejected"></div>
-                <div style="width: 25%; background: #F87171;" title="Counter Offer Rejected"></div>
-                <div style="width: 15%; background: #FCA5A5;" title="Payment Not Received"></div>
-                <div style="width: 15%; background: #FECACA;" title="No Response"></div>
-              </div>
-              <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px;">
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#EF4444;border-radius:2px;"></div>Insurer Rejected</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#F87171;border-radius:2px;"></div>Counter Offer Rejected</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#FCA5A5;border-radius:2px;"></div>Payment Not Recv</div>
-                <div style="display:flex; align-items:center; gap:4px;"><div style="width:8px;height:8px;background:#FECACA;border-radius:2px;"></div>No Response</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Section 12: Policy Issuance Dashboard -->
-        <div class="dash-col-6">
-          <div class="dash-section-title">Policy Issuance & Free Look</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <div class="kpi-card">
-              <div class="kpi-title">Policies Issued</div>
-              <div class="kpi-value" style="color:var(--success);">150</div>
-              <div style="margin-top:12px; font-size:11px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                <div>Today: <b>12</b></div><div>This Wk: <b>45</b></div>
-                <div>This Mo: <b>150</b></div>
-              </div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-title">Policy Sharing Status</div>
-              <div class="kpi-value">150</div>
-              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
-                <div style="display:flex; justify-content:space-between;"><span>Completed</span><b style="color:var(--success);">146</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>Pending</span><b style="color:var(--danger);">4</b></div>
-              </div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-title">Free Look Active</div>
-              <div class="kpi-value" style="color:var(--primary);">85</div>
-              <div class="kpi-sub neutral">Policies within 30 days</div>
-            </div>
-            <div class="kpi-card" style="border-left:4px solid var(--danger);">
-              <div class="kpi-title">Cancellations (Free Look)</div>
-              <div class="kpi-value" style="color:var(--danger);">3</div>
-              <div class="kpi-sub negative">2% Cancellation Rate</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 13: Revenue Dashboard -->
-        <div class="dash-col-6">
-          <div class="dash-section-title">Revenue Dashboard</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-            <div class="kpi-card" style="background:var(--navy); color:white; border:none;">
-              <div class="kpi-title" style="color:rgba(255,255,255,0.7);">Total Premium Generated</div>
-              <div class="kpi-value" style="color:white;">₹42.5L</div>
-              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px; color:rgba(255,255,255,0.9);">
-                <div style="display:flex; justify-content:space-between;"><span>MTD</span><b>₹42.5L</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>QTD</span><b>₹1.2Cr</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>YTD</span><b>₹3.8Cr</b></div>
-              </div>
-            </div>
-            <div class="kpi-card" style="background:#F0FDF4; border-color:#BBF7D0;">
-              <div class="kpi-title" style="color:#166534;">Commission Earned</div>
-              <div class="kpi-value" style="color:#16A34A;">₹7.2L</div>
-              <div style="margin-top:12px; font-size:11px; display:flex; flex-direction:column; gap:6px;">
-                <div style="display:flex; justify-content:space-between;"><span>Expected</span><b>₹7.2L</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>Received</span><b style="color:var(--success);">₹5.8L</b></div>
-                <div style="display:flex; justify-content:space-between;"><span>Pending</span><b style="color:var(--warning);">₹1.4L</b></div>
-              </div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Revenue by Insurer (MTD)</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-              <div style="flex:1;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>TATA AIG</span><b>₹18L</b></div>
-                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:42%;"></div></div>
-                
-                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>CARE</span><b>₹12L</b></div>
-                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:28%; background:#0EA5E9;"></div></div>
-              </div>
-              <div style="flex:1; margin-left:24px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>HDFC Life</span><b>₹8L</b></div>
-                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:18%; background:#D97706;"></div></div>
-                
-                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span>ICICI Pru</span><b>₹4.5L</b></div>
-                <div class="progress-track" style="margin-bottom:12px; height:6px;"><div class="progress-fill" style="width:12%; background:#DC2626;"></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="toast" id="toast">
-    <span id="toast-icon">✓</span>
-    <span id="toast-msg">Success</span>
-  </div>
-
-  <!-- Update Status Modal -->
-  <div class="drawer-overlay" id="statusModalOverlay" onclick="closeStatusModal()"></div>
-  <div id="statusModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:32px; border-radius:16px; z-index:1001; width:440px; box-shadow:0 10px 40px rgba(0,0,0,0.1);">
-    <div style="font-size:20px; font-weight:800; margin-bottom:24px; color:#2E2E38;">
-      Update Status
-    </div>
-    
-    <input type="hidden" id="statusLeadId">
-    <input type="hidden" id="statusCurrentBucket">
-    
-    <div class="sangam-filter-group" style="margin-bottom:20px;">
-      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">STATUS</label>
-      <select id="statusSelect" class="sangam-filter-select" onchange="handleStatusChange()" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; margin-top:8px;">
-        <!-- Populated via JS based on current bucket -->
-      </select>
-    </div>
-    
-    <div class="sangam-filter-group" style="margin-bottom:20px;">
-      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">SUB STATUS</label>
-      <select id="subStatusSelect" class="sangam-filter-select" onchange="handleSubStatusChange()" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; margin-top:8px;">
-        <!-- Populated via JS -->
-      </select>
-    </div>
-    
-    <div id="followUpGroupWrapper" style="display:none; gap:16px; margin-bottom:20px;">
-      <div class="sangam-filter-group" style="flex:1;">
-        <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">FOLLOW-UP DATE *</label>
-        <div style="position:relative; margin-top:8px;">
-          <input type="date" id="followUpDateInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box;">
-        </div>
-      </div>
-      <div class="sangam-filter-group" style="flex:1;">
-        <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">PENDING WITH *</label>
-        <div style="position:relative; margin-top:8px;">
-          <select id="pendingWithSelect" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box;">
-            <option>Customer</option>
-            <option>IBM Agent</option>
-            <option>PolicyBazaar</option>
-            <option>Insurer</option>
-            <option>Ambak Operations</option>
-            <option>Finance Team</option>
-            <option>RM / Sales Team</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    
-    <div id="uploadGroupWrapper" style="display:none; margin-bottom:20px;">
-      <label id="uploadGroupLabel" class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">UPLOAD PROOF *</label>
-      <input type="file" id="uploadInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:15px; color:#111827; width:100%; box-sizing:border-box; margin-top:8px;">
-      <div id="paymentProofFields" style="display:none; flex-direction:column; gap:12px; margin-top:16px;">
-        <div>
-          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Payment Amount *</label>
-          <input type="text" id="paymentAmountInput" class="sangam-filter-select" placeholder="₹" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
-        </div>
-        <div>
-          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">UTR Number *</label>
-          <input type="text" id="paymentUtrInput" class="sangam-filter-select" placeholder="Enter UTR" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
-        </div>
-        <div>
-          <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Payment Date *</label>
-          <input type="date" id="paymentDateInput" class="sangam-filter-select" style="border-radius:6px; border:1px solid #D1D5DB; padding:8px; width:100%; box-sizing:border-box; margin-top:4px;">
-        </div>
-      </div>
-    </div>
-    
-    <div id="coGroupWrapper" style="display:none; flex-direction:column; gap:16px; margin-bottom:20px; background:#F9FAFB; padding:16px; border-radius:8px; border:1px dashed #D1D5DB;">
-      <div style="font-size:12px; font-weight:700; color:#4B5563; text-transform:uppercase;">Counter Offer Details</div>
-      <div>
-        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Counter Offer Amount</label>
-        <input type="number" id="coAmountModal" class="sangam-filter-select" placeholder="e.g. 5000" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
-      </div>
-      <div>
-        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Customer Response</label>
-        <select id="coResponseModal" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
-          <option value="">Select Response</option>
-          <option>Accepted</option>
-          <option>Rejected</option>
-          <option>Negotiating</option>
-        </select>
-      </div>
-      <div>
-        <label class="sangam-filter-label" style="font-size:10px; font-weight:800; color:#6B7280; text-transform:uppercase;">Additional Premium Received</label>
-        <input type="number" id="coPremiumModal" class="sangam-filter-select" placeholder="e.g. 1500" style="border-radius:8px; border:1px solid #E5E7EB; padding:10px; font-size:14px; color:#111827; width:100%; box-sizing:border-box; margin-top:4px;">
-      </div>
-    </div>
-    
-    <div class="sangam-filter-group" style="margin-bottom:32px;">
-      <label class="sangam-filter-label" style="font-size:12px; font-weight:800; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">REMARKS</label>
-      <textarea id="remarksInput" class="sangam-filter-select" style="border-radius:8px; border:1px solid #E5E7EB; padding:12px; font-size:14px; color:#111827; margin-top:8px; height:80px; resize:none; width:100%; box-sizing:border-box;"></textarea>
-    </div>
-    
-    <button class="btn" onclick="saveStatusUpdate()" style="background:#42307D; color:white; width:100%; padding:14px; border-radius:8px; font-size:16px; font-weight:600; border:none; cursor:pointer;">Update Status</button>
-  </div>
-
-  <div class="drawer-overlay" id="filterOverlay" onclick="toggleMoreFilters()"></div>
-  <div class="filter-drawer" id="filterDrawer">
-    <div class="filter-drawer-header">
-      <div style="font-size:16px; font-weight:700; color:var(--text-heading);">More Filters</div>
-      <div style="cursor:pointer; font-size:24px; color:var(--text-muted); line-height:1;" onclick="toggleMoreFilters()">&times;</div>
-    </div>
-    <div class="filter-drawer-body">
-      <!-- Lead Filters -->
-      <div class="filter-section">
-        <div class="filter-section-title">Lead Filters</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Assigned Agent</label>
-          <select class="sangam-filter-select"><option>All</option><option>Me</option><option>Unassigned</option><option>Rohit</option><option>Aman</option><option>Priya</option><option>Rahul</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Lead Age</label>
-          <select class="sangam-filter-select"><option>All</option><option>0-2 Days</option><option>3-7 Days</option><option>8-15 Days</option><option>15-30 Days</option><option>30+ Days</option></select>
-        </div>
-      </div>
-
-      <!-- Follow-up Filters -->
-      <div class="filter-section">
-        <div class="filter-section-title">Follow-up Filters</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Follow-up Status</label>
-          <select class="sangam-filter-select"><option>All</option><option>Overdue</option><option>Due Today</option><option>Tomorrow</option><option>This Week</option><option>No Follow-up</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Pending With</label>
-          <select class="sangam-filter-select"><option>All</option><option>Customer</option><option>IBM Agent</option><option>PolicyBazaar</option><option>CARE</option><option>TATA</option><option>Insurer</option><option>Ambak Operations</option></select>
-        </div>
-      </div>
-
-      <!-- Product Filters -->
-      <div class="filter-section">
-        <div class="filter-section-title">Product Filters</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Insurer</label>
-          <select class="sangam-filter-select"><option>All</option><option>CARE</option><option>TATA AIG</option><option>Bajaj Allianz</option><option>ICICI Lombard</option><option>HDFC Ergo</option><option>SBI General</option><option>Max Life</option><option>Tata AIA</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Premium Range</label>
-          <select class="sangam-filter-select"><option>All</option><option>0-5k</option><option>5k-10k</option><option>10k-25k</option><option>25k+</option></select>
-        </div>
-      </div>
-
-      <!-- Processing Filters -->
-      <div class="filter-section">
-        <div class="filter-section-title">Processing Filters</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Payment Status</label>
-          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Verification Pending</option><option>Verified</option><option>Failed</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Document Status</label>
-          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Partial</option><option>Received</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Medical Status</label>
-          <select class="sangam-filter-select"><option>All</option><option>Scheduled</option><option>Completed</option><option>Pending</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Approval Status</label>
-          <select class="sangam-filter-select"><option>All</option><option>Pending</option><option>Counter Offer</option><option>Approved</option><option>Rejected</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">HL Stage</label>
-          <select class="sangam-filter-select"><option>All</option><option>Fresh</option><option>Login</option><option>Sanctioned</option><option>Disbursed</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Bank</label>
-          <select class="sangam-filter-select"><option>All</option><option>HDFC</option><option>ICICI</option><option>Axis</option><option>Kotak</option><option>SBI</option><option>PNB</option><option>Others</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Loan Amount</label>
-          <select class="sangam-filter-select"><option>All</option><option>0-20L</option><option>20-40L</option><option>40-60L</option><option>60L+</option></select>
-        </div>
-      </div>
-
-      <!-- Date Filters -->
-      <div class="filter-section">
-        <div class="filter-section-title">Date Filters</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Created Date</label>
-          <select class="sangam-filter-select"><option>All</option><option>Today</option><option>Yesterday</option><option>This Week</option><option>This Month</option><option>Custom</option></select>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Status Updated (From - To)</label>
-          <div style="display:flex; gap:8px;">
-            <input type="date" class="sangam-filter-select" style="flex:1;">
-            <input type="date" class="sangam-filter-select" style="flex:1;">
-          </div>
-        </div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Follow-up Date (From - To)</label>
-          <div style="display:flex; gap:8px;">
-            <input type="date" class="sangam-filter-select" style="flex:1;">
-            <input type="date" class="sangam-filter-select" style="flex:1;">
-          </div>
-        </div>
-      </div>
-
-      <!-- Sort By -->
-      <div class="filter-section">
-        <div class="filter-section-title">Sorting</div>
-        <div class="sangam-filter-group">
-          <label class="sangam-filter-label">Sort By</label>
-          <select class="sangam-filter-select">
-            <option>Recently Updated</option>
-            <option>Follow-up Due First</option>
-            <option>Overdue Follow-ups</option>
-            <option>Lead Age (Oldest First)</option>
-            <option>Lead Age (Newest First)</option>
-            <option>Quote Shared Waiting Longest</option>
-            <option>Payment Pending Longest</option>
-            <option>Longest in Processing</option>
-            <option>Premium Amount High to Low</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="filter-drawer-footer">
-      <button class="btn btn-ghost" style="padding:8px 24px; border-radius:8px;" onclick="toggleMoreFilters()">Cancel</button>
-      <button class="btn btn-ghost" style="padding:8px 24px; border-radius:8px;">Reset</button>
-      <button class="btn btn-primary" style="padding:8px 24px; border-radius:8px;" onclick="toggleMoreFilters()">Apply Filters</button>
-    </div>
-  </div>
-  <script>
     // === GLOBAL STATE ===
     const MILESTONE_CONFIG = {
       'loan_protection_care': {
@@ -1836,33 +259,11 @@ https://ambak.in/quote/x920dj</textarea>
       },
       'Policy Issued': {
         statuses: {
-          'Freelook': {
-            subStatuses: ['Under Freelook', 'Under Verification', 'Completed'],
+          'Freelook Period': {
+            subStatuses: ['Pending', 'Completed', 'Policy Cancelled'],
             mandatoryFollowUp: false,
             pendingWith: 'None',
             nextBucket: 'Policy Issued'
-          },
-          'Payout': {
-            subStatuses: ['Pending', 'Received'],
-            mandatoryFollowUp: false,
-            pendingWith: 'None',
-            nextBucket: 'Policy Issued'
-          }
-        }
-      },
-      'Policy Cancelled': {
-        statuses: {
-          'Cancellation': {
-            subStatuses: ['Requested', 'Confirmed'],
-            mandatoryFollowUp: false,
-            pendingWith: 'None',
-            nextBucket: 'Policy Cancelled'
-          },
-          'Refund': {
-            subStatuses: ['Initiated', 'Completed'],
-            mandatoryFollowUp: false,
-            pendingWith: 'None',
-            nextBucket: 'Policy Cancelled'
           }
         }
       }
@@ -2264,163 +665,17 @@ https://ambak.in/quote/x920dj</textarea>
       }
     }
 
-    // === STATE MANAGEMENT: LIST SCREEN ===
-    let currentFilterStage = 'All';
-    let currentSortColumn = 'default';
-    let currentSortDirection = 'asc';
-    
-    function setFilterStage(stage) {
-      currentFilterStage = stage;
-      
-      // Update Tab UI
-      document.querySelectorAll('.stage-tab').forEach(tab => {
-        // preserve the count-badge structure by re-rendering innerHTML or just changing classes
-        // but easier: just change the classname of the button, excluding the count badge
-        // We will reset classes to just "stage-tab"
-        let baseClass = 'stage-tab';
-        tab.className = baseClass; 
-      });
-      
-      const tabClassMap = {
-        'All': 'active-all', 'New': 'active-new', 'Contacted': 'active-contacted',
-        'Quote': 'active-quote', 'Payment Done': 'active-payment', 'Policy Issued': 'active-policy', 'Lost': 'active-lost'
-      };
-      
-      Array.from(document.querySelectorAll('.stage-tab')).forEach(b => {
-         if (b.textContent.trim().startsWith(stage)) {
-            b.classList.add(tabClassMap[stage] || 'active-all');
-         }
-      });
-      
-      renderLeadTable();
-    }
-    
-    function toggleSort(col) {
-      if (currentSortColumn === col) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentSortColumn = col;
-        currentSortDirection = 'asc';
-      }
-      
-      // Update icons
-      document.querySelectorAll('.sort-icon').forEach(icon => {
-        icon.textContent = '↕';
-        icon.className = 'sort-icon';
-      });
-      const icon = document.getElementById(`sort-icon-${col}`);
-      if(icon) {
-        icon.textContent = currentSortDirection === 'asc' ? '↑' : '↓';
-        icon.classList.add(currentSortDirection);
-      }
-      
-      renderLeadTable();
-    }
-    
-    function handleSortDropdown() {
-      const val = document.getElementById('sort-dropdown').value;
-      if(val === 'default') { currentSortColumn = 'default'; }
-      renderLeadTable();
-    }
-    
-    function clearFilters() {
-      document.getElementById('filter-product').value = 'All';
-      document.getElementById('filter-source').value = 'All';
-      document.getElementById('filter-status').value = 'All';
-      document.getElementById('filter-assigned').value = 'All';
-      document.getElementById('filter-followup').value = 'All';
-      document.getElementById('filter-date').value = 'All';
-      document.getElementById('filter-search').value = '';
-      document.getElementById('sort-dropdown').value = 'default';
-      
-      document.getElementById('clear-filters-btn').style.display = 'none';
-      setFilterStage('All');
-    }
-
     // === RENDERERS: LIST SCREEN ===
     function renderPipelineCards() {
-      // Deprecated in new design, left empty so references don't break
+      const pc = document.getElementById('pipeline-cards');
+      if (pc) pc.innerHTML = '';
     }
 
     function renderLeadTable() {
       let tbody = document.getElementById('lead-table-body');
-      let emptyState = document.getElementById('empty-state');
-      let tableEl = document.querySelector('.sangam-table');
-      let summaryCount = document.getElementById('summary-count');
-      let summaryFilters = document.getElementById('summary-filters');
-      
-      let filteredLeads = LEADS;
-      
-      // 1. Apply Filters
-      if (currentFilterStage !== 'All') {
-        filteredLeads = filteredLeads.filter(l => l.bucket === currentFilterStage);
-      }
-      
-      let searchInput = document.getElementById('filter-search');
-      if (searchInput && searchInput.value) {
-        const query = searchInput.value.toLowerCase();
-        filteredLeads = filteredLeads.filter(l => l.name.toLowerCase().includes(query) || l.id.toLowerCase().includes(query));
-      }
-      
-      // Show/Hide clear filters button
-      let clearBtn = document.getElementById('clear-filters-btn');
-      let hasFilters = currentFilterStage !== 'All' || (searchInput && searchInput.value);
-      if (hasFilters) {
-        if(clearBtn) clearBtn.style.display = 'inline-block';
-        if(summaryFilters) summaryFilters.textContent = currentFilterStage !== 'All' ? `+ filtered by ${currentFilterStage}` : '';
-      } else {
-        if(clearBtn) clearBtn.style.display = 'none';
-        if(summaryFilters) summaryFilters.textContent = '';
-      }
-      
-      // Update counts in tabs
-      let countAll = document.getElementById('count-all');
-      if(countAll) countAll.textContent = LEADS.length;
-      let countNew = document.getElementById('count-new');
-      if(countNew) countNew.textContent = LEADS.filter(l => l.bucket === 'New').length;
-      let countContacted = document.getElementById('count-contacted');
-      if(countContacted) countContacted.textContent = LEADS.filter(l => l.bucket === 'Contacted').length;
-      let countQuote = document.getElementById('count-quote');
-      if(countQuote) countQuote.textContent = LEADS.filter(l => l.bucket === 'Quote').length;
-      let countPayment = document.getElementById('count-payment');
-      if(countPayment) countPayment.textContent = LEADS.filter(l => l.bucket === 'Payment Done').length;
-      let countPolicy = document.getElementById('count-policy');
-      if(countPolicy) countPolicy.textContent = LEADS.filter(l => l.bucket === 'Policy Issued').length;
-      let countLost = document.getElementById('count-lost');
-      if(countLost) countLost.textContent = LEADS.filter(l => l.bucket === 'Lost').length;
-      
-      if(summaryCount) summaryCount.textContent = filteredLeads.length;
-      
-      // 2. Sort Logic
-      if (currentSortColumn === 'id') {
-         filteredLeads.sort((a,b) => currentSortDirection === 'asc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
-      } else if (currentSortColumn === 'created') {
-         filteredLeads.sort((a,b) => {
-           let da = new Date(a.createdAt || 0).getTime();
-           let db = new Date(b.createdAt || 0).getTime();
-           return currentSortDirection === 'asc' ? da - db : db - da;
-         });
-      } else if (currentSortColumn === 'fup') {
-         filteredLeads.sort((a,b) => {
-           let fa = a.followUpDate && !a.followUpDate.includes('No') ? 1 : 0;
-           let fb = b.followUpDate && !b.followUpDate.includes('No') ? 1 : 0;
-           return currentSortDirection === 'asc' ? fa - fb : fb - fa;
-         });
-      }
-      
-      if (filteredLeads.length === 0) {
-        if(tbody) tbody.innerHTML = '';
-        if(tableEl) tableEl.style.display = 'none';
-        if(emptyState) emptyState.style.display = 'block';
-        return;
-      }
-      
-      if(tableEl) tableEl.style.display = 'table';
-      if(emptyState) emptyState.style.display = 'none';
-      
       let html = '';
       
-      filteredLeads.forEach((l, index) => {
+      LEADS.forEach(l => {
         let siText = l.si ? formatLakhs(l.si) : `-`;
         let bankText = l.hlLead ? l.hlLead.bank : (l.loanBank || '-');
         let hlStage = l.hlLead ? l.hlLead.hlStage : '-';
@@ -2430,6 +685,7 @@ https://ambak.in/quote/x920dj</textarea>
         let insurer = l.finalInsurer || (l.selectedPlan ? l.selectedPlan.insurer : '');
         let insurerText = insurer ? insurer : 'Unassigned';
         
+        // Calculate Lead Age
         let leadAge = 'Just now';
         if (l.createdAt) {
            let diffMs = Date.now() - new Date(l.createdAt).getTime();
@@ -2438,83 +694,78 @@ https://ambak.in/quote/x920dj</textarea>
            else if (diffDays === 1) leadAge = 'Yesterday';
            else leadAge = `${diffDays} days ago`;
         }
+        
         let createdDate = l.createdDate || '15 Jun 2026';
         
+        // Priority / FUP Logic
         let nextFup = l.followUpDate || 'No Follow-up';
-        let isOverdue = nextFup.toLowerCase().includes('overdue');
-        let fupHtml = isOverdue ? `<div style="font-size:12px; font-weight:700; color:#B03030;">${nextFup}</div>` : 
-                      (nextFup === 'No Follow-up' ? `<div style="font-size:12px; color:#C5C0F5; font-style:italic;">No follow-up</div>` : 
-                      `<div style="font-size:12px; color:#2D2D4E;">${nextFup}</div>`);
-                      
-        let rowClass = isOverdue ? 'overdue-row' : (index % 2 !== 0 ? 'alt-row' : '');
+        let fupColor = nextFup.toLowerCase().includes('overdue') ? '#DC2626' : 'inherit';
         
-        const bucketClassMap = { 
-          'New': 'active-new', 'Contacted': 'active-contacted', 'Quote': 'active-quote', 
-          'Payment Done': 'active-payment', 'Policy Issued': 'active-policy', 'Lost': 'active-lost' 
-        };
-        let bClass = bucketClassMap[l.bucket] || 'active-all';
+        const bucketBgMap = { 'New': '#EFF6FF', 'Contacted': '#FFFBEB', 'Quote': '#EEEDFE', 'Payment Done': '#F0FDFA', 'Policy Issued': '#F0FDF4', 'Lost': '#FEF2F2' };
+        const bucketColorMap = { 'New': '#1E40AF', 'Contacted': '#B45309', 'Quote': '#4C1D95', 'Payment Done': '#0F766E', 'Policy Issued': '#15803D', 'Lost': '#991B1B' };
+        let bBg = bucketBgMap[l.bucket] || '#F3F4F6';
+        let bColor = bucketColorMap[l.bucket] || 'var(--text-heading)';
         
         let partnerText = l.partner || '-';
         let rmText = l.rmName || '-';
         let subSourceText = l.subSource || '-';
         let loanAmount = l.si ? formatLakhs(l.si) : (l.loanAmount ? formatLakhs(l.loanAmount) : '-');
         
+        // If no loan linked, Loan column shows "-"
         let loanColHtml = '';
         if (l.hlLead || l.loanBank || l.si || l.loanAmount) {
              loanColHtml = `
-               <div style="font-weight:700; color:#2D2D4E;">${loanAmount}</div>
-               <div style="font-size:11px; color:#6B6880; margin-top:2px;">${bankText}</div>
-               <div style="font-size:10px; color:#A09AB8; margin-top:2px;">${hlStage}</div>
+               <div style="font-weight:600">${loanAmount}</div>
+               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${bankText}</div>
+               <div style="font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:500;">${hlStage}</div>
              `;
         } else {
-             loanColHtml = `<div style="font-size:13px; color:#C5C0F5;">—</div>`;
+             loanColHtml = `<div style="font-size:13px; color:#9CA3AF;">—</div>`;
         }
         
-        let pColor = partnerText === '-' ? '#C5C0F5' : '#2D2D4E';
-        let rColor = rmText === '-' ? '#C5C0F5' : '#2D2D4E';
-        let ssColor = subSourceText === '-' ? '#A09AB8' : '#A09AB8';
-        let insurerColor = insurerText === 'Unassigned' ? '#C5C0F5' : '#A09AB8';
-        let insurerStyle = insurerText === 'Unassigned' ? 'font-style:italic;' : '';
+        let pColor = partnerText === '-' ? '#9CA3AF' : 'var(--text-heading)';
+        let rColor = rmText === '-' ? '#9CA3AF' : 'var(--text-heading)';
+        let ssColor = subSourceText === '-' ? '#9CA3AF' : '#6B7280';
         
         html += `
-          <tr onclick="openLead('${l.id}')" style="cursor:pointer;" class="${rowClass}">
+          <tr onclick="openLead('${l.id}')" style="cursor:pointer;" class="table-row-hover">
             <td>
-              <div style="font-weight:700; color:#473391; font-size:13px;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${l.id}</div>
+              <div style="font-weight:700; color:var(--primary);">${l.id}</div>
             </td>
             <td>
-              <div style="font-weight:700; color:#2D2D4E; font-size:13px;">${l.name}</div>
-              <div style="font-size:11px; color:#6B6880; margin-top:2px;">${l.phone}</div>
+              <div class="lead-name" style="font-weight:700; color:var(--text-heading);">${l.name}</div>
+              <div class="lead-phone" style="font-size:12px; color:var(--text-muted); margin-top:2px;">${l.phone}</div>
             </td>
             <td>
-              <div style="font-weight:700; color:#2D2D4E; font-size:13px;">${getProductLabel(l.finalProduct || l.initialProduct)}</div>
-              <div style="font-size:11px; color:${insurerColor}; margin-top:2px; ${insurerStyle}">${insurerText}</div>
+              <div style="font-weight:700;">${getProductLabel(l.finalProduct || l.initialProduct)}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${insurerText}</div>
             </td>
             <td>
               ${loanColHtml}
             </td>
             <td>
-              <span class="stage-tab ${bClass}" style="margin-bottom:4px; padding:3px 10px; font-size:11px; display:inline-flex; border-radius:20px; font-weight:700;">${l.bucket}</span>
-              <div style="font-size:11px; color:#6B6880; margin-top:4px;">${statusText} <span style="color:#A09AB8;">${subStatusText}</span></div>
+              <span class="badge" style="background:${bBg}; color:${bColor}; margin-bottom:4px; display:inline-block;">${l.bucket}</span>
+              <div style="font-size:12px; font-weight:700; color:var(--text-heading); margin-top:4px;">${statusText} <span style="color:#6B7280; font-size:11px; font-weight:400;">${subStatusText}</span></div>
             </td>
             <td>
-              <div style="font-weight:600; font-size:12px; color:#2D2D4E; text-transform:capitalize;">${l.source || 'D2C'}</div>
+              <div style="font-weight:600; font-size:13px; color:var(--text-heading); text-transform:capitalize;">${l.source || 'D2C'}</div>
               <div style="font-size:11px; color:${ssColor}; margin-top:2px;">${subSourceText}</div>
             </td>
             <td>
-               <div style="font-size:12px; color:${pColor};">${partnerText}</div>
+               <div style="font-weight:500; font-size:13px; color:${pColor};">${partnerText}</div>
             </td>
             <td>
-               <div style="font-size:12px; color:${rColor};">${rmText}</div>
+               <div style="font-weight:500; font-size:13px; color:${rColor};">${rmText}</div>
             </td>
             <td>
-               ${fupHtml}
+               <div style="font-weight:600; font-size:13px; color:${fupColor};">${nextFup}</div>
             </td>
             <td>
-               <div style="font-size:12px; color:#2D2D4E;">${createdDate}</div>
-               <div style="font-size:11px; color:#A09AB8; margin-top:2px;">${leadAge}</div>
+               <div style="font-weight:600; font-size:13px; color:#111827;">${createdDate}</div>
+               <div style="font-size:11px; color:#9CA3AF; margin-top:2px;">${leadAge}</div>
             </td>
             <td>
-               <select class="inline-filter-select" style="min-width:100px; font-size:12px; font-weight:400; padding:4px 8px; margin:0;" onclick="event.stopPropagation()">
+               <select class="search-input" style="min-width:100px; font-size:12px; font-weight:600; padding:4px 8px; height:auto; margin:0; border-radius:6px; cursor:pointer;" onclick="event.stopPropagation()">
                  <option>${l.rmName || 'Unassigned'}</option>
                  <option>Rohit M</option>
                  <option>Anil K</option>
@@ -2525,9 +776,8 @@ https://ambak.in/quote/x920dj</textarea>
         `;
       });
       if(tbody) tbody.innerHTML = html;
-      
       const ec = document.getElementById('entry-count');
-      if(ec) ec.textContent = filteredLeads.length;
+      if(ec) ec.textContent = LEADS.length;
     }
 
     // === NAVIGATION ===
@@ -2546,11 +796,6 @@ https://ambak.in/quote/x920dj</textarea>
       document.getElementById('navDrawer').classList.remove('open');
       document.getElementById('drawerOverlay').classList.remove('open');
       showScreen(screen);
-      
-      if (screen === 'mis') {
-        const firstTab = document.querySelector('#screen-mis .tabs .tab');
-        if (firstTab) switchMisTab('uploads', firstTab);
-      }
     }
 
     function openLead(id) {
@@ -2892,7 +1137,7 @@ https://ambak.in/quote/x920dj</textarea>
 
     function renderCenterPanel() {
       const l = currentLead;
-      let stages = ['New', 'Contacted', 'Quote', 'Payment Done', 'Policy Issued', 'Policy Cancelled'];
+      let stages = ['New', 'Contacted', 'Quote', 'Payment Done', 'Policy Issued'];
       let currentIdx = stages.indexOf(l.bucket);
       if(currentIdx === -1) currentIdx = 0;
       
@@ -2915,8 +1160,6 @@ https://ambak.in/quote/x920dj</textarea>
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderContactedStage(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
-              if (stages[i] === 'Policy Issued') centerContent += renderAccordion('Policy Issued', renderPolicyStage());
-              if (stages[i] === 'Policy Cancelled') centerContent += renderAccordion('Policy Cancelled', renderPolicyCancelledStage());
           }
           centerContent += `<div style="padding: 24px; text-align: center; color: #C0392B; font-weight: 600; background: #FEF2F2; border-radius: 8px; margin-top: 16px;">This lead was marked as Lost.</div>`;
       } else {
@@ -2925,8 +1168,6 @@ https://ambak.in/quote/x920dj</textarea>
               if (stages[i] === 'Contacted') centerContent += renderAccordion('Contacted', renderContactedStage(true));
               if (stages[i] === 'Quote') centerContent += renderAccordion('Quote', renderQuoteStage(true));
               if (stages[i] === 'Payment Done') centerContent += renderAccordion('Payment Done', renderPaymentDoneStage(true));
-              if (stages[i] === 'Policy Issued') centerContent += renderAccordion('Policy Issued', renderPolicyStage());
-              if (stages[i] === 'Policy Cancelled') centerContent += renderAccordion('Policy Cancelled', renderPolicyCancelledStage());
           }
           
           let activeContent = '';
@@ -2935,7 +1176,6 @@ https://ambak.in/quote/x920dj</textarea>
           else if (l.bucket === 'Quote') activeContent = renderQuoteStage(false);
           else if (l.bucket === 'Payment Done') activeContent = renderPaymentDoneStage(false);
           else if (l.bucket === 'Policy Issued') activeContent = renderPolicyStage();
-          else if (l.bucket === 'Policy Cancelled') activeContent = renderPolicyCancelledStage();
           centerContent += activeContent;
       }
 
@@ -2952,12 +1192,7 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
             ${currentLead.status === 'Lost' 
                ? `<button style="border: 1.5px solid #10B981; color: white; background: #10B981; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="reopenLead()">Reopen Lead</button>`
-               : `
-                 <div style="display:flex; gap:8px;">
-                   ${currentLead.bucket === 'Policy Issued' ? `<button style="border: 1.5px solid #B03030; color: #B03030; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openCancellationModal()">Request Cancellation</button>` : ''}
-                   <button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openLostModal()">Mark as Lost</button>
-                 </div>
-               `
+               : `<button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openLostModal()">Mark as Lost</button>`
             }
           </div>
           <div style="flex: 1; overflow-y: auto; padding: 24px; background: #FAFAFA;">
@@ -4044,7 +2279,7 @@ https://ambak.in/quote/x920dj</textarea>
                     </div>
                   </div>
                 </div>
-                ${(currentLead.bucket === 'Quote') ? `
+                \${(currentLead.bucket === 'Quote') ? `
                 <div style="text-align: center; margin-top: 8px;">
                   <span style="font-size: 11px; color: #473391; cursor: pointer; text-decoration: underline; font-weight: 600;" onclick="handleResetPlanSelection(event)">Change Selection</span>
                 </div>
@@ -5417,7 +3652,7 @@ https://ambak.in/quote/x920dj</textarea>
                  ${detailsAreaHtml}
                  
                  <button id="confirm-policy-copy-btn" ${btnDisabled ? 'disabled' : ''} style="width: 100%; height: 44px; background: #1A7A4A; color: white; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 16px; border: none; cursor: ${btnDisabled ? 'not-allowed' : 'pointer'}; opacity: ${btnDisabled ? '0.5' : '1'}; transition: opacity 0.2s;" onclick="handleConfirmPolicyIssued()">
-                   ${mNode.uploadButtonLabel}
+                   \${mNode.uploadButtonLabel}
                  </button>
               </div>
             `;
@@ -5435,244 +3670,54 @@ https://ambak.in/quote/x920dj</textarea>
 
 
 
-    window.mockFreelookState = 1;
-    function setMockFreelookState(state) {
-        window.mockFreelookState = state;
-        if(currentLead && currentLead.bucket === 'Policy Issued') {
-            renderCenterPanel();
-        }
-    }
-
     function renderPolicyStage() {
       let insurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : 'Unknown Insurer';
       let premiumStr = currentLead.selectedPlan ? currentLead.selectedPlan.premium : '₹0';
       let premiumNum = parseInt(premiumStr.replace(/[^0-9]/g, '')) || 0;
       let commission = premiumNum * 0.20;
-      let state = window.mockFreelookState || 1;
-      
-      let statePill = '';
-      let stateContent = '';
-      let activityLog = '';
-      
-      if (state === 1) {
-          statePill = `<div class="badge" style="background:#FFF4E0; color:#A06000; border:none; padding:4px 12px; font-size:12px; border-radius:12px;">Under Freelook</div>`;
-          stateContent = `
-            <div style="font-size:14px; font-weight:700; color:#A06000; margin-bottom:4px;">Freelook ends in 12 days</div>
-            <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Policy Start Date: 01 Jul 2026 · Freelook Period: 15 days · Expires: 16 Jul 2026</div>
-            <div style="height:6px; background:#F7F6FB; border-radius:4px; margin-bottom:12px; overflow:hidden;">
-              <div style="width:20%; height:100%; background:#A06000; border-radius:4px;"></div>
-            </div>
-            <div style="font-size:12px; color:#A09AB8;">Customer can cancel this policy and receive a full refund before 16 Jul 2026.</div>
-            <div style="margin-top: 16px;">
-               <button style="border:1.5px solid #B03030; color:#B03030; background:white; border-radius:8px; font-size:12px; font-weight:600; padding:8px 16px; cursor:pointer;" onclick="openCancellationModal()">Request Cancellation</button>
-               <button style="border:none; color:#A09AB8; background:transparent; font-size:10px; cursor:pointer; text-decoration:underline; margin-left:12px;" onclick="setMockFreelookState(2)">[Mock: Fast forward to expiry]</button>
-            </div>
-          `;
-          activityLog = `System Update · Policy entered freelook period · Freelook expires: 16 Jul 2026`;
-      } else if (state === 2) {
-          statePill = `<div class="badge" style="background:#E3EEFF; color:#2B5FC7; border:none; padding:4px 12px; font-size:12px; border-radius:12px;">Under Verification</div>`;
-          stateContent = `
-            <div style="font-size:13px; font-weight:600; color:#2B5FC7; margin-bottom:4px;">Freelook period has ended. Awaiting MIS confirmation from insurer.</div>
-            <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Freelook ended: 16 Jul 2026 · Confirmation pending via MIS upload.</div>
-            <div style="background:#E3EEFF; border-radius:6px; padding:10px 14px; font-size:12px; color:#2B5FC7; margin-bottom:16px;">
-              IBM Manager will confirm freelook completion after receiving the monthly MIS from the insurer. You will be notified once confirmed.
-            </div>
-            <div style="margin-top: 16px;">
-               <button style="background:#1A6E45; color:white; border:none; border-radius:8px; font-size:12px; font-weight:700; padding:9px 18px; cursor:pointer;" onclick="setMockFreelookState(3)">Confirm Freelook Completed</button>
-               <span style="font-size:10px; color:#A09AB8; margin-left:8px;">(Manager Only)</span>
-            </div>
-          `;
-          activityLog = `System Update · Freelook period expired · Awaiting MIS confirmation`;
-      } else if (state === 3) {
-          statePill = `<div class="badge" style="background:#E0F5EC; color:#1A6E45; border:none; padding:4px 12px; font-size:12px; border-radius:12px;">Freelook Completed</div>`;
-          stateContent = `
-            <div style="font-size:13px; font-weight:600; color:#1A6E45; margin-bottom:4px;">✓ Freelook period completed. Policy is confirmed.</div>
-            <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Confirmed by: Anil K (Manager) · On: 17 Jul 2026 · Via MIS: HDFC_July_MIS.xlsx</div>
-          `;
-          activityLog = `IBM Manager · Anil K · Freelook confirmed as completed · Via MIS · Just now`;
-      }
       
       return `
-        <!-- Section 1: Policy Summary -->
-        <div class="card" style="padding:24px; box-shadow:none; border:1px solid #E8E4F3; margin: 24px auto; max-width:600px; border-radius:12px;">
-          <h2 style="margin:0 0 16px 0; font-size:16px; color:#2D2D4E;">Policy Summary</h2>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-             <div style="font-size:12px; color:#6B6880;">Policy Number: <strong style="color:#2D2D4E;">POL-48201-XYZ</strong></div>
-             <div style="font-size:12px; color:#6B6880;">Start Date: <strong style="color:#2D2D4E;">01 Jul 2026</strong></div>
-             <div style="font-size:12px; color:#6B6880;">Insurer: <strong style="color:#2D2D4E;">${insurer}</strong></div>
-             <div style="font-size:12px; color:#6B6880;">Sum Insured: <strong style="color:#2D2D4E;">₹50,00,000</strong></div>
-             <div style="font-size:12px; color:#6B6880;">Premium: <strong style="color:#2D2D4E;">${premiumStr}</strong></div>
-             <div style="font-size:12px; color:#6B6880;">Commission Exp: <strong style="color:#2D2D4E;">₹${commission.toLocaleString('en-IN')}</strong></div>
+        <div class="card" style="padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:600px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:24px;">
+             <h2 style="margin:0; font-size:20px;">Policy Summary</h2>
+             <div class="badge" style="background:#DCFCE7; color:#16A34A; border:1px solid #BBF7D0;">Policy Stage</div>
           </div>
-        </div>
-        
-        <!-- Section 2: Freelook Status Tracker -->
-        <div class="card" style="padding:20px; box-shadow:none; border:1px solid #E8E4F3; margin: 24px auto; max-width:600px; border-radius:12px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E8E4F3; padding-bottom:16px; margin-bottom:16px;">
-             <h2 style="margin:0; font-size:14px; font-weight:700; color:#2D2D4E;">Freelook Period</h2>
-             ${statePill}
-          </div>
-          ${stateContent}
-        </div>
-        
-        <!-- Activity Mock -->
-        <div style="max-width:600px; margin:0 auto; font-size:11px; color:#A09AB8;">
-           Activity Log: ${activityLog}
-        </div>
-      `;
-    }
 
-    window.mockCancelStep = 1;
-    function openCancellationModal() {
-        let modalHtml = `
-          <div id="cancel-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center;">
-             <div style="background:white; border-radius:12px; width:400px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <h3 style="margin:0 0 8px 0; color:#B03030; font-size:18px;">Request Policy Cancellation</h3>
-                <p style="font-size:13px; color:#6B6880; margin-bottom:16px;">This will move the lead to Policy Cancelled stage and initiate the cancellation process.</p>
-                <div class="form-group">
-                   <label style="font-size:12px; color:#2D2D4E; font-weight:600; display:block; margin-bottom:4px;">Reason</label>
-                   <select class="form-control" style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px;">
-                      <option>Customer Request</option>
-                      <option>Coverage Not Suitable</option>
-                      <option>Financial Reasons</option>
-                      <option>Found Better Plan</option>
-                      <option>Other</option>
-                   </select>
-                </div>
-                <div class="form-group" style="margin-top:12px;">
-                   <label style="font-size:12px; color:#2D2D4E; font-weight:600; display:block; margin-bottom:4px;">Notes (Optional)</label>
-                   <textarea class="form-control" style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px; height:60px;"></textarea>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
-                   <button style="border:1px solid #E8E4F3; background:white; color:#2D2D4E; padding:8px 16px; border-radius:6px; cursor:pointer;" onclick="document.getElementById('cancel-modal').remove()">Cancel</button>
-                   <button style="border:none; background:#B03030; color:white; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="confirmCancellation()">Confirm Cancellation Request</button>
-                </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+             <div class="form-group">
+               <label class="label">Policy Number</label>
+               <input type="text" class="form-control" placeholder="Enter Policy Number">
+             </div>
+             <div class="form-group">
+               <label class="label">Policy Start Date</label>
+               <input type="date" class="form-control" id="policy-start-date" onchange="updateFreelookExpiry()">
              </div>
           </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-    
-    function confirmCancellation() {
-        if(currentLead) {
-            currentLead.bucket = 'Policy Cancelled';
-            window.mockCancelStep = 1;
-            document.getElementById('cancel-modal').remove();
-            renderLeadDetail();
-        }
-    }
-    
-    function setMockCancelStep(step) {
-        window.mockCancelStep = step;
-        renderCenterPanel();
-    }
 
-    function renderPolicyCancelledStage() {
-        let step = window.mockCancelStep || 1;
-        
-        let step1 = step >= 1 ? 'completed' : 'pending';
-        let step2 = step > 2 ? 'completed' : (step === 2 ? 'active' : 'pending');
-        let step3 = step > 3 ? 'completed' : (step === 3 ? 'active' : 'pending');
-        let step4 = step > 4 ? 'completed' : (step === 4 ? 'active' : 'pending');
-
-        const getStepIcon = (s, st) => {
-            if(st === 'completed') return `<div style="width:24px; height:24px; border-radius:50%; background:#1A6E45; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">✓</div>`;
-            if(st === 'active') return `<div style="width:24px; height:24px; border-radius:50%; background:#473391; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">${s}</div>`;
-            return `<div style="width:24px; height:24px; border-radius:50%; background:#F7F6FB; color:#A09AB8; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">${s}</div>`;
-        };
-        
-        const line = `<div style="width:2px; height:32px; background:#E8E4F3; margin-left:11px;"></div>`;
-        
-        return `
-        <div class="card" style="padding:32px; box-shadow:none; border:1px solid #E8E4F3; margin: 24px auto; max-width:500px; border-radius:12px;">
-           <h2 style="margin:0 0 24px 0; font-size:18px; color:#2D2D4E;">Policy Cancellation</h2>
-           
-           <div style="display:flex; flex-direction:column;">
-              <!-- Step 1 -->
-              <div style="display:flex; gap:16px;">
-                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    ${getStepIcon(1, step1)}
-                    ${line}
-                 </div>
-                 <div style="padding-top:2px;">
-                    <div style="font-size:14px; font-weight:700; color:#2D2D4E; margin-bottom:4px;">Cancellation Requested</div>
-                    <div style="font-size:12px; color:#6B6880;">Requested by Agent on 17 Jul 2026 · Reason: Customer Request</div>
-                 </div>
-              </div>
-              
-              <!-- Step 2 -->
-              <div style="display:flex; gap:16px;">
-                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    ${getStepIcon(2, step2)}
-                    ${line}
-                 </div>
-                 <div style="padding-top:2px; padding-bottom:16px; flex:1;">
-                    <div style="font-size:14px; font-weight:700; color:${step >= 2 ? '#2D2D4E' : '#A09AB8'}; margin-bottom:4px;">Cancellation Confirmed</div>
-                    <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Confirm that the insurer has acknowledged and processed the cancellation.</div>
-                    ${step === 2 ? `<button style="width:100%; height:40px; background:#473391; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;" onclick="setMockCancelStep(3)">Mark as Cancellation Confirmed</button>` : ''}
-                 </div>
-              </div>
-              
-              <!-- Step 3 -->
-              <div style="display:flex; gap:16px;">
-                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    ${getStepIcon(3, step3)}
-                    ${line}
-                 </div>
-                 <div style="padding-top:2px; padding-bottom:16px; flex:1;">
-                    <div style="font-size:14px; font-weight:700; color:${step >= 3 ? '#2D2D4E' : '#A09AB8'}; margin-bottom:4px;">Refund Initiated</div>
-                    <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Confirm that the insurer has initiated the refund process to the customer.</div>
-                    ${step === 3 ? `
-                       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                          <div>
-                             <label style="font-size:10px; font-weight:700; color:#2D2D4E; display:block; margin-bottom:4px;">REFUND AMOUNT *</label>
-                             <input type="number" placeholder="₹ Refund amount" style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px; box-sizing:border-box;">
-                          </div>
-                          <div>
-                             <label style="font-size:10px; font-weight:700; color:#2D2D4E; display:block; margin-bottom:4px;">EXPECTED REFUND DATE *</label>
-                             <input type="date" style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px; box-sizing:border-box;">
-                          </div>
-                       </div>
-                       <button style="width:100%; height:40px; background:#473391; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;" onclick="setMockCancelStep(4)">Mark as Refund Initiated</button>
-                    ` : ''}
-                 </div>
-              </div>
-              
-              <!-- Step 4 -->
-              <div style="display:flex; gap:16px;">
-                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    ${getStepIcon(4, step4)}
-                 </div>
-                 <div style="padding-top:2px; padding-bottom:16px; flex:1;">
-                    <div style="font-size:14px; font-weight:700; color:${step >= 4 ? '#2D2D4E' : '#A09AB8'}; margin-bottom:4px;">Refund Completed</div>
-                    <div style="font-size:12px; color:#6B6880; margin-bottom:12px;">Confirm with the customer that they have received the refund.</div>
-                    ${step === 4 ? `
-                       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                          <div>
-                             <label style="font-size:10px; font-weight:700; color:#2D2D4E; display:block; margin-bottom:4px;">ACTUAL REFUND DATE *</label>
-                             <input type="date" style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px; box-sizing:border-box;">
-                          </div>
-                          <div>
-                             <label style="font-size:10px; font-weight:700; color:#2D2D4E; display:block; margin-bottom:4px;">CONFIRMATION SOURCE</label>
-                             <select style="width:100%; border:1px solid #E8E4F3; border-radius:6px; padding:8px; box-sizing:border-box;">
-                                <option>Customer Confirmed</option><option>Bank Statement</option><option>Insurer Confirmation</option>
-                             </select>
-                          </div>
-                       </div>
-                       <button style="width:100%; height:40px; background:#1A6E45; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;" onclick="setMockCancelStep(5)">Mark as Refund Completed</button>
-                    ` : ''}
-                    
-                    ${step === 5 ? `
-                       <div style="background:#E0F5EC; border-radius:8px; padding:12px; margin-top:8px;">
-                          <div style="font-size:13px; font-weight:700; color:#1A6E45; margin-bottom:4px;">✓ Policy cancellation and refund process completed.</div>
-                          <div style="font-size:12px; color:#6B6880;">Cancelled on 17 Jul 2026 · Refund: ₹12,000 · Received: 20 Jul 2026</div>
-                       </div>
-                    ` : ''}
-                 </div>
-              </div>
-           </div>
+          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px;">
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Insurer</div>
+                <div style="font-weight:600; font-size:13px;">${insurer}</div>
+             </div>
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Premium Paid</div>
+                <div style="font-weight:600; font-size:13px;">${premiumStr}</div>
+             </div>
+             <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-muted);">Freelook Expiry</div>
+                <div style="font-weight:600; font-size:13px;" id="freelook-expiry-display">Enter start date to calculate</div>
+             </div>
+             <div style="display:flex; justify-content:space-between;">
+                <div style="font-size:12px; color:var(--text-muted);">Commission Expected (20%)</div>
+                <div style="font-weight:700; font-size:14px; color:var(--success);">₹${commission.toLocaleString('en-IN')}</div>
+             </div>
+          </div>
+          
+          <div style="text-align:center; margin-top:24px;">
+            <button class="btn btn-primary" style="padding:10px 24px;" onclick="showToast('Policy details saved!')">Save Policy Details</button>
+          </div>
         </div>
-        `;
+      `;
     }
 
     window.updateFreelookExpiry = function() {
@@ -5982,7 +4027,6 @@ https://ambak.in/quote/x920dj</textarea>
         'Payment Link Shared':{ bg: '#FFF8E1', color: '#856404' },
         'Payment Done':       { bg: '#E6F4ED', color: '#1A7A4A' },
         'Policy Issued':      { bg: '#E0F2FE', color: '#0369A1' },
-        'Policy Cancelled':   { bg: '#FDECEA', color: '#C0392B' },
         'Counter Offer':      { bg: '#FFF3E0', color: '#E65100' },
         'Fresh':              { bg: '#F3F4F6', color: '#374151' },
       };
@@ -8051,231 +6095,4 @@ https://ambak.in/quote/x920dj</textarea>
 
     renderPipelineCards();
     renderLeadTable();
-    // === MIS & PAYOUTS SECTION ===
-    function switchMisTab(tabId, el) {
-      // Update active tab UI
-      const tabs = document.querySelectorAll('#screen-mis .tabs .tab');
-      tabs.forEach(t => {
-        t.classList.remove('active');
-        t.style.color = '#6B7280';
-        t.style.borderBottom = 'none';
-      });
-      el.classList.add('active');
-      el.style.color = '#473391';
-      el.style.borderBottom = '2px solid #473391';
-
-      const content = document.getElementById('mis-tab-content');
-      if (tabId === 'uploads') content.innerHTML = renderMisUploads();
-      if (tabId === 'commission') content.innerHTML = renderMisCommission();
-      if (tabId === 'freelook') content.innerHTML = renderMisFreelook();
-      if (tabId === 'discrepancies') content.innerHTML = renderMisDiscrepancies();
-    }
-
-    function renderMisUploads() {
-      return `
-        <div style="background:white; border-radius:12px; padding:32px; text-align:center; border:2px dashed #E8E4F3; margin-bottom:24px;">
-          <div style="font-size:24px; margin-bottom:12px;">📁</div>
-          <div style="font-size:16px; font-weight:700; color:#2D2D4E; margin-bottom:8px;">Drag & Drop MIS File Here</div>
-          <div style="font-size:14px; color:#6B7280; margin-bottom:16px;">Supports .csv, .xlsx up to 50MB</div>
-          <button style="background:#473391; color:white; border:none; border-radius:8px; padding:10px 20px; font-weight:600; cursor:pointer;">Browse Files</button>
-        </div>
-        <div style="background:white; border-radius:12px; border:1px solid #E8E4F3; overflow:hidden;">
-          <div style="padding:16px 20px; border-bottom:1px solid #E8E4F3; font-weight:700; color:#2D2D4E;">Upload History</div>
-          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
-            <thead style="background:#F9FAFB; color:#6B7280; font-weight:600; font-size:12px;">
-              <tr>
-                <th style="padding:12px 20px;">FILE NAME</th>
-                <th style="padding:12px 20px;">UPLOADED BY</th>
-                <th style="padding:12px 20px;">DATE & TIME</th>
-                <th style="padding:12px 20px;">STATUS</th>
-                <th style="padding:12px 20px;">MATCHED RECORDS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #E8E4F3;">
-                <td style="padding:12px 20px;">HDFC_Life_May2026.csv</td>
-                <td style="padding:12px 20px;">Rahul S.</td>
-                <td style="padding:12px 20px;">May 15, 10:30 AM</td>
-                <td style="padding:12px 20px;"><span style="background:#E6F4ED; color:#1A7A4A; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Completed</span></td>
-                <td style="padding:12px 20px;">145 / 150</td>
-              </tr>
-              <tr>
-                <td style="padding:12px 20px;">CARE_Health_May2026.xlsx</td>
-                <td style="padding:12px 20px;">System</td>
-                <td style="padding:12px 20px;">May 14, 02:15 PM</td>
-                <td style="padding:12px 20px;"><span style="background:#FFF3E0; color:#E65100; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Processing</span></td>
-                <td style="padding:12px 20px;">--</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderMisCommission() {
-      return `
-        <div style="background:white; border-radius:12px; border:1px solid #E8E4F3; overflow:hidden;">
-          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
-            <thead style="background:#F9FAFB; color:#6B7280; font-weight:600; font-size:12px;">
-              <tr>
-                <th style="padding:12px 20px;">POLICY NO</th>
-                <th style="padding:12px 20px;">INSURER</th>
-                <th style="padding:12px 20px;">PREMIUM</th>
-                <th style="padding:12px 20px;">EXPECTED COMM.</th>
-                <th style="padding:12px 20px;">RECEIVED COMM.</th>
-                <th style="padding:12px 20px;">STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #E8E4F3;">
-                <td style="padding:12px 20px; font-weight:600; color:#473391;">POL-123456</td>
-                <td style="padding:12px 20px;">TATA AIG</td>
-                <td style="padding:12px 20px;">₹45,000</td>
-                <td style="padding:12px 20px;">₹6,750</td>
-                <td style="padding:12px 20px;">₹6,750</td>
-                <td style="padding:12px 20px;"><span style="background:#E6F4ED; color:#1A7A4A; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Matched</span></td>
-              </tr>
-              <tr>
-                <td style="padding:12px 20px; font-weight:600; color:#473391;">POL-987654</td>
-                <td style="padding:12px 20px;">CARE</td>
-                <td style="padding:12px 20px;">₹22,000</td>
-                <td style="padding:12px 20px;">₹3,300</td>
-                <td style="padding:12px 20px;">₹0</td>
-                <td style="padding:12px 20px;"><span style="background:#FFF3E0; color:#E65100; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Pending</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderMisFreelook() {
-      return `
-        <div style="background:white; border-radius:12px; border:1px solid #E8E4F3; overflow:hidden;">
-          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
-            <thead style="background:#F9FAFB; color:#6B7280; font-weight:600; font-size:12px;">
-              <tr>
-                <th style="padding:12px 20px;">POLICY NO</th>
-                <th style="padding:12px 20px;">CUSTOMER</th>
-                <th style="padding:12px 20px;">INSURER</th>
-                <th style="padding:12px 20px;">ISSUE DATE</th>
-                <th style="padding:12px 20px;">DAYS REMAINING</th>
-                <th style="padding:12px 20px;">STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #E8E4F3;">
-                <td style="padding:12px 20px; font-weight:600; color:#473391;">POL-112233</td>
-                <td style="padding:12px 20px;">Ramesh K.</td>
-                <td style="padding:12px 20px;">HDFC Life</td>
-                <td style="padding:12px 20px;">May 10, 2026</td>
-                <td style="padding:12px 20px; font-weight:700; color:#C0392B;">2 Days</td>
-                <td style="padding:12px 20px;"><span style="background:#FFF3E0; color:#E65100; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Under Freelook</span></td>
-              </tr>
-              <tr>
-                <td style="padding:12px 20px; font-weight:600; color:#473391;">POL-445566</td>
-                <td style="padding:12px 20px;">Sita S.</td>
-                <td style="padding:12px 20px;">CARE</td>
-                <td style="padding:12px 20px;">May 01, 2026</td>
-                <td style="padding:12px 20px; color:#1A7A4A;">Completed</td>
-                <td style="padding:12px 20px;"><span style="background:#E6F4ED; color:#1A7A4A; padding:4px 8px; border-radius:4px; font-weight:600; font-size:11px;">Completed</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderMisDiscrepancies() {
-      return `
-        <div style="background:white; border-radius:12px; border:1px solid #E8E4F3; overflow:hidden;">
-          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
-            <thead style="background:#F9FAFB; color:#6B7280; font-weight:600; font-size:12px;">
-              <tr>
-                <th style="padding:12px 20px;">POLICY NO</th>
-                <th style="padding:12px 20px;">EXPECTED</th>
-                <th style="padding:12px 20px;">RECEIVED</th>
-                <th style="padding:12px 20px;">DIFFERENCE</th>
-                <th style="padding:12px 20px;">REASON</th>
-                <th style="padding:12px 20px;">ACTION</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding:12px 20px; font-weight:600; color:#473391;">POL-334455</td>
-                <td style="padding:12px 20px;">₹5,000</td>
-                <td style="padding:12px 20px; color:#C0392B; font-weight:600;">₹4,000</td>
-                <td style="padding:12px 20px; color:#C0392B;">-₹1,000</td>
-                <td style="padding:12px 20px;">Shortfall in MIS</td>
-                <td style="padding:12px 20px;"><button style="background:white; border:1px solid #473391; color:#473391; padding:4px 12px; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;">Raise Ticket</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-  </script>
-
-    <!-- Mark as Lost Modal -->
-    <div class="lost-modal-overlay" id="lostModal">
-      <div class="lost-modal">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <div style="font-size:16px; font-weight:700; color:#C0392B;">Mark as Lost</div>
-          <div style="font-size:16px; color:#9CA3AF; cursor:pointer;" onclick="closeLostModal()">✕</div>
-        </div>
-        <div style="font-size:12px; color:#9CA3AF;">This lead will be removed from your queue and can only be reopened by an IBM Manager.</div>
-        <div style="border-top: 1px solid #F3F4F6; margin: 14px 0;"></div>
-        
-        <div style="background:#F9FAFB; border-radius:6px; padding:10px 14px; margin-bottom:16px;" id="lostModalLeadSummary">
-          <!-- Populated dynamically -->
-        </div>
-
-        <div style="font-size:11px; font-weight:700; color:#6B7280; text-transform:uppercase; margin-bottom:8px;">Reason for closing *</div>
-        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;" id="lostReasonChips">
-           <div class="chip" onclick="selectLostReason('Not Interested')">Not Interested</div>
-           <div class="chip" onclick="selectLostReason('Bought elsewhere')">Bought elsewhere</div>
-           <div class="chip" onclick="selectLostReason('Invalid Number')">Invalid Number</div>
-           <div class="chip" onclick="selectLostReason('Duplicate')">Duplicate</div>
-           <div class="chip" onclick="selectLostReason('Premium too high')">Premium too high</div>
-           <div class="chip" onclick="selectLostReason('Medical rejection')">Medical rejection</div>
-           <div class="chip" onclick="selectLostReason('Other')">Other</div>
-        </div>
-        
-        <div style="font-size:11px; font-weight:700; color:#6B7280; text-transform:uppercase; margin-bottom:8px;">Additional Remarks (Optional)</div>
-        <textarea id="lostRemarks" style="width:100%; height:80px; border:1.5px solid #E5E7EB; border-radius:8px; padding:10px; font-family:Poppins; font-size:13px; resize:none; margin-bottom:20px; outline:none;" placeholder="Enter any extra details here..."></textarea>
-        
-        <div style="display:flex; gap:12px;">
-           <button style="flex:1; height:44px; background:white; color:#6B7280; border:1px solid #E5E7EB; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeLostModal()">Cancel</button>
-           <button id="lostConfirmBtn" style="flex:1; height:44px; background:#C0392B; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; opacity:0.5;" disabled onclick="confirmMarkAsLost()">Confirm & Mark as Lost</button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Bulk Upload Modal -->
-    <div id="bulkUploadModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 4000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onclick="if(event.target === this) closeBulkUploadModal()">
-      <div style="width: 500px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); padding: 24px;">
-        <h2 style="font-size: 16px; font-weight: 700; margin: 0; color: #111827;">Bulk Lead Upload</h2>
-        <div style="font-size: 13px; color: #6B7280; margin-top: 4px; margin-bottom: 24px;">Upload a CSV file to create multiple insurance leads at once.</div>
-        
-        <div style="border: 2px dashed #C5C0F5; border-radius: 8px; padding: 32px; text-align: center; background: #FAFAFA; margin-bottom: 12px; cursor: pointer;">
-            <div style="color: #473391; margin-bottom: 12px;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            </div>
-            <div style="font-size: 13px; color: #6B7280; font-weight: 500;">Click to upload or drag and drop</div>
-            <div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">CSV files only · Max 500 rows</div>
-        </div>
-        
-        <div style="margin-bottom: 24px;">
-            <a href="#" style="font-size: 12px; color: #473391; text-decoration: underline; font-weight: 500;">Download Template</a>
-        </div>
-        
-        <div style="display:flex; justify-content: flex-end; gap:12px;">
-           <button style="height:36px; padding: 0 16px; background:white; color:#6B7280; border:1px solid #E5E7EB; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeBulkUploadModal()">Cancel</button>
-           <button style="height:36px; padding: 0 16px; background:#473391; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;" onclick="closeBulkUploadModal(); showToast('Uploading leads...');">Upload Leads</button>
-        </div>
-      </div>
-    </div>
-
-</body>
-</html>
+  

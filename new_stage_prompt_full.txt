@@ -1,0 +1,109 @@
+<USER_REQUEST>
+Here's the detailed prompt for the NEW bucket:
+
+---
+
+**Prompt:**
+
+Redesign the lead detail page body section below the header. Remove the left Application Data sidebar entirely. Replace it with a **"Lead Details"** text link in the header Row 1, right after the Insurance ID block. Clicking it opens a drawer from the right side — don't build the drawer now, just add the link.
+
+The page body now has **two panels only:**
+- **Center panel** — takes all remaining width except the right panel
+- **Right panel** — fixed width 300px, Update Status
+
+---
+
+**CENTER PANEL — NEW Stage**
+
+Overall structure of center panel:
+- White background
+- Top: Stage progress bar
+- Middle: 3 tabs — Activity History, Follow Up, Documents
+- Below tabs: tab content area
+
+**Stage Progress Bar:**
+- Full width, white background, border-bottom 1px solid #E5E7EB, padding 14px 20px
+- 5 stages in a row: New → Contacted → Quote → Payment Done → Policy
+- Each stage is a chevron-shaped button. Active stage (New) is filled purple #473391 with white text. Completed stages are light purple background #F0EEFB with purple text #473391. Future stages are white background with gray text #9CA3AF and gray border
+- Between each chevron a small arrow connector
+- "Mark as Lost" button pushed to the far right — border 1.5px solid #C0392B, text #C0392B, background white, border-radius 6px, padding 7px 16px, font-size 12px font-weight 600. No fill on this button.
+- Stage bar is NOT clickable. It is a read-only progress indicator. Stages only move when Update Status is saved from the right panel.
+
+**3 Tabs:**
+- Sits below the stage bar, padding 0 20px, border-bottom 1px solid #E5E7EB
+- Tab style: text only, no background. Active tab has text color #473391 and a 2px bottom border in #473391. Inactive tabs are #9CA3AF. Font-size 13px font-weight 600. Padding 10px 16px.
+- Tabs: Activity History (active by default), Follow Up, Documents
+- These 3 tabs are present across ALL stages, not just NEW.
+
+**Activity History tab content:**
+- Padding 20px
+- Each activity log entry is a card: white background, border 1px solid #E5E7EB, border-radius 8px, padding 14px 16px, margin-bottom 10px
+- Inside each card:
+  - Top row: left side shows a small tag "System Update" or "Agent Update" — font-size 10px font-weight 700 text-transform uppercase color #9CA3AF. Right side shows "By **Verification Agent**" in purple #473391 font-size 11px font-weight 600
+  - Second row: activity title in font-size 13px font-weight 600 color #111827
+  - Third row: activity description in font-size 12px color #4B5563
+  - Bottom row: timestamp "At **Yesterday**" in font-size 11px, "From **Sangam**" in font-size 11px color #473391
+- Show one sample entry: Type "System Update", By "Verification Agent", Title "Call attempt: Not connected", Description "Automatic call attempt triggered. Customer did not pick up.", At "Yesterday", From "Sangam"
+
+**Follow Up tab content:**
+- Padding 20px
+- Show a simple empty state if no follow up is set: a centered illustration placeholder (just a light gray rounded rectangle 80px × 80px as a placeholder icon), below it text "No follow-up scheduled" font-size 13px font-weight 600 color #6B7280, below that "Set a follow-up date from the Update Status panel on the right." font-size 12px color #9CA3AF
+
+**Documents tab content:**
+- Padding 20px
+- Show empty state: same pattern as Follow Up. Text "No documents uploaded yet" and sub-text "Documents will appear here once uploaded."
+
+---
+
+**RIGHT PANEL — NEW Stage only**
+
+- Fixed width 300px, white background, border-left 1px solid #E5E7EB
+- No colored banner at top — keep it clean and simple
+- Padding 20px
+
+**Title:** "Update Status" — font-size 14px font-weight 700 color #111827, margin-bottom 16px
+
+**Fields in order:**
+
+1. **STATUS** label — font-size 10px font-weight 700 text-transform uppercase letter-spacing 0.06em color #9CA3AF, margin-bottom 5px
+   Dropdown with these options only (NEW bucket statuses):
+   - Not Connected ← default selected
+   - Call Back
+   - Interested
+   - Not Interested
+
+2. **SUB STATUS** label — same style as above
+   Dropdown that changes based on Status selection:
+   - If "Not Connected" selected: Customer Busy (default), Not Reachable, Switched Off, Ringing No Answer, Voicemail, Customer Disconnected
+   - If "Call Back" selected: Busy Call Later, Partial Discussion, Language Barrier, Customer Disconnected
+   - If "Interested" selected: Need Quote
+   - If "Not Interested" selected: Too Expensive, Already Insured, Not Required, Family Not Interested, Will Decide Later, Other
+   Sub Status dropdown must update automatically when Status is changed — no page refresh.
+
+3. **FOLLOW-UP DATE** and **PENDING WITH** — shown side by side in a 2-column row, gap 8px
+   - Follow-up Date: date input, placeholder dd/mm/yyyy, label has a red asterisk *
+   - Pending With: dropdown with options: Customer, IBM Agent, PolicyBazaar, Insurer, Ambak Operations, Finance Team. Default: Customer. Label has red asterisk *
+   - These two fields are ONLY visible when Status = "Not Connected" or "Call Back". Hide them when Status = "Interested" or "Not Interested"
+
+4. **REMARKS** label
+   Textarea, height 72px, placeholder "Add remarks…", border 1.5px solid #E5E7EB, border-radius 6px, font-size 12px
+
+5. **Update Status button**
+   - Full width, height 42px, background #473391, text white, font-size 13px font-weight 700, border-radius 8px, margin-top 16px
+   - Hover state: opacity 0.9
+
+**Dropdown styling for all dropdowns:**
+- Height 38px, border 1.5px solid #E5E7EB, border-radius 6px, font-size 12px font-family Poppins, background #FAFAFA, padding 0 10px
+- Focus state: border-color #473391, background white
+
+---
+
+**Overall spacing:**
+- No left sidebar
+- Center panel takes full width minus 300px right panel
+- Both panels have full height from below the header to bottom of viewport
+- Center panel is scrollable, right panel is fixed
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-07-02T00:02:35+05:30.
+</ADDITIONAL_METADATA>

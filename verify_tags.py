@@ -1,0 +1,7 @@
+html = open('index.html').read()
+print(f"<html> tags: {html.count('<html>')}")
+print(f"</html> tags: {html.count('</html>')}")
+print(f"<body> tags: {html.count('<body>')}")
+print(f"</body> tags: {html.count('</body>')}")
+print(f"<script> tags: {html.count('<script>')}")
+print(f"</script> tags: {html.count('</script>')}")

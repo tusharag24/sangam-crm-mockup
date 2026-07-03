@@ -1,0 +1,2245 @@
+diff --git a/index.html b/index.html
+index 39f8581..f44ae3c 100644
+--- a/index.html
++++ b/index.html
+@@ -489,6 +489,7 @@ https://ambak.in/quote/x920dj</textarea>
+         <div style="padding: 8px 12px; cursor: pointer;">All Leads</div>
+         <div class="nav-item" id="nav-item-list" style="padding: 8px 12px; background: var(--primary); border-radius: 6px; cursor: pointer;" onclick="navigateNav('list')">Insurance CRM</div>
+         <div class="nav-item" id="nav-item-dashboard" style="padding: 8px 12px; cursor: pointer;" onclick="navigateNav('dashboard')">Manager Dashboard</div>
++        <div class="nav-item" id="nav-item-mis" style="padding: 8px 12px; cursor: pointer;" onclick="navigateNav('mis')">MIS & Payouts</div>
+         <div style="padding: 8px 12px; cursor: pointer;">Call List</div>
+       </div>
+     </div>
+@@ -653,6 +654,9 @@ https://ambak.in/quote/x920dj</textarea>
+     </div>
+ 
+     <!-- Screen 3: Manager Dashboard -->
++    <div class="screen" id="screen-mis" style="overflow-y:auto; background:#F5F4F9; padding: 24px;">
++      <div id="mis-content" style="max-width: 1200px; margin: 0 auto;"></div>
++    </div>
+     <div class="screen" id="screen-dashboard" style="overflow-y:auto; background:var(--bg);">
+       
+       <!-- Page Header -->
+@@ -2068,6 +2072,369 @@ https://ambak.in/quote/x920dj</textarea>
+       document.getElementById(`screen-${screen}`).classList.add('active');
+     }
+ 
++
++    window.globalMISData = [];
++    window.misActiveTab = 'uploads';
++
++    function renderMISPage() {
++        let content = document.getElementById('mis-content');
++        if (!content) return;
++        
++        let headerHtml = `
++            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
++                <div>
++                    <div style="font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px;">MIS & Payouts</div>
++                    <div style="font-size: 13px; color: #6B7280;">Upload insurer MIS, track commissions, confirm freelook completions, manage payouts.</div>
++                </div>
++                <button style="background: #473391; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 10px 20px; cursor: pointer;" onclick="document.getElementById('mis-upload-input').click()">+ Upload MIS</button>
++                <input type="file" id="mis-upload-input" accept=".pdf,.xls,.xlsx,.csv" style="display: none;" onchange="processGlobalMIS(this)">
++            </div>
++            
++            <div style="display: flex; gap: 24px; border-bottom: 2px solid #E5E7EB; margin-bottom: 24px;">
++                <div style="padding-bottom: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid ${window.misActiveTab === 'uploads' ? '#473391' : 'transparent'}; color: ${window.misActiveTab === 'uploads' ? '#473391' : '#6B7280'};" onclick="window.misActiveTab='uploads'; renderMISPage()">MIS Uploads</div>
++                <div style="padding-bottom: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid ${window.misActiveTab === 'commissions' ? '#473391' : 'transparent'}; color: ${window.misActiveTab === 'commissions' ? '#473391' : '#6B7280'};" onclick="window.misActiveTab='commissions'; renderMISPage()">Commission Tracker</div>
++                <div style="padding-bottom: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid ${window.misActiveTab === 'freelook' ? '#473391' : 'transparent'}; color: ${window.misActiveTab === 'freelook' ? '#473391' : '#6B7280'};" onclick="window.misActiveTab='freelook'; renderMISPage()">Freelook Tracker</div>
++                <div style="padding-bottom: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid ${window.misActiveTab === 'discrepancies' ? '#473391' : 'transparent'}; color: ${window.misActiveTab === 'discrepancies' ? '#473391' : '#6B7280'};" onclick="window.misActiveTab='discrepancies'; renderMISPage()">Payout Discrepancies</div>
++            </div>
++        `;
++        
++        let tabHtml = '';
++        if (window.misActiveTab === 'uploads') {
++            tabHtml = renderMISUploadsTab();
++        } else if (window.misActiveTab === 'commissions') {
++            tabHtml = renderCommissionTrackerTab();
++        } else if (window.misActiveTab === 'freelook') {
++            tabHtml = renderFreelookTrackerTab();
++        } else if (window.misActiveTab === 'discrepancies') {
++            tabHtml = renderPayoutDiscrepanciesTab();
++        }
++        
++        content.innerHTML = headerHtml + tabHtml;
++    }
++
++    window.processGlobalMIS = function(input) {
++        if (input.files && input.files[0]) {
++            let file = input.files[0];
++            showSuccessToast('MIS file processing...');
++            setTimeout(() => {
++                window.globalMISData.push({
++                    date: new Date().toLocaleDateString('en-GB'),
++                    insurer: 'CARE Health',
++                    month: 'June 2026',
++                    file: file.name,
++                    policies: 24,
++                    matched: 22,
++                    unmatched: 2,
++                    status: 'Processed'
++                });
++                
++                LEADS.forEach(l => {
++                    if (l.bucket === 'Policy Issued' && l.freelookState === 'under_verification') {
++                        l.misUploaded = true;
++                    }
++                });
++                
++                showSuccessToast('MIS processed successfully!');
++                renderMISPage();
++            }, 1000);
++        }
++    };
++
++    function renderMISUploadsTab() {
++        let uploadCard = `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
++                <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 20px;">Upload Daily MIS</div>
++                
++                <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 16px; align-items: end;">
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 6px; display: block;">SOURCE *</label>
++                        <select id="mis-source" style="width: 100%; height: 40px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 12px; font-size: 13px;" onchange="document.getElementById('mis-process-btn').disabled = !this.value || !document.getElementById('mis-date').value || !document.getElementById('mis-file').files.length;">
++                            <option value="" disabled selected>Select Source</option>
++                            <option value="PolicyBazaar (Daily)">PolicyBazaar (Daily)</option>
++                            <option value="CARE Health (Monthly)">CARE Health (Monthly)</option>
++                            <option value="TATA AIG (Monthly)">TATA AIG (Monthly)</option>
++                        </select>
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 6px; display: block;">MIS DATE *</label>
++                        <input type="date" id="mis-date" style="width: 100%; height: 40px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 12px; font-size: 13px;" onchange="document.getElementById('mis-process-btn').disabled = !this.value || !document.getElementById('mis-source').value || !document.getElementById('mis-file').files.length;">
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 6px; display: block;">FILE (.XLSX, .CSV) *</label>
++                        <div style="display: flex; gap: 12px;">
++                            <input type="file" id="mis-file" accept=".xlsx,.csv" style="flex: 1; border: 1.5px dashed #E5E7EB; border-radius: 6px; padding: 8px 12px; font-size: 12px; background: #F9FAFB;" onchange="document.getElementById('mis-process-btn').disabled = !this.files.length || !document.getElementById('mis-source').value || !document.getElementById('mis-date').value;">
++                            <button id="mis-process-btn" style="background: #473391; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; padding: 0 24px; height: 40px; cursor: pointer; opacity: 1; transition: all 0.2s;" disabled onclick="handleMisUpload()">Process MIS</button>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        `;
++        
++        let resultsSection = '';
++        if (window.misProcessingResults && window.misProcessingResults.length > 0) {
++            
++            let bulkActionBar = '';
++            if (window.misBulkSelected.size > 0) {
++                let selCount = window.misBulkSelected.size;
++                let hasRefunds = Array.from(window.misBulkSelected).some(id => {
++                    let r = window.misProcessingResults.find(x => x.id === id);
++                    return r && r.status === 'Refund Completed';
++                });
++                
++                bulkActionBar = `
++                    <div style="background: #F0EEFB; border: 1px solid #C5C0F5; border-radius: 8px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
++                        <div style="font-size: 13px; font-weight: 700; color: #473391;">${selCount} rows selected</div>
++                        <div style="display: flex; gap: 12px;">
++                            <button style="background: #1A6E45; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 10px 20px; cursor: pointer;" onclick="bulkMisAction('confirm')">Confirm Policy Copy for Selected</button>
++                            ${hasRefunds ? `<button style="background: #B03030; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 10px 20px; cursor: pointer;" onclick="bulkMisAction('cancel')">Mark Cancelled for Selected</button>` : ''}
++                        </div>
++                    </div>
++                `;
++            }
++            
++            let allConfirmable = window.misProcessingResults.filter(r => r.match === 'Matched' && (r.status === 'Sale Complete' || r.status === 'Soft Copy Received' || r.status === 'Refund Completed')).length;
++            let allChecked = allConfirmable > 0 && window.misBulkSelected.size === allConfirmable;
++            
++            let resultRows = window.misProcessingResults.map(r => {
++                let statusColor = r.status === 'Sale Complete' ? '#1A6E45' : r.status === 'Soft Copy Received' ? '#0F766E' : r.status === 'Refund Completed' ? '#DC2626' : '#6B7280';
++                let statusBg = r.status === 'Sale Complete' ? '#E6F4ED' : r.status === 'Soft Copy Received' ? '#CCFBF1' : r.status === 'Refund Completed' ? '#FEE2E2' : '#F3F4F6';
++                
++                let matchPill = r.match === 'Matched' ? `<div style="background: #E6F4ED; color: #1A7A4A; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; display: inline-block;">&check; Matched (${r.leadId})</div>` : `<div style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; display: inline-block;">&warning; Unmatched</div>`;
++                
++                let actionBtn = `<div style="font-size: 12px; color: #9CA3AF;">No Action</div>`;
++                if (r.match === 'Matched') {
++                    if (r.status === 'Sale Complete' || r.status === 'Soft Copy Received') {
++                        actionBtn = `<button style="background: #1A6E45; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 6px 14px; cursor: pointer;" onclick="confirmPolicyCopyReceived('${r.leadId}', ${r.id})">Confirm Policy Copy</button>`;
++                    } else if (r.status === 'Refund Completed') {
++                        actionBtn = `<button style="background: #B03030; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 6px 14px; cursor: pointer;" onclick="markFreelookCancelled('${r.leadId}', ${r.id})">Mark Freelook Cancelled</button>`;
++                    }
++                } else if (r.match === 'Unmatched') {
++                    actionBtn = `<div style="font-size: 12px; color: #473391; font-weight: 600; text-decoration: underline; cursor: pointer;" onclick="alert('Find Lead Search Modal opens here')">Find Lead &rarr;</div>`;
++                }
++                
++                let isSelectable = r.match === 'Matched' && (r.status === 'Sale Complete' || r.status === 'Soft Copy Received' || r.status === 'Refund Completed');
++                let checkbox = isSelectable ? `<input type="checkbox" style="cursor: pointer;" ${window.misBulkSelected.has(r.id) ? 'checked' : ''} onchange="toggleMisRow(${r.id}, this.checked)">` : `<input type="checkbox" disabled style="opacity: 0.3;">`;
++
++                return `
++                    <tr style="border-bottom: 1px solid #E5E7EB; background: white;">
++                        <td style="padding: 16px;">${checkbox}</td>
++                        <td style="padding: 16px; font-size: 13px; font-weight: 600; color: #111827;">${r.customer}</td>
++                        <td style="padding: 16px;">
++                            <div style="font-size: 13px; font-weight: 600; color: #111827;">${r.insurer}</div>
++                            <div style="font-size: 11px; color: #6B7280;">${r.plan}</div>
++                        </td>
++                        <td style="padding: 16px; font-size: 13px; font-weight: 600; color: #111827;">₹${r.premium}</td>
++                        <td style="padding: 16px; font-size: 13px; color: #4B5563;">${r.policy_no}</td>
++                        <td style="padding: 16px;">
++                            <div style="background: ${statusBg}; color: ${statusColor}; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; display: inline-block;">${r.status}</div>
++                        </td>
++                        <td style="padding: 16px;">${matchPill}</td>
++                        <td style="padding: 16px;">${actionBtn}</td>
++                    </tr>
++                `;
++            }).join('');
++            
++            resultsSection = `
++                <div style="margin-bottom: 32px;">
++                    <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">Processing Results (utm_source = 'ambak')</div>
++                    ${bulkActionBar}
++                    <div style="border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
++                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
++                            <thead>
++                                <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
++                                    <th style="padding: 12px 16px;"><input type="checkbox" style="cursor: pointer;" ${allChecked && allConfirmable > 0 ? 'checked' : ''} ${allConfirmable === 0 ? 'disabled' : ''} onchange="toggleMisSelectAll(this.checked)"></th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Customer Name</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Insurer & Plan</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Premium</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Policy No</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">MIS Status</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Match Status</th>
++                                    <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Action</th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                ${resultRows}
++                            </tbody>
++                        </table>
++                    </div>
++                </div>
++            `;
++        }
++
++        let historyRows = window.globalMISData.map(m => `
++            <tr style="border-bottom: 1px solid #E5E7EB;">
++                <td style="padding: 16px;">
++                    <div style="font-size: 13px; font-weight: 600; color: #111827;">${m.date}</div>
++                </td>
++                <td style="padding: 16px;">
++                    <div style="font-size: 13px; font-weight: 600; color: #111827;">${m.insurer}</div>
++                    <div style="font-size: 11px; color: #6B7280;">${m.month}</div>
++                </td>
++                <td style="padding: 16px;">
++                    <div style="display: flex; align-items: center; gap: 8px;">
++                        <span style="font-size: 16px;">📄</span>
++                        <div style="font-size: 13px; color: #473391; font-weight: 500;">${m.file}</div>
++                    </div>
++                </td>
++                <td style="padding: 16px;">
++                    <div style="font-size: 13px; color: #111827; font-weight: 600;">${m.policies} total</div>
++                    <div style="font-size: 11px; color: #1A7A4A;">${m.matched} matched</div>
++                    <div style="font-size: 11px; color: #DC2626;">${m.unmatched} exceptions</div>
++                </td>
++                <td style="padding: 16px;">
++                    <div style="display: inline-block; padding: 4px 8px; background: #E6F4ED; color: #1A7A4A; border: 1px solid #A8D5B5; border-radius: 12px; font-size: 11px; font-weight: 600;">
++                        ${m.status} ✓
++                    </div>
++                </td>
++                <td style="padding: 16px; text-align: right;">
++                    <div style="font-size: 12px; color: #473391; text-decoration: underline; cursor: pointer; font-weight: 600;">View Details &rarr;</div>
++                </td>
++            </tr>
++        `).join('');
++
++        if (window.globalMISData.length === 0) {
++            historyRows = `
++                <tr>
++                    <td colspan="6" style="padding: 40px; text-align: center;">
++                        <div style="font-size: 24px; margin-bottom: 12px;">📁</div>
++                        <div style="font-size: 14px; font-weight: 600; color: #111827;">No MIS history</div>
++                    </td>
++                </tr>
++            `;
++        }
++
++        let historySection = `
++            <div>
++                <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px;">Upload History</div>
++                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden;">
++                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
++                        <thead>
++                            <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
++                                <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Upload Date</th>
++                                <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Insurer & Month</th>
++                                <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">File</th>
++                                <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Records</th>
++                                <th style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase;">Status</th>
++                                <th style="padding: 12px 16px;"></th>
++                            </tr>
++                        </thead>
++                        <tbody>
++                            ${historyRows}
++                        </tbody>
++                    </table>
++                </div>
++            </div>
++        `;
++
++        return uploadCard + resultsSection + historySection;
++    }
++
++    function renderCommissionTrackerTab() {
++        return `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 40px; text-align: center;">
++                <div style="font-size: 24px; margin-bottom: 12px;">💰</div>
++                <div style="font-size: 14px; font-weight: 600; color: #111827;">Commission Tracker Coming Soon</div>
++                <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">Track expected vs received commissions across all policies.</div>
++            </div>
++        `;
++    }
++
++    function renderFreelookTrackerTab() {
++        return `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 40px; text-align: center;">
++                <div style="font-size: 24px; margin-bottom: 12px;">⏳</div>
++                <div style="font-size: 14px; font-weight: 600; color: #111827;">Freelook Tracker Coming Soon</div>
++                <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">Monitor policies nearing freelook expiry and confirm completions.</div>
++            </div>
++        `;
++    }
++
++    function renderPayoutDiscrepanciesTab() {
++        return `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 40px; text-align: center;">
++                <div style="font-size: 24px; margin-bottom: 12px;">⚠️</div>
++                <div style="font-size: 14px; font-weight: 600; color: #111827;">Payout Discrepancies Coming Soon</div>
++                <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">Resolve mismatches between expected commission and actual MIS data.</div>
++            </div>
++        `;
++    }
++
++
++    window.openPBPrototypeFlow = function() {
++        if (!window.newBucketValid) {
++            const form = document.getElementById('new-bucket-form');
++            if (form) {
++                const requiredInputs = form.querySelectorAll('input:not([disabled]).new-bucket-input, select:not([disabled]).new-bucket-input');
++                let isValid = true;
++                requiredInputs.forEach(inp => {
++                    if(inp.type === 'radio' || inp.type === 'checkbox') return;
++                    if (inp.value.trim() === '') {
++                        inp.classList.add('error');
++                        let err = inp.parentElement.querySelector('.inline-error-msg');
++                        if (err) err.style.display = 'block';
++                        isValid = false;
++                    } else {
++                        inp.classList.remove('error');
++                        let err = inp.parentElement.querySelector('.inline-error-msg');
++                        if (err) err.style.display = 'none';
++                    }
++                });
++                if (!isValid) return;
++            }
++        }
++
++        let agentName = (window.CURRENT_ROLE === 'MANAGER' || (document.getElementById('role-select') && document.getElementById('role-select').value === 'Manager')) ? 'IBM Manager' : 'IBM Agent';
++        let prodName = window.activeNewBucketTab || 'Term Plan';
++
++        if (currentLead.bucket === 'New') {
++            currentLead.bucket = 'Contacted';
++            currentLead.status = 'Interested';
++            currentLead.subStatus = 'Need Quote';
++            currentLead.log.unshift({
++                type: 'System Update',
++                actor: 'System',
++                title: 'Lead moved to Contacted',
++                description: `Status auto-updated to Interested &mdash; Need Quote &middot; Triggered by Generate Quote &middot; Product: ${prodName}`,
++                timestamp: new Date().toISOString()
++            });
++            renderLeadTable();
++        } else {
++            currentLead.log.unshift({
++                type: 'Agent Update',
++                actor: agentName,
++                title: 'Quotes generated',
++                description: `PolicyBazaar workspace opened &middot; Product: ${prodName}`,
++                timestamp: new Date().toISOString()
++            });
++        }
++        
++        window.pbQuoteFlowState = 'iframe';
++        window.pbPaymentFlowState = 'none';
++        renderLeadDetail();
++    };
++
++    window.extractPBQuotesMock = function() {
++        window.pbQuoteFlowState = 'extracting';
++        renderLeadDetail();
++        
++        setTimeout(() => {
++            window.pbQuoteFlowState = 'extracted';
++            currentLead.log.unshift({
++                type: 'Agent Update',
++                actor: (window.CURRENT_ROLE === 'MANAGER') ? 'IBM Manager' : 'IBM Agent',
++                title: 'Quotes Extracted',
++                description: 'Quotes successfully extracted from PolicyBazaar',
++                timestamp: new Date().toISOString()
++            });
++            renderLeadDetail();
++        }, 1500);
++    };
++
++    window.reopenPBQuoteWorkspace = function() {
++        window.pbQuoteFlowState = 'iframe';
++        renderLeadDetail();
++    };
++
+     function navigateNav(screen) {
+       document.querySelectorAll('.nav-item').forEach(i => {
+         i.style.background = 'transparent';
+@@ -2077,6 +2444,7 @@ https://ambak.in/quote/x920dj</textarea>
+       document.getElementById(`nav-item-${screen}`).style.color = 'var(--white)';
+       document.getElementById('navDrawer').classList.remove('open');
+       document.getElementById('drawerOverlay').classList.remove('open');
++      if (screen === 'mis') { renderMISPage(); }
+       showScreen(screen);
+     }
+ 
+@@ -2382,648 +2750,1247 @@ https://ambak.in/quote/x920dj</textarea>
+       document.getElementById('detail-left').innerHTML = html;
+     }
+ 
+-    function renderCenterPanel() {
+-      const l = currentLead;
+-      let activeTab = l.activeTab || 'History';
+-      
+-      let stages = ['New', 'Contacted', 'Quote', 'Payment Done', 'Policy'];
+-      let currentStageIndex = stages.indexOf(l.bucket);
+-      if(currentStageIndex === -1) currentStageIndex = 0;
+-      
+-      let stageHtml = stages.map((s, idx) => {
+-        let isActive = idx === currentStageIndex;
+-        let isCompleted = idx < currentStageIndex;
+-        let bg = 'white';
+-        let text = '#9CA3AF';
+-        let border = '1px solid #E5E7EB';
++    
++    function renderProductTabsForm(l) {
++        let recProduct = 'Loan Protection';
++        let ip = (l.initialProduct || '').toLowerCase();
++        if(ip === 'pr') recProduct = 'Property Insurance';
++        else if(ip === 'cl') recProduct = 'Credit Life';
++        else if(ip === 'tp') recProduct = 'Term Plan';
++        
++        if (!window.activeNewBucketTab) window.activeNewBucketTab = recProduct;
++        const activeTab = window.activeNewBucketTab;
++        
++        let hlBanner = '';
++        if (l.hlLead) {
++            hlBanner = `
++              <div style="background: #F0EEFB; border: 1px solid #C5C0F5; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;">
++                <div style="display: flex; align-items: center; gap: 8px;">
++                  <div style="font-size: 14px; color: #473391;">🔗</div>
++                  <div>
++                    <div style="font-size: 12px; font-weight: 600; color: #473391;">Linked Home Loan Lead</div>
++                    <div style="font-size: 11px; color: #6B5CC4; margin-top: 2px;">${l.hlLead.id} &middot; Rajesh Kumar &middot; ₹60L &middot; ${l.hlLead.bank} &middot; Sanctioned</div>
++                  </div>
++                </div>
++                <a href="#" style="font-size: 12px; font-weight: 600; color: #473391; text-decoration: underline; cursor: pointer;">View HL Lead &rarr;</a>
++              </div>
++            `;
++        } else {
++            hlBanner = `
++              <div style="background: #FFF8E1; border: 1px solid #F5CBA7; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
++                <div style="font-size: 14px; color: #856404;">⚠️</div>
++                <div style="font-size: 12px; color: #856404;">No Home Loan lead linked. Details will need to be filled manually.</div>
++              </div>
++            `;
++        }
++        
++        const tabs = ['Loan Protection', 'Property Insurance', 'Credit Life', 'Term Plan'];
++        let tabsHtml = `<div style="display: flex; gap: 8px; margin-top: 16px;">`;
++        tabs.forEach(t => {
++            let isAct = t === activeTab;
++            let bg = isAct ? '#473391' : '#F3F4F6';
++            let color = isAct ? 'white' : '#6B7280';
++            
++            let badgeHtml = (t === recProduct) ? `<div style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: #473391; text-align: center; margin-top: 4px;">SELECTED</div>` : '';
++            
++            tabsHtml += `
++              <div style="display: flex; flex-direction: column; align-items: center;">
++                <div style="background: ${bg}; color: ${color}; border-radius: 20px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="switchNewBucketTab('${t}')">
++                  ${t}
++                </div>
++                ${badgeHtml}
++              </div>
++            `;
++        });
++        tabsHtml += `</div>`;
++        
++        let tabContent = '';
++        let commonInputStyle = `height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; font-family: Poppins; font-size: 12px; background: #FAFAFA; padding: 0 10px; width: 100%; box-sizing: border-box; outline: none; transition: all 0.2s;`;
++        let commonLabelStyle = `font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;`;
++        
++        let hlBadge = `<div style="background: #EEF0FD; color: #473391; font-size: 9px; font-weight: 700; border-radius: 3px; padding: 1px 4px;">HL</div>`;
++        
++        let lockedVal = l.hlLead ? (l.hlLead.si || 6000000) : '';
++        let lockedAttr = l.hlLead ? `disabled style="${commonInputStyle} background: #F9FAFB; border-color: #F3F4F6; cursor: not-allowed; padding-right: 30px;" value="${lockedVal}"` : `class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()"`;
++        let lockIcon = l.hlLead ? `<div style="position: absolute; right: 10px; top: 28px; font-size: 12px; color: #C5C0F5;">🔒</div>` : '';
++        let inlineErr = `<div class="inline-error-msg">This field is required</div>`;
++
++        if (activeTab === 'Loan Protection') {
++            tabContent = `
++              <div style="margin-bottom: 16px;">
++                <div style="font-size: 13px; font-weight: 700; color: #111827;">Loan Protection Details</div>
++                <div style="font-size: 11px; color: #9CA3AF;">Required for CARE Health & TATA AIG quote generation</div>
++              </div>
++              
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">DATE OF BIRTH *</label>
++                  <input type="date" class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()">
++                  ${inlineErr}
++                </div>
++                <div style="position: relative;">
++                  <label style="${commonLabelStyle}">LOAN AMOUNT ${l.hlLead ? hlBadge : ''}</label>
++                  <input type="number" ${lockedAttr}>
++                  ${lockIcon}
++                </div>
++                
++                <div style="grid-column: 1 / -1;">
++                  <label style="${commonLabelStyle}">PLAN TYPE *</label>
++                  <div style="display: flex; gap: 10px; margin-top: 6px;">
++                    <label>
++                      <input type="radio" name="planType" class="pill-radio new-bucket-input" value="PA Only" checked onchange="handleNewBucketInput()">
++                      <div class="pill-label">PA Only</div>
++                    </label>
++                    <label>
++                      <input type="radio" name="planType" class="pill-radio new-bucket-input" value="PA + CI" onchange="handleNewBucketInput()">
++                      <div class="pill-label">PA + CI</div>
++                    </label>
++                  </div>
++                  ${inlineErr}
++                </div>
++
++                <div style="grid-column: 1 / -1;">
++                  <label style="${commonLabelStyle}">ADD-ONS (OPTIONAL)</label>
++                  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
++                    <label style="display: flex; align-items: center; font-size: 12px; color: #111827; font-weight: 500; cursor: pointer; gap: 8px;">
++                      <input type="checkbox" class="custom-checkbox" onchange="handleNewBucketInput()"> EMI Protection
++                    </label>
++                    <label style="display: flex; align-items: center; font-size: 12px; color: #111827; font-weight: 500; cursor: pointer; gap: 8px;">
++                      <input type="checkbox" class="custom-checkbox" onchange="handleNewBucketInput()"> Loss of Employment
++                    </label>
++                    <label style="display: flex; align-items: center; font-size: 12px; color: #111827; font-weight: 500; cursor: pointer; gap: 8px;">
++                      <input type="checkbox" class="custom-checkbox" onchange="handleNewBucketInput()"> Seasonal Disease Hospitalisation
++                    </label>
++                  </div>
++                </div>
++              </div>
++            `;
++        } else if (activeTab === 'Property Insurance') {
++            tabContent = `
++              <div style="margin-bottom: 16px;">
++                <div style="font-size: 13px; font-weight: 700; color: #111827;">Property Insurance Details</div>
++                <div style="font-size: 11px; color: #9CA3AF;">Required for PolicyBazaar quote generation</div>
++              </div>
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">CITY *</label>
++                  <input type="text" class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()">
++                  ${inlineErr}
++                </div>
++                <div>
++                  <label style="${commonLabelStyle}">PROPERTY TYPE *</label>
++                  <select class="new-bucket-input" style="${commonInputStyle}" onchange="handleNewBucketInput()">
++                    <option value="" disabled selected>Select Type</option>
++                    <option>Flat</option>
++                    <option>Independent House</option>
++                  </select>
++                  ${inlineErr}
++                </div>
++              </div>
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">MARKET VALUE *</label>
++                  <input type="number" placeholder="₹ Market value" class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()">
++                  ${inlineErr}
++                </div>
++                <div>
++                  <label style="${commonLabelStyle}">HOUSEHOLD ITEMS VALUE *</label>
++                  <input type="number" placeholder="₹ Household items value" class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()">
++                  ${inlineErr}
++                </div>
++              </div>
++            `;
++        } else if (activeTab === 'Credit Life' || activeTab === 'Term Plan') {
++            let title = activeTab === 'Credit Life' ? 'Credit Life Details' : 'Term Plan Details';
++            tabContent = `
++              <div style="margin-bottom: 16px;">
++                <div style="font-size: 13px; font-weight: 700; color: #111827;">${title}</div>
++                <div style="font-size: 11px; color: #9CA3AF;">Required for PolicyBazaar quote generation</div>
++              </div>
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">DATE OF BIRTH *</label>
++                  <input type="date" class="new-bucket-input" style="${commonInputStyle}" oninput="handleNewBucketInput()">
++                  ${inlineErr}
++                </div>
++                <div>
++                  <label style="${commonLabelStyle}">GENDER *</label>
++                  <div style="display: flex; gap: 10px; margin-top: 6px;">
++                    <label>
++                      <input type="radio" name="gender-${activeTab}" class="pill-radio new-bucket-input" value="Male" checked onchange="handleNewBucketInput()">
++                      <div class="pill-label">Male</div>
++                    </label>
++                    <label>
++                      <input type="radio" name="gender-${activeTab}" class="pill-radio new-bucket-input" value="Female" onchange="handleNewBucketInput()">
++                      <div class="pill-label">Female</div>
++                    </label>
++                  </div>
++                  ${inlineErr}
++                </div>
++              </div>
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">EDUCATIONAL QUALIFICATION *</label>
++                  <select class="new-bucket-input" style="${commonInputStyle}" onchange="handleNewBucketInput()">
++                    <option value="" disabled selected>Select</option>
++                    <option>Below 10th</option>
++                    <option>10th</option>
++                    <option>12th</option>
++                    <option>Graduate</option>
++                    <option>Post Graduate</option>
++                  </select>
++                  ${inlineErr}
++                </div>
++                <div>
++                  <label style="${commonLabelStyle}">ANNUAL INCOME *</label>
++                  <select class="new-bucket-input" style="${commonInputStyle}" onchange="handleNewBucketInput()">
++                    <option value="" disabled selected>Select</option>
++                    <option>Below 5L</option>
++                    <option>5L–10L</option>
++                    <option>10L–25L</option>
++                    <option>25L–50L</option>
++                    <option>50L+</option>
++                  </select>
++                  ${inlineErr}
++                </div>
++              </div>
++              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
++                <div>
++                  <label style="${commonLabelStyle}">EMPLOYMENT TYPE *</label>
++                  <select class="new-bucket-input" style="${commonInputStyle}" onchange="handleNewBucketInput()">
++                    <option value="" disabled selected>Select</option>
++                    <option>Salaried</option>
++                    <option>Self Professional</option>
++                  </select>
++                  ${inlineErr}
++                </div>
++                <div>
++                  <label style="${commonLabelStyle}">SMOKES OR CHEW TOBACCO? *</label>
++                  <div style="display: flex; gap: 10px; margin-top: 6px;">
++                    <label>
++                      <input type="radio" name="smoker-${activeTab}" class="pill-radio-yes new-bucket-input" value="Yes" onchange="handleNewBucketInput()" style="display: none;">
++                      <div class="pill-label-yesno">Yes</div>
++                    </label>
++                    <label>
++                      <input type="radio" name="smoker-${activeTab}" class="pill-radio-no new-bucket-input" value="No" checked onchange="handleNewBucketInput()" style="display: none;">
++                      <div class="pill-label-yesno">No</div>
++                    </label>
++                  </div>
++                  ${inlineErr}
++                </div>
++              </div>
++            `;
++        }
++        
++        let btnAction = 'openPBPrototypeFlow()';
++        let buttonHtml = `
++          <button id="generate-quote-btn" style="width: 100%; height: 44px; background: #C5C0F5; color: white; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; margin-top: 20px; cursor: not-allowed; opacity: 0.6; transition: all 0.2s;" onclick="${btnAction}">Generate Quote &rarr;</button>
++        `;
+         
+-        if(isActive) {
+-           bg = '#473391'; text = 'white'; border = '1px solid #473391';
+-        } else if (isCompleted) {
+-           bg = '#F0EEFB'; text = '#473391'; border = '1px solid #F0EEFB';
++        let quoteResultsHtml = '';
++        if (l.bucket === 'Contacted') {
++            if (activeTab === 'Loan Protection') {
++                if (window.contactedQuoteGenerated) {
++                    quoteResultsHtml = `
++                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #E5E7EB;">
++                          <div style="margin-bottom: 12px;">
++                            <div style="font-size: 13px; font-weight: 700; color: #111827;">Generated Quotes</div>
++                            <div style="font-size: 11px; color: #9CA3AF;">CARE Health & TATA AIG &middot; Based on details filled above</div>
++                          </div>
++                          <div style="display: flex; gap: 12px; margin-bottom: 16px;">
++                            <div style="flex: 1; border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 16px;">
++                              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
++                                <img src="https://assets.policybazaar.com/pb_logo_care.png" onerror="this.src=''; this.style.background='#eee'; this.alt='CARE';" style="width: 40px; height: 40px; object-fit: contain; border: 1px solid #F3F4F6; border-radius: 6px; padding: 2px;">
++                                <div>
++                                    <div style="font-size: 13px; font-weight: 700;">CARE Health</div>
++                                    <div style="font-size: 11px; color: #9CA3AF;">Care Shield</div>
++                                </div>
++                              </div>
++                              <div style="font-size: 22px; font-weight: 700; color: #473391;">₹12,450</div>
++                              <div style="font-size: 10px; color: #9CA3AF; margin-bottom: 8px;">incl. GST</div>
++                              <div style="font-size: 11px; color: #4B5563; margin-bottom: 12px;">Coverage: Base Plan + CI</div>
++                              <div style="height: 1px; background: #E5E7EB; margin-bottom: 12px;"></div>
++                              <div style="display: flex; gap: 8px;">
++                                <button style="flex: 1; height: 32px; background: #25D366; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="shareQuote('CARE Health', '12,450', 'Care Shield', 'WhatsApp')">WhatsApp</button>
++                                <button style="flex: 1; height: 32px; background: #EA4335; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="shareQuote('CARE Health', '12,450', 'Care Shield', 'Email')">Email</button>
++                              </div>
++                            </div>
++                            <div style="flex: 1; border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 16px;">
++                              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
++                                <img src="https://assets.policybazaar.com/pb_logo_tata.png" onerror="this.src=''; this.style.background='#eee'; this.alt='TATA';" style="width: 40px; height: 40px; object-fit: contain; border: 1px solid #F3F4F6; border-radius: 6px; padding: 2px;">
++                                <div>
++                                    <div style="font-size: 13px; font-weight: 700;">TATA AIG</div>
++                                    <div style="font-size: 11px; color: #9CA3AF;">Home Secure</div>
++                                </div>
++                              </div>
++                              <div style="font-size: 22px; font-weight: 700; color: #473391;">₹14,200</div>
++                              <div style="font-size: 10px; color: #9CA3AF; margin-bottom: 8px;">incl. GST</div>
++                              <div style="font-size: 11px; color: #4B5563; margin-bottom: 12px;">Coverage: Base Plan</div>
++                              <div style="height: 1px; background: #E5E7EB; margin-bottom: 12px;"></div>
++                              <div style="display: flex; gap: 8px;">
++                                <button style="flex: 1; height: 32px; background: #25D366; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="shareQuote('TATA AIG', '14,200', 'Home Secure', 'WhatsApp')">WhatsApp</button>
++                                <button style="flex: 1; height: 32px; background: #EA4335; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="shareQuote('TATA AIG', '14,200', 'Home Secure', 'Email')">Email</button>
++                              </div>
++                            </div>
++                          </div>
++                          <div style="position: relative;">
++                            <button style="width: 100%; padding: 10px; border: 1.5px solid #473391; background: white; color: #473391; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="toggleShareAllDropdown()">Share All Quotes</button>
++                            <div id="share-all-dropdown" style="display: none; position: absolute; bottom: 100%; left: 0; width: 100%; background: white; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 4px; overflow: hidden; z-index: 10;">
++                              <div style="padding: 12px; font-size: 13px; font-weight: 600; color: #111827; cursor: pointer; border-bottom: 1px solid #F3F4F6;" onclick="shareQuote('All', '', 'Both', 'WhatsApp')">Share via WhatsApp</div>
++                              <div style="padding: 12px; font-size: 13px; font-weight: 600; color: #111827; cursor: pointer;" onclick="shareQuote('All', '', 'Both', 'Email')">Share via Email</div>
++                            </div>
++                          </div>
++                        </div>
++                    `;
++                }
++            } else {
++                let isProp = activeTab === 'Property Insurance';
++                let isCredit = activeTab === 'Credit Life';
++                
++                if (window.pbQuoteFlowState === 'iframe') {
++                    // IFRAME Prototype
++                    let dummyHTML = `<html><body style="margin:-10px; padding:10px; background:#f4f7fe;"><div style="text-align:center; padding: 40px; color: #333; font-family: sans-serif;">Mock PolicyBazaar Integration</div></body></html>`;
++                    
++                    quoteResultsHtml = `
++                        <div style="margin-top: 16px;">
++                            <div style="font-size: 10px; color: #A09AB8; background: #F7F6FB; border-radius: 4px; padding: 4px 10px; margin-bottom: 12px; display: inline-block;">
++                                🔧 Prototype mode — using mock PolicyBazaar data.
++                            </div>
++                            <div style="position: relative; border: 1px solid #E8E4F3; border-radius: 10px; overflow: hidden; background: white;">
++                                <iframe src="data:text/html;charset=utf-8,${encodeURIComponent(dummyHTML)}" style="width: 100%; height: 560px; border: none; transition: height 0.3s;" id="pb-iframe"></iframe>
++                                
++                                <div style="background: #473391; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;">
++                                    <div style="font-size: 12px; color: rgba(255,255,255,0.8);">Customize the quotes above — change add-ons, tenure, or payment frequency as needed.</div>
++                                    <button style="background: white; color: #473391; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; padding: 8px 18px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#EEE8FD'" onmouseout="this.style.background='white'" onclick="extractPBQuotesMock()">Extract Quotes &rarr;</button>
++                                </div>
++                            </div>
++                        </div>
++                    `;
++                } else if (window.pbQuoteFlowState === 'extracting') {
++                    quoteResultsHtml = `
++                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 32px 24px; text-align: center; margin-top: 16px;">
++                            <div class="sangam-spinner" style="border: 3px solid rgba(71,51,145,0.1); border-top-color: #473391; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 16px auto;"></div>
++                            <div style="font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 4px;">🔄 Extracting quotes from PolicyBazaar...</div>
++                            <div style="font-size: 12px; color: #6B7280;">Generating CRM cards</div>
++                        </div>
++                    `;
++                } else if (window.pbQuoteFlowState === 'extracted') {
++                    let pbCards = [];
++                    let b_col1L = isProp ? 'MARKET VALUE' : 'AMOUNT INSURED';
++                    let b_col2L = isProp ? 'PAYMENT TERM' : 'TENURE';
++                    let b_col3L = isProp ? 'PREMIUM' : 'PAYMENT TERM';
++                    
++                    if (isProp) {
++                        pbCards = [
++                            { insurer: 'Bajaj General', plan: 'Bharat Griha Raksha', c1: '₹80L', c2: 'Annual', c3: '', prem: '4,200', earn: '840', fq: 'Annually' },
++                            { insurer: 'HDFC Ergo', plan: 'My Home Long Term', c1: '₹80L', c2: 'Annual', c3: '', prem: '3,850', earn: '770', fq: 'Annually' }
++                        ];
++                    } else if (isCredit) {
++                        pbCards = [
++                            { insurer: 'HDFC Life', plan: 'Loan Secure', c1: '₹60L', c2: '20 Yrs', c3: 'Monthly', prem: '2,100', earn: '420', fq: 'Monthly' }
++                        ];
++                    } else {
++                        pbCards = [
++                            { insurer: 'ICICI Prudential', plan: 'iProtect Smart', c1: '₹1Cr', c2: '30 Yrs', c3: 'Annual', prem: '12,500', earn: '2,500', fq: 'Annually' }
++                        ];
++                    }
++
++                    let pbCardsHtml = pbCards.map(q => {
++                        let accentColor = isProp ? '#1A6E45' : (isCredit ? '#2B5FC7' : '#6B5CC4');
++                        return `
++                            <div style="background: white; border: 1px solid #E8E4F3; border-radius: 12px; margin-bottom: 10px; position: relative; display: flex;">
++                              <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: ${accentColor}; border-radius: 12px 0 0 12px;"></div>
++                              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; width: 100%; box-sizing: border-box; position: relative; z-index: 1;">
++                                <div style="flex-shrink: 0; width: 20px;">
++                                    <input type="checkbox" class="quote-checkbox" value="${q.insurer}" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;" onchange="window.handleQuoteSelection(this)">
++                                </div>
++                                <div style="flex-shrink: 0; width: 180px; display: flex; align-items: center; gap: 10px;">
++                                  <div style="width: 40px; height: 40px; border: 1px solid #F0EDF8; border-radius: 8px; background: #FAFAFA; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #9CA3AF;">LOGO</div>
++                                  <div>
++                                    <div style="font-size: 14px; font-weight: 700; color: #2D2D4E;">${q.insurer}</div>
++                                    <div style="font-size: 11px; color: #A09AB8;">${q.plan}</div>
++                                  </div>
++                                </div>
++                                <div style="flex: 1; display: flex; justify-content: center; gap: 0;">
++                                  <div style="padding: 0 20px; text-align: center; border-right: 1px solid #E8E4F3;">
++                                    <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #A09AB8; margin-bottom: 3px;">${b_col1L}</div>
++                                    <div style="font-size: 13px; font-weight: 700; color: #2D2D4E;">${q.c1}</div>
++                                  </div>
++                                  <div style="padding: 0 20px; text-align: center; border-right: 1px solid #E8E4F3;">
++                                    <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #A09AB8; margin-bottom: 3px;">${b_col2L}</div>
++                                    <div style="font-size: 13px; font-weight: 700; color: #2D2D4E;">${q.c2}</div>
++                                  </div>
++                                  <div style="padding: 0 20px; text-align: center;">
++                                    <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #A09AB8; margin-bottom: 3px;">${b_col3L}</div>
++                                    <div style="font-size: 13px; font-weight: 700; color: #2D2D4E;">${isProp ? '₹'+q.prem : q.c3}</div>
++                                  </div>
++                                </div>
++                                <div style="flex-shrink: 0; width: 140px; text-align: right;">
++                                  <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #A09AB8; margin-bottom: 3px;">TOTAL PREMIUM</div>
++                                  <div style="font-size: 20px; font-weight: 800; color: #473391;">₹${q.prem}</div>
++                                  <div style="font-size: 10px; font-weight: 600; color: #6B7280; margin-bottom: 2px;">${q.fq}</div>
++                                </div>
++                                <div style="flex-shrink: 0; width: 120px; display: flex; flex-direction: column; gap: 6px;">
++                                  <button style="border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; height: 34px; width: 100%; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="shareQuote('${q.insurer}', '${q.prem}', '${q.plan}')">Share Quote</button>
++                                </div>
++                              </div>
++                            </div>
++                        `;
++                    }).join('');
++
++                    quoteResultsHtml = `
++                        <div style="margin-top: 16px;">
++                            <div style="background: #F0EEFB; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
++                                <div style="font-size: 12px; color: #473391; font-weight: 600;">PolicyBazaar workspace &middot; Quotes extracted ✓</div>
++                                <div style="font-size: 11px; color: #473391; text-decoration: underline; cursor: pointer;" onclick="reopenPBQuoteWorkspace()">Re-open &rarr;</div>
++                            </div>
++                            ${pbCardsHtml}
++                            <button id="share-selected-btn" style="width: 100%; height: 42px; border: 1.5px solid #473391; color: #473391; background: white; border-radius: 8px; font-size: 13px; font-weight: 600; margin-top: 12px; cursor: not-allowed; opacity: 0.5;" disabled onclick="shareMultipleQuotes()">Share Selected Quotes</button>
++                        </div>
++                    `;
++                }
++            }
+         }
++        let html = `
++          <style>
++          .custom-radio { appearance: none; width: 16px; height: 16px; border: 2px solid #E5E7EB; border-radius: 50%; outline: none; cursor: pointer; margin: 0 6px 0 0; vertical-align: middle; position: relative; }
++          .custom-radio:checked { border-color: #473391; }
++          .custom-radio:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 6px; height: 6px; background: #473391; border-radius: 50%; }
++          .custom-checkbox { appearance: none; width: 16px; height: 16px; border: 2px solid #E5E7EB; border-radius: 3px; outline: none; cursor: pointer; margin: 0 8px 0 0; vertical-align: middle; position: relative; flex-shrink: 0; }
++          .custom-checkbox:checked { background: #473391; border-color: #473391; }
++          .custom-checkbox:checked::after { content: ''; position: absolute; top: 1px; left: 4px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
++          .new-bucket-input:focus { border-color: #473391 !important; background: white !important; }
++          .new-bucket-input.error { border-color: #C0392B !important; background: #FDF2F2 !important; }
++          .pill-radio { display: none; }
++          .pill-label { border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 20px; padding: 7px 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-block; transition: all 0.2s; }
++          .pill-radio:checked + .pill-label { background: #473391; color: white; border-color: #473391; }
++          .pill-label-yesno { border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 20px; padding: 7px 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-block; transition: all 0.2s; }
++          .pill-radio-yes:checked + .pill-label-yesno { background: #FDECEA; color: #C0392B; border-color: #C0392B; }
++          .pill-radio-no:checked + .pill-label-yesno { background: #E6F4ED; color: #1A7A4A; border-color: #1A7A4A; }
++          .inline-error-msg { font-size: 11px; color: #C0392B; margin-top: 4px; display: none; }
++          </style>
++          
++          <div style="display: flex; flex-direction: column; width: 100%;">
++            ${hlBanner}
++            ${tabsHtml}
++            
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-top: 12px; position: relative;" id="new-bucket-form">
++              <div id="new-bucket-save-indicator" style="position: absolute; top: 20px; right: 20px; font-size: 10px; font-weight: 600; color: #9CA3AF;"></div>
++              
++              ${tabContent}
++              
++              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
++                <div></div> <!-- spacing -->
++                <span id="new-bucket-completion-status" style="font-size: 11px; color: #9CA3AF;">0 fields filled</span>
++              </div>
++              
++              ${buttonHtml}
++              ${quoteResultsHtml}
++            </div>
++          </div>
++        `;
++        
++        setTimeout(window.handleNewBucketInput, 50);
++        return html;
++    }
++
++    function renderCenterPanel() {
++      let l = currentLead;
++      if (!l) return;
++
++      document.getElementById('right-side-panel').style.display = 'block';
++
++      // Navigation Bar
++      let stages = ['New', 'Contacted', 'Quote', 'Payment Done', 'Lost'];
++      let ci = stages.indexOf(l.bucket);
++      
++      let navHtml = stages.map((st, i) => {
++        let isPast = i < ci;
++        let isCurr = i === ci;
++        let bg = isCurr ? '#473391' : isPast ? '#F0EEFB' : 'white';
++        let color = isCurr ? 'white' : isPast ? '#473391' : '#9CA3AF';
++        let border = isCurr ? 'none' : isPast ? '1px solid #C5C0F5' : '1px solid #E5E7EB';
++        let fw = isCurr ? '600' : '500';
+         
+-        let chevron = `<div style="background: ${bg}; color: ${text}; border: ${border}; border-radius: 4px; padding: 6px 14px; font-size: 12px; font-weight: 600;">${s}</div>`;
+-        let arrow = idx < stages.length - 1 ? `<div style="color: #D1D5DB; margin: 0 8px; font-weight: 700;">></div>` : '';
++        let chevron = `
++          <div style="display: flex; align-items: center; justify-content: center; height: 32px; padding: 0 16px; background: ${bg}; color: ${color}; border: ${border}; border-radius: 20px; font-size: 12px; font-weight: ${fw}; margin-right: 4px;">
++            ${st}
++          </div>
++        `;
++        let arrow = (i < stages.length - 1) ? `<div style="color: #D1D5DB; margin-right: 4px; font-size: 12px;">&rarr;</div>` : '';
+         return chevron + arrow;
+       }).join('');
+ 
+       let contentHtml = '';
+-      if (l.bucket === 'New') {
+-        contentHtml = `
+-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+-            <div style="font-size: 13px; color: #9CA3AF; text-align: center;">Call the customer and record the outcome in Update Status.</div>
+-          </div>
+-        `;
+-      } else if (l.bucket === 'Contacted') {
+-        contentHtml = renderProductSelection();
++      if (l.bucket === 'New' || l.bucket === 'Contacted') {
++         contentHtml = renderProductTabsForm(l);
+       } else if (l.bucket === 'Quote') {
+-        contentHtml = renderQuoteStage();
++         contentHtml = renderQuoteStage();
+       } else if (l.bucket === 'Payment Done') {
+-        contentHtml = renderPaymentStage();
+-      } else if (l.bucket === 'Policy') {
+-        contentHtml = renderPolicyStage();
++         contentHtml = renderPaymentStage();
++      } else if (l.bucket === 'Policy Issued') {
++         contentHtml = renderPolicyIssuedStage();
++      } else if (l.bucket === 'Policy Cancelled') {
++         contentHtml = renderCancelledStage();
++      } else if (l.bucket === 'Lost') {
++         contentHtml = `<div style="padding:40px; text-align:center; color:#6B7280;">Lead marked as lost.</div>`;
+       }
+ 
+-      let html = `
+-        <div style="background: white; border-bottom: 1px solid #E5E7EB; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
++      const cp = document.getElementById('center-panel-content');
++      cp.innerHTML = `
++        <div style="background: white; border-bottom: 1px solid #F3F4F6; padding: 16px 24px; position: sticky; top: 0; z-index: 10;">
+           <div style="display: flex; align-items: center;">
+-            ${stageHtml}
++            ${navHtml}
+           </div>
+-          <button style="border: 1.5px solid #C0392B; color: #C0392B; background: white; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer;">Mark as Lost</button>
+         </div>
+-        <div style="flex: 1; overflow-y: auto; padding: 20px;">
++        <div style="padding: 24px;">
+           ${contentHtml}
+         </div>
+       `;
+-      document.getElementById('detail-center').innerHTML = html;
+-    }
+-
+-    function renderOutreachStage() {
+-      return `
+-        <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
+-          <div class="label" style="color:var(--primary); margin-bottom:16px;">📞 First Contact Action</div>
+-          <div style="width:80px; height:80px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 16px;">${currentLead.name.charAt(0)}</div>
+-          <div style="font-size:24px; font-weight:700; margin-bottom:4px;">${currentLead.name}</div>
+-          <div style="font-size:32px; font-weight:800; color:var(--text-heading); margin-bottom:12px;">
+-            ${currentLead.phone}
+-            <button class="btn btn-ghost btn-small" style="margin-left:8px; vertical-align:middle;" onclick="showToast('Number copied')">Copy</button>
+-          </div>
+-          <div style="background:var(--bg); border-radius:8px; padding:12px; margin-bottom:24px; display:inline-block;">
+-            <div style="font-size:12px; color:var(--text-muted);">Recommended Product</div>
+-            <div style="font-weight:700; color:var(--primary);">${getProductLabel(currentLead.finalProduct || currentLead.initialProduct)} • ${formatLakhs(currentLead.si)} Cover</div>
+-          </div>
+-          
+-          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">
+-            Please use the Right Panel to update the first contact status.
+-          </div>
+-        </div>
+-      `;
+     }
+-
+-    function renderInterestStage() {
+-      let desc = '';
+-      let prod = currentLead.finalProduct || currentLead.initialProduct;
+-      if(prod === 'lp') desc = "Loan protection covers the home loan EMI in case of critical illness or accidents. Pitch it as securing their family's future so the loan doesn't become a burden.";
+-      else if(prod === 'property') desc = 'Property insurance protects the physical structure of the home against fire, theft, and natural disasters. Essential for a new asset.';
+-      else if(prod === 'cl') desc = 'Credit life insurance pays off the outstanding loan balance in case of death. Peace of mind for the co-borrower.';
+-      else if(prod === 'term') desc = 'Term plan offers comprehensive life cover for the family at affordable premiums.';
+-
+-      return `
+-        <div class="card" style="padding:32px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:24px;">
+-          <div style="display:flex; gap:12px; align-items:center; margin-bottom:24px;">
+-            <div style="width:48px; height:48px; border-radius:8px; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:24px;">💡</div>
+-            <div>
+-              <div class="label" style="color:var(--primary);">Pitch Guidance</div>
+-              <h2 style="margin:0;">Recommended: ${getProductLabel(prod)}</h2>
++    
++    function renderQuoteStage() {
++        let l = currentLead;
++        if (!window.selectedQuoteForPayment) {
++            window.selectedQuoteForPayment = {
++                insurer: 'CARE Health',
++                plan: 'Care Shield',
++                premium: '12,450'
++            };
++        }
++        let q = window.selectedQuoteForPayment;
++        
++        // Change plan modal trigger
++        let changePlanHtml = `<div style="font-size: 11px; color: #473391; font-weight: 600; cursor: pointer; text-decoration: underline;" onclick="alert('In a real app, this would show a list of previously shared quotes to select from.')">Change Plan</div>`;
++        
++        let section1Html = `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
++                    <div style="font-size: 13px; font-weight: 700; color: #111827;">Customer's Selected Plan</div>
++                    <div style="background: #E6F4ED; color: #1A7A4A; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">Quote Shared</div>
++                </div>
++                <div style="display: flex; align-items: center; justify-content: space-between;">
++                    <div style="display: flex; align-items: center; gap: 12px; font-size: 13px;">
++                        <div style="font-weight: 700; color: #111827;">${q.insurer}</div>
++                        <div style="width: 1px; height: 12px; background: #E5E7EB;"></div>
++                        <div style="color: #9CA3AF;">${q.plan}</div>
++                        <div style="width: 1px; height: 12px; background: #E5E7EB;"></div>
++                        <div style="font-weight: 700; color: #473391;">₹${q.premium}</div>
++                    </div>
++                    ${changePlanHtml}
++                </div>
+             </div>
+-          </div>
+-          
+-          <div style="background:#FAFAFA; border-left:4px solid var(--primary); padding:16px; border-radius:0 8px 8px 0; margin-bottom:32px;">
+-            <p style="font-size:14px; line-height:1.6; color:var(--text-body); margin:0;">${desc}</p>
+-          </div>
+-
+-          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">
+-            Please use the Right Panel to update the ongoing status (e.g. Follow-Up, Interested, Not Interested).
+-          </div>
+-        </div>
+-      `;
++        `;
++        
++        // Section 2: Payment Link card
++        let linkBtnText = window.paymentLinkShared ? 'Resend Payment Link' : 'Send via WhatsApp';
++        let linkBtnStyle = window.paymentLinkShared ? `background: white; color: #25D366; border: 1.5px solid #25D366;` : `background: #25D366; color: white; border: none;`;
++        
++        let section2Html = `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
++                <div style="font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 4px;">Share Payment Link</div>
++                <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 16px;">Generate the payment link in the insurer portal and paste it here.</div>
++                
++                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9CA3AF; margin-bottom: 6px; display: block;">PAYMENT LINK *</label>
++                <div style="position: relative;">
++                    <input type="text" id="payment-link-input" placeholder="https://..." value="${window.paymentLinkShared ? 'https://pay.careinsurance.com/tx/9348103' : ''}" ${window.paymentLinkShared ? 'readonly' : ''} style="width: 100%; height: 40px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 12px; font-size: 12px; font-family: Poppins; box-sizing: border-box; outline: none;" oninput="document.getElementById('send-link-btn').disabled = !this.value.trim(); document.getElementById('send-link-btn').style.opacity = this.value.trim() ? 1 : 0.6;">
++                    ${window.paymentLinkShared ? '<div style="position: absolute; right: 12px; top: 12px; color: #1A7A4A; font-size: 14px;">✓</div>' : ''}
++                </div>
++                
++                <div style="display: flex; gap: 10px; margin-top: 16px;">
++                    <button id="send-link-btn" style="flex: 1; height: 38px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; ${linkBtnStyle}" ${window.paymentLinkShared ? '' : 'disabled style="opacity: 0.6"'} onclick="sharePaymentLink()">
++                        ${linkBtnText}
++                    </button>
++                    ${!window.paymentLinkShared ? '<button style="flex: 1; height: 38px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; background: #EA4335; color: white; border: none; opacity: 0.6;" disabled>Send via Email</button>' : ''}
++                </div>
++            </div>
++        `;
++        
++        // Section 3: Payment Verification
++        let isManager = (document.getElementById('role-select') && document.getElementById('role-select').value === 'Manager');
++        let verifiedPillStyle = isManager ? `cursor: pointer;` : `cursor: not-allowed; opacity: 0.5;`;
++        let submitBtnText = isManager ? 'Confirm Payment Status' : 'Submit for Verification';
++        
++        let section3Html = `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px;">
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
++                    <div style="font-size: 13px; font-weight: 700; color: #111827;">Payment Verification</div>
++                    <div style="font-size: 11px; color: #9CA3AF;">To be confirmed by IBM Manager</div>
++                </div>
++                
++                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">PAYMENT AMOUNT *</label>
++                        <input type="number" id="ver-amount" placeholder="₹ Amount" class="verify-input" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 12px; font-family: Poppins; box-sizing: border-box;" oninput="checkVerificationForm()">
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">UTR NUMBER *</label>
++                        <input type="text" id="ver-utr" placeholder="Transaction reference" class="verify-input" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 12px; font-family: Poppins; box-sizing: border-box;" oninput="checkVerificationForm()">
++                    </div>
++                </div>
++                
++                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">PAYMENT DATE *</label>
++                        <input type="date" id="ver-date" class="verify-input" style="width: 100%; height: 38px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 12px; font-family: Poppins; box-sizing: border-box;" oninput="checkVerificationForm()">
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">UPLOAD PROOF *</label>
++                        <input type="file" id="ver-file" accept="image/*,.pdf" class="verify-input" style="width: 100%; font-size: 11px; margin-top: 8px;" onchange="checkVerificationForm()">
++                    </div>
++                </div>
++                
++                <div style="margin-bottom: 16px;">
++                    <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 6px; display: block;">VERIFICATION STATUS</label>
++                    <div style="display: flex; gap: 8px;">
++                        <label>
++                            <input type="radio" name="ver-status" value="Pending" style="display:none;" onchange="checkVerificationForm()">
++                            <div class="ver-pill ver-pill-pending" style="border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 20px; padding: 6px 16px; font-size: 11px; font-weight: 600; cursor: pointer;">Verification Pending</div>
++                        </label>
++                        <label>
++                            <input type="radio" name="ver-status" value="Failed" style="display:none;" onchange="checkVerificationForm()">
++                            <div class="ver-pill ver-pill-failed" style="border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 20px; padding: 6px 16px; font-size: 11px; font-weight: 600; cursor: pointer;">Payment Failed</div>
++                        </label>
++                        <label title="${isManager ? '' : 'Only IBM Manager can mark as Verified'}">
++                            <input type="radio" name="ver-status" value="Verified" style="display:none;" ${isManager ? '' : 'disabled'} onchange="checkVerificationForm()">
++                            <div class="ver-pill ver-pill-verified" style="${verifiedPillStyle} border: 1.5px solid #E5E7EB; background: white; color: #6B7280; border-radius: 20px; padding: 6px 16px; font-size: 11px; font-weight: 600;">Verified</div>
++                        </label>
++                    </div>
++                </div>
++                
++                <button id="verify-submit-btn" style="width: 100%; height: 44px; background: #C5C0F5; color: white; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: not-allowed; opacity: 0.6; transition: all 0.2s;" onclick="confirmPaymentStatus()">${submitBtnText}</button>
++            </div>
++            
++            <style>
++              input[name="ver-status"][value="Pending"]:checked + .ver-pill-pending { background: #FFF8E1 !important; border-color: #F5CBA7 !important; color: #856404 !important; }
++              input[name="ver-status"][value="Failed"]:checked + .ver-pill-failed { background: #FDECEA !important; border-color: #F5A4A4 !important; color: #C0392B !important; }
++              input[name="ver-status"][value="Verified"]:checked + .ver-pill-verified { background: #E6F4ED !important; border-color: #A8D5B5 !important; color: #1A7A4A !important; }
++            </style>
++        `;
++        
++        return section1Html + section2Html + section3Html;
+     }
++    
++    window.toggleShareAllDropdown = function() {
++        let el = document.getElementById('share-all-dropdown');
++        if (el) {
++            el.style.display = el.style.display === 'none' ? 'block' : 'none';
++        }
++    };
++    
++    window.generateQuoteNew = function() {
++        if (window.newBucketValid) {
++            currentLead.bucket = 'Contacted';
++            currentLead.log.unshift({ dot: 'var(--primary)', text: `Agent Update &middot; User &middot; Quote generation initiated from NEW stage &middot; Product: ${window.activeNewBucketTab}`, time: 'Just now' });
++            renderLeadDetail();
++            renderLeadTable();
++        }
++    };
+ 
+-    // Placeholders for the rest
+-    function setQuoteTab(tab) { G_Q_TAB = tab; renderCenterPanel(); }
+-    function setLPCalc(k, v) { G_LPC[k] = v; renderCenterPanel(); }
+-
+-    function calculateLP() {
+-      const age = currentLead.age || 30;
+-      const si = currentLead.si || 5000000;
+-      const siL = si / 100000;
+-      const tIdx = G_LPC.ten - 1;
+-
+-      // CARE Calc
+-      let careRows = [];
+-      let carePre = 0;
+-      if (G_LPC.plan === 'PA + CI') {
+-        let band = CARE_RATES.ci_pa.find(b => {
+-          let parts = b.band.split('-');
+-          return age >= parseInt(parts[0]) && age <= parseInt(parts[1]);
+-        }) || CARE_RATES.ci_pa[3];
+-        let baseRate = band.rates[tIdx];
+-        let basePrem = baseRate * siL;
+-        carePre += basePrem;
+-        careRows.push({ label: 'Base Premium (PA+CI)', amt: basePrem });
+-      } else {
+-        let basePrem = CARE_RATES.pa_only * G_LPC.ten * siL;
+-        carePre += basePrem;
+-        careRows.push({ label: 'Base Premium (PA Only)', amt: basePrem });
+-      }
++    window.generateQuoteContacted = function() {
++        const form = document.getElementById('new-bucket-form');
++        let isValid = true;
++        
++        if (!window.newBucketValid) {
++            const requiredInputs = form.querySelectorAll('input:not([disabled]).new-bucket-input, select:not([disabled]).new-bucket-input');
++            requiredInputs.forEach(inp => {
++                if(inp.type === 'radio' || inp.type === 'checkbox') return;
++                if (inp.value.trim() === '') {
++                    inp.classList.add('error');
++                    let err = inp.parentElement.querySelector('.inline-error-msg');
++                    if (err) err.style.display = 'block';
++                    isValid = false;
++                } else {
++                    inp.classList.remove('error');
++                    let err = inp.parentElement.querySelector('.inline-error-msg');
++                    if (err) err.style.display = 'none';
++                }
++            });
++            return;
++        }
++        
++        currentLead.log.unshift({ dot: 'var(--primary)', text: `Agent Update &middot; User &middot; Quotes generated &middot; Product: ${window.activeNewBucketTab}`, time: 'Just now' });
++        window.contactedQuoteGenerated = true;
++        renderLeadDetail();
++    };
+ 
+-      if (G_LPC.loe) { carePre += 1250 * G_LPC.ten; careRows.push({ label: 'Loss of Employment', amt: 1250 * G_LPC.ten }); }
+-      if (G_LPC.vb) { carePre += 949 * G_LPC.ten; careRows.push({ label: 'Vector Borne', amt: 949 * G_LPC.ten }); }
+-
+-      let careGST = carePre * 0.18;
+-      let carePost = carePre + careGST;
+-      let careComm = carePre * 0.20;
+-
+-      // TATA Calc
+-      let tataRows = [];
+-      let tataPre = 0;
+-      if (G_LPC.plan === 'PA + CI') {
+-        let tataBase = TATA_RATES.ci[0].rates[tIdx] * siL;
+-        let tataPA = TATA_RATES.pa[tIdx] * siL;
+-        tataPre = tataBase + tataPA;
+-        tataRows.push({ label: 'GCS Plus (CI)', amt: tataBase });
+-        tataRows.push({ label: 'Accidental Death (PA)', amt: tataPA });
+-      } else {
+-        tataPre = TATA_RATES.pa[tIdx] * siL;
+-        tataRows.push({ label: 'Accidental Death (PA)', amt: tataPre });
+-      }
+-      let tataGST = tataPre * 0.18;
+-      let tataPost = tataPre + tataGST;
+-      let tataComm = tataPre * 0.18;
++    window.shareQuote = function(insurer, premium, planName, method) {
++        showSuccessToast('Quote shared successfully');
++        window.selectedQuoteForPayment = {
++             insurer: insurer,
++             plan: planName,
++             premium: premium
++        };
++        currentLead.bucket = 'Quote';
++        currentLead.status = 'Quote Shared';
++        currentLead.subStatus = 'Consent Pending';
++        currentLead.log.unshift({ dot: '#10B981', text: `Agent Update &middot; User &middot; Quote shared with customer &middot; ${insurer} &middot; ₹${premium} &middot; via ${method}`, time: 'Just now' });
++        renderLeadDetail();
++        renderLeadTable();
++        updateRightPanel();
++    };
+ 
+-      G_LP = {
+-        care: { pre: carePre, gst: careGST, post: carePost, comm: careComm, rows: careRows },
+-        tata: { pre: tataPre, gst: tataGST, post: tataPost, comm: tataComm, rows: tataRows }
+-      };
+-      renderCenterPanel();
+-      showToast('Premiums calculated');
+-    }
++    window.openPB = function() {
++        window.pbStep2Visible = true;
++        renderLeadDetail();
++    };
+ 
+-    function shareQuote(qid) {
+-      if(qid) {
+-         let q = currentLead.quotes.find(x => x.id === qid);
+-         if(q) q.status = 'Shared';
+-      }
+-      document.getElementById('modalOverlay').classList.add('open');
+-      document.getElementById('shareModal').style.display = 'flex';
+-      renderCenterPanel();
+-    }
+-    function closeShareModal() {
+-      document.getElementById('modalOverlay').classList.remove('open');
+-      document.getElementById('shareModal').style.display = 'none';
+-    }
+-    function executeShare() {
+-      closeShareModal();
+-      showToast('Quote shared successfully via WhatsApp');
+-      currentLead.log.unshift({ dot: 'var(--primary)', text: 'Shared quote with customer via WhatsApp', time: 'Just now' });
+-      renderRightPanel();
+-    }
++    window.extractPBQuotes = function() {
++        setTimeout(() => {
++            window.pbQuotesExtracted = true;
++            renderLeadDetail();
++        }, 800);
++    };
++    
++    window.sharePaymentLink = function() {
++        showSuccessToast('Payment link shared with customer');
++        window.paymentLinkShared = true;
++        currentLead.status = 'Payment Link Shared';
++        currentLead.subStatus = 'Awaiting Payment';
++        currentLead.log.unshift({ dot: '#3B82F6', text: `Agent Update &middot; User &middot; Payment link sent to customer &middot; Just now`, time: 'Just now' });
++        renderLeadDetail();
++        renderLeadTable();
++        updateRightPanel();
++    };
+ 
+-    function lockProduct(qid) {
+-      let q = currentLead.quotes.find(x => x.id === qid);
+-      if(!q) return;
+-      currentLead.productStatus = 'locked';
+-      currentLead.finalProduct = q.prod;
+-      currentLead.finalInsurer = q.insurer;
+-      currentLead.finalPremium = q.premium;
+-      
+-      let subStatus = q.prod === 'lp' ? q.insurer : getProductLabel(q.prod);
+-      transitionLeadState('Quote Shared', 'Payment Link shared', '', '', '');
+-      showToast('Product locked. Payment link generated.');
++    window.checkVerificationForm = function() {
++        let amt = document.getElementById('ver-amount').value;
++        let utr = document.getElementById('ver-utr').value;
++        let dt = document.getElementById('ver-date').value;
++        let fl = document.getElementById('ver-file').value;
++        let statusEl = document.querySelector('input[name="ver-status"]:checked');
++        
++        let btn = document.getElementById('verify-submit-btn');
++        if (amt && utr && dt && fl && statusEl) {
++            btn.disabled = false;
++            btn.style.opacity = '1';
++            btn.style.background = '#473391';
++            btn.style.cursor = 'pointer';
++        } else {
++            btn.disabled = true;
++            btn.style.opacity = '0.6';
++            btn.style.background = '#C5C0F5';
++            btn.style.cursor = 'not-allowed';
++        }
++    };
++    
++    window.confirmPaymentStatus = function() {
++        let statusEl = document.querySelector('input[name="ver-status"]:checked');
++        if (!statusEl) return;
++        let val = statusEl.value;
++        let amt = document.getElementById('ver-amount').value;
++        let utr = document.getElementById('ver-utr').value;
++        
++        let isManager = (document.getElementById('role-select') && document.getElementById('role-select').value === 'Manager');
++        let userName = isManager ? 'IBM Manager' : 'IBM Agent';
++        
++        if (val === 'Verified') {
++            currentLead.bucket = 'Payment Done';
++            currentLead.status = 'Payment Done';
++            currentLead.subStatus = 'Verified';
++            
++            currentLead.log.unshift({ dot: '#10B981', text: `System Update &middot; Payment verified by ${userName} &middot; UTR: ${utr} &middot; ₹${amt} &middot; Just now`, time: 'Just now' });
++        } else {
++            currentLead.log.unshift({ dot: 'var(--primary)', text: `Agent Update &middot; Verification submitted as ${val} by ${userName} &middot; UTR: ${utr} &middot; Just now`, time: 'Just now' });
++        }
++        
++        showSuccessToast('Payment verification submitted');
++        renderLeadDetail();
++        renderLeadTable();
++        updateRightPanel();
++    };
++
++function renderPaymentStage() {
++      return `
++        <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
++          <div style="width:64px; height:64px; border-radius:50%; background:var(--warning-bg); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;">⏳</div>
++          <h2 style="margin-bottom:8px;">Awaiting Payment</h2>
++          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">The payment link has been sent to the customer via SMS & Email.</div>
++          
++          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:24px; text-align:left;">
++            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
++              <div style="font-size:12px; color:var(--text-muted);">Insurer</div>
++              <div style="font-weight:600; font-size:12px;">CARE Health Insurance</div>
++            </div>
++            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
++              <div style="font-size:12px; color:var(--text-muted);">Amount</div>
++              <div style="font-weight:800; font-size:16px; color:var(--primary);">${formatMoney(currentLead.si ? currentLead.si * 0.05 : 25000)}</div>
++            </div>
++            <div style="display:flex; justify-content:space-between;">
++              <div style="font-size:12px; color:var(--text-muted);">Link Expiry</div>
++              <div style="font-weight:600; font-size:12px; color:var(--danger);">Today, 11:59 PM</div>
++            </div>
++          </div>
++          
++          <div style="display:flex; gap:12px;">
++            <button class="btn btn-ghost" style="flex:1;" onclick="showToast('Payment link resent to WhatsApp')">🔁 Resend Link</button>
++            <button class="btn btn-primary" style="flex:1; background:var(--success); border-color:var(--success);" onclick="gMarkPaid()">✓ Mark Paid</button>
++          </div>
++        </div>
++      `;
+     }
+ 
+-    function setProductTab(prod) {
+-      G_PRODUCT_TAB = prod;
+-      G_LP = null;
+-      renderCenterPanel();
++    function gMarkPaid() {
++      currentLead.subStatus = 'Payment Received';
++      currentLead.log.unshift({ dot: 'var(--success)', text: 'Payment marked as received', time: 'Just now' });
++      transitionLeadState('Payment Done', 'Payment Verified', '', '', '');
+     }
+ 
+-    function addQuoteToHistory(insurer, cov, premium) {
+-      if(!currentLead.quotes) currentLead.quotes = [];
+-      let qid = 'Q-' + Math.floor(Math.random()*10000);
+-      currentLead.quotes.push({
+-        id: qid,
+-        prod: G_PRODUCT_TAB,
+-        insurer: insurer,
+-        cov: cov,
+-        premium: premium,
+-        status: 'Generated'
+-      });
+-      currentLead.log.unshift({dot: 'var(--primary)', text: `Quote generated for ${getProductLabel(G_PRODUCT_TAB)} (${insurer})`, time: 'Just now'});
+-      showToast('Quote added to history');
++    function setPBStep(step, idx = -1) {
++      G_PBS = step;
++      if (idx !== -1) G_PBI = idx;
+       renderCenterPanel();
+     }
+ 
+-    function renderLPGenerator() {
+-      let pill = (v) => `<div class="chip ${G_LPC.ten===v?'active':''}" onclick="setLPCalc('ten', ${v})">${v} Yr</div>`;
+-      let planBtn = (v) => `<button class="btn ${G_LPC.plan===v?'btn-primary':'btn-ghost'}" style="flex:1;" onclick="setLPCalc('plan', '${v}')">${v}</button>`;
+-
+-      let inputCol = `
+-        <div style="flex:1; border-right:1px solid var(--border); padding-right:24px;">
+-          <div style="display:flex; gap:12px; margin-bottom:16px;">
+-            <div style="flex:1;">
+-              <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Age</label>
+-              <input type="text" class="form-control" style="font-weight:600;" value="${currentLead.age || ''}" readonly>
+-            </div>
+-            <div style="flex:1;">
+-              <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Loan Amount</label>
+-              <input type="text" class="form-control" style="font-weight:600;" value="${currentLead.si || ''}" readonly>
+-            </div>
+-          </div>
+-          
+-          <div style="margin-bottom:16px;">
+-            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Tenure</label>
+-            <div style="display:flex; flex-wrap:wrap; gap:8px;">${pill(1)}${pill(2)}${pill(3)}${pill(4)}${pill(5)}</div>
+-          </div>
++    const PB_PLANS = [
++      { insurer: 'United India', price: '₹97/month', total: 11629 },
++      { insurer: 'Bajaj General', price: '₹106/month', total: 12776, choice: true },
++      { insurer: 'SBI General', price: '₹142/month', total: 17012 }
++    ];
+ 
+-          <div style="margin-bottom:24px;">
+-            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Plan</label>
+-            <div style="display:flex; gap:12px;">${planBtn('PA Only')}${planBtn('PA + CI')}</div>
+-          </div>
++    function renderPBContent() {
++      if (!G_PBS) G_PBS = 'quotes';
+ 
+-          <div style="background:var(--bg); border-radius:8px; padding:16px; margin-bottom:24px; border:1px solid var(--border);">
+-            <div style="font-weight:600; color:#EA580C; margin-bottom:12px; font-size:11px; text-transform:uppercase;">CARE Add-ons</div>
+-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+-              <div>Loss of Employment <span style="color:var(--text-muted); font-size:11px;">(+₹1,250/yr)</span></div>
+-              <input type="checkbox" ${G_LPC.loe?'checked':''} onchange="setLPCalc('loe', this.checked)">
+-            </div>
+-            <div style="display:flex; justify-content:space-between; align-items:center;">
+-              <div>Vector Borne Diseases <span style="color:var(--text-muted); font-size:11px;">(+₹949/yr)</span></div>
+-              <input type="checkbox" ${G_LPC.vb?'checked':''} onchange="setLPCalc('vb', this.checked)">
+-            </div>
++      let html = '';
++      html += `
++        <div style="background:var(--navy); color:white; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
++          <div style="font-size:18px; font-weight:800; display:flex; align-items:center; gap:12px;">
++            <div style="width:24px; height:24px; background:white; color:var(--navy); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px;">PB</div>
++            PolicyBazaar Integration
+           </div>
+-
+-          <button class="btn btn-primary" style="width:100%;" onclick="calculateLP()">Calculate Premiums →</button>
+         </div>
++        <div style="display:flex; flex:1; overflow:hidden;">
++          <div style="flex:1; border-right:1px solid var(--border); background:#F9FAFB; display:flex; flex-direction:column; overflow-y:auto; padding:24px;">
+       `;
+ 
+-      let resultCol = '';
+-      if (!G_LP) {
+-         resultCol = `<div style="flex:1; padding-left:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); background:var(--bg); border-radius:8px; text-align:center;">Select parameters and calculate to see premiums</div>`;
+-      } else {
+-         let resultCard = (brand, bg, badgeColor, d) => `
+-          <div class="card" style="margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+-              <div class="badge" style="background:${bg}; color:white;">${brand}</div>
+-            </div>
+-            <table style="width:100%; margin-bottom:12px;">
+-              ${d.rows.map(r => `<tr><td style="padding:4px 0; font-size:12px;">${r.label}</td><td style="text-align:right; font-weight:600; font-size:12px;">${formatMoney(r.amt)}</td></tr>`).join('')}
+-              <tr><td style="padding:4px 0; color:var(--text-muted); font-size:12px;">GST (18%)</td><td style="text-align:right; font-size:12px;">${formatMoney(d.gst)}</td></tr>
+-            </table>
+-            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px dashed var(--border);">
+-              <div style="font-weight:600;">Total Premium</div>
+-              <div style="font-size:20px; font-weight:800; color:var(--primary);">${formatMoney(d.post)}</div>
+-            </div>
+-            <div style="display:flex; gap:8px; margin-top:16px;">
+-              <button class="btn btn-ghost btn-small" style="flex:1;" onclick="addQuoteToHistory('${brand}', '${G_LPC.plan}', ${d.post})">+ Add to Quotes</button>
++      if (G_PBS === 'quotes') {
++        html += `
++            <div style="display:flex; gap:12px; margin-bottom:24px;">
++              <select class="form-control" style="width:150px;"><option>10 Years</option><option>15 Years</option></select>
++              <select class="form-control" style="width:150px;"><option>Const. Yr: 2023</option></select>
+             </div>
+-          </div>
++            ${PB_PLANS.map((p, i) => `
++              <div class="card" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; border: ${p.choice ? '2px solid #16A34A' : '1px solid var(--border)'}; background:white;">
++                <div style="flex:1;">
++                  ${p.choice ? `<div class="badge" style="background:#DCFCE7; color:#16A34A; margin-bottom:8px;">✔ Recommended Choice</div>` : ''}
++                  <div style="font-weight:700; font-size:16px; margin-bottom:4px; color:var(--primary);">${p.insurer}</div>
++                  <div style="font-size:12px; color:var(--text-muted);">Bharat Griha Raksha • ${formatLakhs(currentLead.si)} Cover</div>
++                  <a href="#" style="font-size:12px; color:#0065ff; display:inline-block; margin-top:8px;">⭐ View Coverages</a>
++                </div>
++                <div style="text-align:right;">
++                  <div style="font-size:22px; font-weight:800; color:var(--text-heading);">${p.price}</div>
++                  <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">₹${p.total} one-time</div>
++                  <button class="btn btn-primary" onclick="setPBStep('form', ${i})">Select Plan</button>
++                </div>
++              </div>
++            `).join('')}
+         `;
+-        resultCol = `
+-          <div style="flex:1; padding-left:24px; display:flex; flex-direction:column; overflow-y:auto; max-height:500px;">
+-            ${resultCard('CARE Health Insurance', '#0EA5E9', 'blue', G_LP.care)}
+-            ${resultCard('TATA AIG General', '#F97316', 'orange', G_LP.tata)}
+-          </div>
++      } else {
++        const plan = PB_PLANS[G_PBI];
++        html += `
++            <div style="margin-bottom:24px;">
++              <h3 style="margin-bottom:16px;">Policy Proposal Details</h3>
++              <div class="card" style="background:white; border-color:var(--primary); margin-bottom:24px;">
++                <div style="font-weight:700; color:var(--primary); margin-bottom:8px;">${plan.insurer}</div>
++                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;">
++                  <span>Building SI</span><span style="font-weight:600;">${formatLakhs(currentLead.si)}</span>
++                </div>
++                <div style="display:flex; justify-content:space-between; padding-top:12px; border-top:1px dashed var(--border); font-weight:700;">
++                  <span>Total Premium</span><span style="color:var(--success);">₹${plan.total}</span>
++                </div>
++              </div>
++
++              <div style="display:flex; gap:12px; margin-bottom:12px;">
++                <div class="form-group" style="flex:1;"><label>First Name</label><input type="text" class="form-control" value="${currentLead.name.split(' ')[0]}" readonly style="background:#F3F4F6;"></div>
++                <div class="form-group" style="flex:1;"><label>Last Name</label><input type="text" class="form-control" value="${currentLead.name.split(' ')[1] || ''}" readonly style="background:#F3F4F6;"></div>
++              </div>
++              <div style="display:flex; gap:12px; margin-bottom:12px;">
++                <div class="form-group" style="flex:1;"><label>Date of Birth</label><input type="text" class="form-control" value="05/08/1990" readonly style="background:#F3F4F6;"></div>
++                <div class="form-group" style="flex:1;"><label>Email ID</label><input type="text" class="form-control" value="${currentLead.email}" readonly style="background:#F3F4F6;"></div>
++              </div>
++              
++              <button class="btn btn-primary" style="width:100%; margin-top:24px; padding:12px;" onclick="finalizePBPlan()">Select & Import Plan into Sangam CRM</button>
++              <button class="btn btn-ghost" style="width:100%; margin-top:12px;" onclick="setPBStep('quotes')">← Back to Quotes</button>
++            </div>
+         `;
+       }
+-      return `<div style="display:flex; min-height:300px;">${inputCol}${resultCol}</div>`;
+-    }
+ 
+-    function renderNextActionWidget() {
+-      let actionText = '';
+-      if (!currentLead.selectedPlan) {
+-         actionText = "Generate Quote";
+-      } else if (!currentLead.quoteShared) {
+-         actionText = "Share Quote";
+-      } else if (!currentLead.paymentLinkGenerated) {
+-         actionText = "Generate Payment Link";
+-      } else if (!currentLead.paymentVerified) {
+-         actionText = "Verify payment";
+-      } else {
+-         actionText = "Move to Processing";
+-      }
++      html += `
++          </div>
++          <div style="width:280px; background:white; padding:24px; display:flex; flex-direction:column;">
++            <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); margin-bottom:16px;">Ambak Customer Context</div>
++            <div style="margin-bottom:24px;">
++              <div style="font-weight:700; font-size:16px; margin-bottom:4px;">${currentLead.name}</div>
++              <div style="font-size:12px; color:var(--text-muted);">${currentLead.phone}</div>
++            </div>
++            
++            <div class="card" style="background:#FAFAFA; border:1px solid var(--border); padding:12px; margin-bottom:16px;">
++              <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Loan Amount</div>
++              <div style="font-weight:700; font-size:14px; color:var(--primary);">${formatLakhs(currentLead.si)}</div>
++            </div>
+ 
+-      return `
+-        <div style="position:sticky; top:24px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:16px;">
+-          <div style="font-size:11px; font-weight:700; color:#1D4ED8; margin-bottom:4px; text-transform:uppercase;">Next Action</div>
+-          <div style="font-weight:600; font-size:16px; color:#1E3A8A;">${actionText}</div>
++            <div class="card" style="background:#FAFAFA; border:1px solid var(--border); padding:12px; margin-bottom:16px;">
++              <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Linked Home Loan</div>
++              <div style="font-weight:700; font-size:12px;">${currentLead.hlLead ? currentLead.hlLead.bank : '-'}</div>
++              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Stage: ${currentLead.hlLead ? getStageLabel(currentLead.hlLead.hlStage) : '-'}</div>
++            </div>
++
++            <div style="margin-top:auto;">
++              <div style="font-size:11px; color:var(--text-muted); line-height:1.4; background:#F0FDF4; padding:12px; border-radius:8px; border:1px solid #BBF7D0; color:#16A34A;">
++                <b>Tip:</b> PolicyBazaar requires the exact Name and DOB as per Aadhaar. Verify this before generating the link.
++              </div>
++            </div>
++          </div>
+         </div>
+       `;
+-    }
+ 
+-    function shareQuoteAction(method) {
+-      currentLead.quoteShared = true;
+-      if (method !== 'Copy Link') {
+-        transitionLeadState('Quote Shared', '', `Quote shared via ${method}`, '', '');
+-      }
+-      showToast('Quote Shared');
+-      renderLeadDetail();
++      return html;
+     }
+-
+-    function generatePaymentLink() {
+-      currentLead.paymentLinkGenerated = true;
+-      transitionLeadState('Payment Link Shared', '', `Payment link generated`, '', '');
+-      showToast('Payment Link Generated');
++    function finalizePBPlan() {
++      const plan = PB_PLANS[G_PBI];
++      currentLead.selectedPlan = {
++         insurer: plan.insurer,
++         premium: plan.price,
++         coverage: formatLakhs(currentLead.si),
++         tenure: '10 Years'
++      };
++      closePolicyBazaar();
++      showToast('Plan selection imported from PolicyBazaar.');
+       renderLeadDetail();
+     }
+ 
+-    function sharePayAction(method) {
+-      if (method !== 'Copy Link') currentLead.log.unshift({dot:'#10B981', text:`Payment link shared via ${method}`, time:'Just now'});
+-      showToast('Payment Link Shared');
++    function generateInHouseQuote() {
++      currentLead.inHouseQuotesGenerated = true;
++      showToast('Quotes Generated Successfully');
+       renderLeadDetail();
+     }
+ 
+-
+-    function renderNewStage() {
+-      // PRD: Center panel is deliberately empty. Activity History tabs pushed up to fill the space.
+-      return '';
++    function selectInHousePlan(insurer, premium, coverage, planType) {
++      currentLead.selectedPlan = { 
++         insurer: insurer, 
++         premium: premium, 
++         coverage: coverage || formatLakhs(currentLead.si || 4500000), 
++         planType: planType || 'Comprehensive',
++         selectedTimestamp: new Date().toISOString(),
++         selectedBy: 'Verification Agent'
++      };
++      
++      let logText = `${insurer} Plan Selected<br>Coverage: ${currentLead.selectedPlan.coverage} | Premium: ${premium}`;
++      currentLead.log.unshift({ dot: 'var(--primary)', text: logText, time: 'Just now' });
++      
++      showToast('Plan Selected Successfully');
++      renderLeadDetail();
+     }
+ 
+-    function renderContactedStage() {
+-      let product = currentLead.finalProduct || currentLead.initialProduct || '';
++    function renderPaymentDoneStage() {
++      let product = currentLead.finalProduct || currentLead.initialProduct || window.activeNewBucketTab || 'Loan Protection';
++      let insurer = currentLead.selectedPlan ? currentLead.selectedPlan.insurer : (window.selectedPaymentQuote ? window.selectedPaymentQuote.insurer : '');
++      let mKey = window.getMilestoneKey(product, insurer);
++      let config = window.MILESTONE_CONFIG[mKey] || window.MILESTONE_CONFIG['loan_protection_care'];
+       
+-      const PRODUCTS = {
+-        lp: {
+-          name: 'Loan Protection',
+-          abbr: 'LP',
+-          desc: 'Covers the outstanding home loan amount in case of death or disability. Ensures the family keeps their home.',
+-          benefit: 'Loan liability fully covered — family never inherits debt',
+-          insurers: ['CARE Health', 'TATA AIG']
+-        },
+-        property: {
+-          name: 'Property Insurance',
+-          abbr: 'PR',
+-          desc: 'Protects the physical property against fire, natural disasters, and structural damage. Annual renewable policy.',
+-          benefit: 'Property value protected against unforeseen damage',
+-          insurers: ['Bajaj General', 'HDFC Ergo', 'SBI General']
+-        },
+-        credit: {
+-          name: 'Credit Life',
+-          abbr: 'CL',
+-          desc: "Covers the borrower's life for the loan tenure. If the borrower passes away, the insurer repays the outstanding loan.",
+-          benefit: 'Decreasing cover that matches loan outstanding — cost-effective',
+-          insurers: ['PB Partners (via PolicyBazaar)']
+-        },
+-        term: {
+-          name: 'Term Plan',
+-          abbr: 'TP',
+-          desc: "Pure life cover at low cost. Pays a lump sum to the nominee on the policyholder's death during the policy term.",
+-          benefit: 'High cover at lowest premium — ideal for income replacement',
+-          insurers: ['PB Partners (via PolicyBazaar)']
+-        }
+-      };
++      if (!currentLead.completedMilestones) {
++          currentLead.completedMilestones = ['payment_verified'];
++      }
++      
++      let allDone = true;
++      let activeM = null;
++      
++      let milestoneHtml = config.milestones.map((m, i) => {
++         let isDone = currentLead.completedMilestones.includes(m.id);
++         if (!isDone && allDone) {
++             activeM = m;
++             allDone = false;
++         }
++         let isActive = (!isDone && activeM === m);
++         
++         let bg = isDone ? '#F0FDF4' : isActive ? '#EFF6FF' : 'transparent';
++         let borderColor = isDone ? '#BBF7D0' : isActive ? '#BFDBFE' : '#E5E7EB';
++         let dotBg = isDone ? '#10B981' : isActive ? 'var(--primary)' : 'white';
++         let dotBorder = isDone ? '#10B981' : isActive ? 'var(--primary)' : '#D1D5DB';
++         let icon = isDone ? '&check;' : (i+1);
++         let dotColor = isDone || isActive ? 'white' : '#9CA3AF';
++         
++         return `
++           <div style="display:flex; flex-direction:column; align-items:center; position:relative; flex:1; min-width:100px; text-align:center;">
++             <div style="width:32px; height:32px; border-radius:50%; border:2px solid ${dotBorder}; background:${dotBg}; color:${dotColor}; display:flex; align-items:center; justify-content:center; font-size:${isDone?'14':'13'}px; font-weight:700; z-index:2; margin-bottom:12px;">${icon}</div>
++             ${i < config.milestones.length - 1 ? `<div style="position:absolute; top:16px; left:50%; width:100%; height:2px; background:${isDone ? '#10B981' : '#E5E7EB'}; z-index:1;"></div>` : ''}
++             <div style="font-weight:600; font-size:12px; color:${isDone ? '#059669' : isActive ? 'var(--primary)' : '#9CA3AF'}; line-height:1.2; margin-bottom:4px; max-width:90%;">${m.label}</div>
++           </div>
++         `;
++      }).join('');
+ 
+-      let html = `
+-        <div style="background:var(--white); border-radius:12px; padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-top:24px;">
+-          <div style="text-align:center; margin-bottom:32px;">
+-             <h2 style="font-size:24px; margin:0 0 8px;">Select Insurance Product</h2>
+-             <div style="color:var(--text-muted); font-size:14px;">Understand the customer's needs and select the right product.</div>
+-          </div>
+-          
+-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
+-            ${Object.entries(PRODUCTS).map(([key, p]) => {
+-              let sel = product === key;
+-              return `
+-               <div style="border:2px solid ${sel ? 'var(--primary)' : '#E5E7EB'}; border-radius:12px; padding:20px; cursor:pointer; background:${sel?'#EFF6FF':'white'}; transition:all 0.2s;" onclick="currentLead.finalProduct='${key}'; renderLeadDetail()">
+-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+-                     <div style="width:40px; height:40px; border-radius:8px; background:${sel?'var(--primary)':'#F3F4F6'}; color:${sel?'white':'var(--text-body)'}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">
+-                        ${p.abbr}
+-                     </div>
+-                     <div style="width:20px; height:20px; border-radius:50%; border:2px solid ${sel?'var(--primary)':'#D1D5DB'}; background:${sel?'var(--primary)':'transparent'}; display:flex; align-items:center; justify-content:center;">
+-                        ${sel ? '<div style="width:8px; height:8px; border-radius:50%; background:white;"></div>' : ''}
+-                     </div>
+-                  </div>
+-                  <div style="font-weight:700; font-size:16px; margin-bottom:6px; color:${sel?'var(--primary)':'var(--text-heading)'};">${p.name}</div>
+-                  <div style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:12px; min-height:36px;">${p.desc}</div>
+-                  <div style="font-size:11px; color:#059669; font-weight:600; margin-bottom:10px; display:flex; align-items:start; gap:4px;">
+-                    <span style="margin-top:1px;">✓</span> ${p.benefit}
+-                  </div>
+-                  <div style="font-size:11px; color:var(--text-muted); border-top:1px solid ${sel?'#BFDBFE':'#F3F4F6'}; padding-top:10px;">
+-                    <span style="font-weight:600;">Insurers:</span> ${p.insurers.join(', ')}
+-                  </div>
+-               </div>
+-              `;
+-            }).join('')}
+-          </div>
+-          
+-          <div style="text-align:center;">
+-             <button class="btn btn-primary" style="padding:12px 32px; font-size:16px; border-radius:8px;" ${!product ? 'disabled style="padding:12px 32px; font-size:16px; border-radius:8px; opacity:0.5; cursor:not-allowed;"' : ''} onclick="transitionLeadState('Quote Generated', '', 'Product selected: ${product ? getProductLabel(product) : ''}', null, null); renderLeadDetail();">Generate Quote →</button>
+-          </div>
+-        </div>
+-      `;
+-      return html;
+-    }
++      let actionHtml = '';
++      if (!allDone && activeM) {
++          if (activeM.completable) {
++              actionHtml = `<div style="margin-top: 32px; text-align: center;"><button class="btn btn-primary" onclick="advanceMilestone('${activeM.id}', '${activeM.label}')">${activeM.actionButton}</button></div>`;
++          } else if (activeM.isDecision) {
++              actionHtml = `<div style="margin-top: 32px; text-align: center;"><button class="btn btn-primary" onclick="advanceDecisionMilestone('${activeM.id}', 'Approved')" style="background: #10B981; border: none; margin-right: 12px;">Approve Policy</button> <button class="btn btn-ghost" onclick="advanceDecisionMilestone('${activeM.id}', 'Rejected')" style="color: #EF4444; border-color: #EF4444;">Reject Policy</button></div>`;
++          } else {
++              actionHtml = `<div style="margin-top: 32px; text-align: center; color: #6B7280; font-size: 13px;">Waiting for external update...</div>`;
++          }
++      } else if (allDone) {
++          actionHtml = `
++            <div style="background: white; border: 1px solid #E8E4F3; border-radius: 10px; padding: 18px; margin-top: 32px; text-align: center;">
++               <div style="font-size: 20px; color: #A09AB8; margin-bottom: 8px;">⏳</div>
++               <div style="font-size: 13px; font-weight: 700; color: #2D2D4E;">Awaiting Policy Copy Confirmation</div>
++               <div style="font-size: 12px; color: #6B6880; line-height: 1.5; margin-top: 6px;">Policy copy confirmation happens automatically when the IBM Manager uploads the PB/insurer MIS in the MIS & Payouts section. Once confirmed, this lead will move to Policy Issued.</div>
++               <div style="background: #F0EEFB; border-radius: 6px; padding: 8px 12px; margin-top: 12px; font-size: 11px; color: #473391; display: inline-block;">MIS is uploaded daily for PB products &middot; Monthly for CARE and TATA</div>
++               <div style="margin-top: 16px;"><span onclick="document.getElementById('nav-mis').click()" style="font-size: 12px; color: #473391; text-decoration: underline; cursor: pointer;">View MIS & Payouts &rarr;</span></div>
++            </div>
++          `;
++      }
+ 
+-    function renderLostStage() {
+       return `
+-        <div style="background:var(--white); border-radius:12px; padding:32px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; margin-top:24px; border-top:4px solid #EF4444;">
+-          <h2 style="font-size:24px; color:#EF4444; margin:0 0 8px;">Lead Closed (Lost)</h2>
+-          <div style="font-size:16px; color:var(--text-muted); margin-bottom:24px;">This lead is read-only. No further actions can be taken.</div>
+-          <div style="background:#FEF2F2; border-radius:8px; padding:16px; text-align:left; border:1px solid #FCA5A5; max-width:400px; margin:0 auto;">
+-            <div style="font-weight:600; color:#991B1B; margin-bottom:8px;">Lost Summary</div>
+-            <div style="font-size:14px; margin-bottom:4px;"><strong>Reason:</strong> ${currentLead.subStatus || 'Not specified'}</div>
+-            <div style="font-size:14px; margin-bottom:4px;"><strong>By:</strong> Verification Agent</div>
+-            <div style="font-size:14px;"><strong>Last Product:</strong> ${getProductLabel(currentLead.finalProduct || currentLead.initialProduct)}</div>
++        <div class="card" style="padding:24px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:100%;">
++          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid var(--border);">
++            <div>
++              <h2 style="margin:0; font-size:20px;">Milestone Tracker</h2>
++              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${config.label}</div>
++            </div>
++            <div class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Payment Done</div>
++          </div>
++          <div style="display:flex; justify-content:space-between; overflow-x:auto; padding-bottom:20px; scrollbar-width:thin;">
++             ${milestoneHtml}
+           </div>
++          ${actionHtml}
+         </div>
+       `;
+     }
+ 
++    function renderPolicyIssuedStage(isHistory = false) {
++        let product = window.activeNewBucketTab || 'Loan Protection';
++        let insurer = currentLead.insurer || currentLead.selectedPlan?.insurer || window.selectedPaymentQuote?.insurer || 'CARE Health';
++        let mKey = window.getMilestoneKey(product, insurer);
++        let fDays = FREELOOK_DAYS[mKey] || 15;
++        
++        let pStartDateStr = currentLead.policyStartDate || '2026-06-29';
++        let pStart = new Date(pStartDateStr);
++        if(isNaN(pStart)) pStart = new Date();
++        let fEnd = new Date(pStart.getTime() + fDays * 24 * 60 * 60 * 1000);
++        let fEndStr = fEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
++        
++        let today = new Date();
++        
++        let pNo = currentLead.policyNumber || 'Pending';
++        let pIns = currentLead.insurer || insurer;
++        let pPlan = currentLead.planName || currentLead.selectedPlan?.plan || '-';
++        let pPa = currentLead.premium || currentLead.selectedPlan?.premium || '0';
++        let pEdStr = currentLead.policyEndDate || '-';
++        let pComm = (parseFloat(pPa.toString().replace(/,/g, '')) * 0.20).toFixed(0);
++
++        if (!currentLead.freelookState) {
++            currentLead.freelookState = 'under_freelook';
++        }
+ 
+-    function renderQuoteStage() {
+-      let product = currentLead.finalProduct || currentLead.initialProduct || 'lp';
+-      let isLocked = currentLead.paymentVerified || currentLead.productStatus === 'locked';
++        let misBadge = `<span style="background: #EEF0FD; color: #473391; font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">MIS</span>`;
+ 
+-      // Product header badge (read-only — no switching allowed)
+-      let productHeaderHtml = `
+-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+-          <div style="display:flex; align-items:center; gap:12px;">
+-            <div style="width:36px; height:36px; border-radius:8px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">
+-              ${product==='lp'?'LP':product==='property'?'PR':product==='cl'?'CL':'TP'}
+-            </div>
+-            <div>
+-              <div style="font-weight:700; font-size:16px; color:var(--text-heading);">${getProductLabel(product)}</div>
+-              <div style="font-size:11px; color:var(--text-muted);">${(product==='lp' || product==='property') ? 'Path A — In-House Calculator' : 'Path B — PolicyBazaar Workspace'}</div>
+-            </div>
+-          </div>
+-          ${currentLead.paymentVerified ? `
+-            <div style="display:flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #10B981; border-radius:6px; padding:6px 12px;">
+-              <div style="width:18px; height:18px; border-radius:50%; background:#10B981; color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;">✓</div>
+-              <span style="font-weight:600; font-size:12px; color:#065F46;">Payment Verified</span>
++        // Section 1 - Policy Summary
++        let section1 = `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px;">
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
++                    <div style="font-size: 14px; font-weight: 700; color: #111827;">Policy Summary</div>
++                    <div style="background: #E6F4ED; color: #1A7A4A; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 4px 12px;">Policy Issued</div>
++                </div>
++                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Policy Number ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${pNo}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Insurer Name ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${pIns}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Plan Name ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${pPlan}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Premium Amount ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">₹${pPa.toLocaleString('en-IN')}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Policy Start Date ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${pStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Policy End Date ${misBadge}</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${pEdStr}</div>
++                    </div>
++                    <div>
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Loan Account Number</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #111827;">${currentLead.loanAccountNo || '-'}</div>
++                    </div>
++                    
++                    <div style="grid-column: 1 / -1; border-top: 1px solid #F3F4F6; padding-top: 16px; margin-top: 4px;">
++                        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 2px;">Commission Expected</div>
++                        <div style="font-size: 13px; font-weight: 600; color: #1A7A4A;">₹${parseInt(pComm || 0).toLocaleString('en-IN')}</div>
++                    </div>
++                </div>
+             </div>
+-          ` : ''}
+-        </div>
+-      `;
+-
+-      let centerAreaHtml = '';
++        `;
+ 
+-      if (currentLead.selectedPlan) {
+-          const selPlan = currentLead.selectedPlan;
+-          centerAreaHtml = `
+-            <div style="border:2px solid var(--primary); border-radius:12px; padding:20px; margin-bottom:24px; background:white;">
+-              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
+-                <div style="font-weight:700; font-size:16px; color:var(--primary);">Selected Plan: ${selPlan.insurer}</div>
+-                ${!isLocked ? `<button class="btn btn-ghost btn-small" onclick="currentLead.selectedPlan=null; currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate</button>` : ''}
+-              </div>
+-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+-                <div><div style="font-size:11px; color:var(--text-muted);">Premium</div><div style="font-weight:700; font-size:16px;">${selPlan.premium}</div></div>
+-                <div><div style="font-size:11px; color:var(--text-muted);">Coverage / Plan Type</div><div style="font-weight:600; font-size:14px;">${selPlan.coverage} / ${selPlan.planType || 'Standard'}</div></div>
+-              </div>
+-            </div>
+-          `;
+-      } else if (product === 'cl' || product === 'term') {
+-         // Path B: Credit Life, Term -> PolicyBazaar
+-         centerAreaHtml = `
+-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+-              <h3 style="font-size:15px; margin:0;">${getProductLabel(product)} Details</h3>
+-            </div>
+-            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">DOB *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Smoker Status *</label>
+-                <div style="display:flex; gap:8px; margin-top:8px;">
+-                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker" checked> Non-Smoker</label>
+-                  <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="smoker"> Smoker</label>
++        let fStateHtml = '';
++        if (currentLead.freelookState === 'under_freelook') {
++            let daysPassed = Math.floor((today - pStart) / (1000 * 60 * 60 * 24));
++            if (daysPassed < 0) daysPassed = 0;
++            let daysRemaining = fDays - daysPassed;
++            if (daysRemaining < 0) daysRemaining = 0;
++            let progressPct = (daysPassed / fDays) * 100;
++            if (progressPct > 100) progressPct = 100;
++            
++            fStateHtml = `
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
++                    <div style="font-size: 14px; font-weight: 700; color: #2D2D4E;">Freelook Period</div>
++                    <div style="background: #FFF4E0; color: #A06000; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 6px 14px;">Under Freelook</div>
+                 </div>
+-              </div>
+-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Educational Qualification *</label>
+-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+-                  <option>Below 10th</option><option>10th Pass</option><option>12th Pass</option><option>College Graduate & Above</option>
+-                </select>
+-              </div>
+-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Annual Income *</label>
+-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+-                  <option>Below 5L</option><option>5-10L</option><option>10-15L</option><option>15-20L</option><option>Above 20L</option>
+-                </select>
+-              </div>
+-              <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Occupation Type *</label>
+-                <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;">
+-                  <option>Salaried</option><option>Self Employed</option>
+-                </select>
+-              </div>
+-            </div>
+-            <div style="text-align:center;">
+-              <button class="btn btn-primary" style="padding:10px 28px; font-size:15px; width:100%;" onclick="openPBDrawer('${product}')">Open PolicyBazaar Workspace →</button>
+-            </div>
+-          </div>
+-         `;
+-      } else if (product === 'property') {
+-         centerAreaHtml = `
+-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+-              <h3 style="font-size:15px; margin:0;">In-House Property Calculator</h3>
+-            </div>
+-            ${!currentLead.inHouseQuotesGenerated ? `
+-              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">City Name *</label><select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>Mumbai</option><option>Delhi</option><option>Bangalore</option></select></div>
+-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Property Type *</label>
+-                  <div style="display:flex; gap:8px; margin-top:8px;">
+-                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype" checked> Flat / Apartment</label>
+-                    <label style="font-size:12px; display:flex; align-items:center; gap:4px;"><input type="radio" name="ptype"> Independent House</label>
+-                  </div>
++                <div style="font-size: 14px; font-weight: 700; color: #A06000; margin-bottom: 6px;">Freelook ends in ${daysRemaining} days</div>
++                <div style="font-size: 12px; color: #6B6880; margin-bottom: 12px;">Policy Start Date: ${pStart.toLocaleDateString('en-GB')} &middot; Freelook Period: ${fDays} days &middot; Expires: ${fEndStr}</div>
++                
++                <div style="width: 100%; height: 6px; background: #F3F4F6; border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
++                    <div style="width: ${progressPct}%; height: 100%; background: #F59E0B;"></div>
+                 </div>
+-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Market Value *</label><input type="text" class="sangam-filter-select" value="₹50,00,000" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+-              </div>
+-              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
+-            ` : `
+-              <div style="display:flex; flex-direction:column; gap:12px;">
+-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+-                  <div><div style="font-weight:700; color:var(--primary);">ICICI Lombard</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
+-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹5,800</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('ICICI Lombard', '₹5,800', '₹50L', 'Property Coverage')">Select Plan</button></div>
++                
++                <div style="font-size: 12px; color: #A09AB8; margin-bottom: 20px;">Customer can cancel this policy and receive a full refund before ${fEndStr}.</div>
++                
++                ${isHistory ? '' : `<button style="border: 1.5px solid #B03030; color: #B03030; background: white; border-radius: 8px; font-size: 12px; font-weight: 600; padding: 8px 16px; cursor: pointer;" onclick="document.getElementById('cancel-req-modal').style.display='flex'">Request Cancellation</button>`}
++            `;
++        } else if (currentLead.freelookState === 'under_verification') {
++            let isManager = window.CURRENT_ROLE === 'MANAGER';
++            let misUploaded = window.globalMISData && window.globalMISData.length > 0;
++            let btnState = misUploaded ? '' : 'disabled';
++            let btnOpacity = misUploaded ? '1' : '0.5';
++            let tooltip = misUploaded ? '' : 'title="Upload MIS first from MIS & Payouts section"';
++
++            fStateHtml = `
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
++                    <div style="font-size: 14px; font-weight: 700; color: #2D2D4E;">Freelook Period</div>
++                    <div style="background: #E3EEFF; color: #2B5FC7; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 6px 14px;">Under Verification</div>
++                </div>
++                <div style="font-size: 13px; font-weight: 600; color: #2B5FC7; margin-bottom: 6px;">Freelook period has ended. Awaiting MIS confirmation from insurer.</div>
++                <div style="font-size: 12px; color: #6B6880; margin-bottom: 16px;">Freelook ended: ${fEndStr} &middot; Confirmation pending via MIS upload.</div>
++                
++                <div style="background: #E3EEFF; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #2B5FC7; margin-bottom: 20px;">
++                    IBM Manager will confirm freelook completion after receiving the monthly MIS from the insurer. You will be notified once confirmed.
+                 </div>
+-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+-                  <div><div style="font-weight:700; color:var(--primary);">Bajaj Allianz</div><div style="font-size:11px; color:var(--text-muted);">Property Value: ₹50L</div></div>
+-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹6,100</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('Bajaj Allianz', '₹6,100', '₹50L', 'Property Coverage')">Select Plan</button></div>
++                
++                ${isManager && !isHistory ? `<button style="background: #1A6E45; color: white; border-radius: 8px; font-size: 12px; font-weight: 700; padding: 9px 18px; border: none; cursor: ${misUploaded ? 'pointer' : 'not-allowed'}; opacity: ${btnOpacity};" ${btnState} ${tooltip} onclick="confirmFreelook()">Confirm Freelook Completed</button>` : ''}
++            `;
++        } else if (currentLead.freelookState === 'completed') {
++            fStateHtml = `
++                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
++                    <div style="font-size: 14px; font-weight: 700; color: #2D2D4E;">Freelook Period</div>
++                    <div style="background: #E0F5EC; color: #1A6E45; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 6px 14px;">Freelook Completed</div>
+                 </div>
+-              </div>
+-              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
+-            `}
+-          </div>
+-         `;
+-      } else if (product === 'lp') {
+-         centerAreaHtml = `
+-          <div style="margin-bottom:24px; background:white; border:1px solid var(--border); padding:20px; border-radius:12px;">
+-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+-              <h3 style="font-size:15px; margin:0;">In-House Loan Protection Calculator</h3>
++                <div style="font-size: 13px; font-weight: 600; color: #1A6E45; margin-bottom: 6px;">&check; Freelook period completed. Policy is confirmed.</div>
++                <div style="font-size: 12px; color: #6B6880;">Confirmed by: ${currentLead.freelookConfirmedBy || 'System'} &middot; On: ${currentLead.freelookConfirmedDate || 'Recently'} &middot; Via MIS: ${currentLead.freelookMISFile || 'N/A'}</div>
++            `;
++        } else {
++            fStateHtml = `<div style="color: #EF4444; font-size: 14px; font-weight: 600;">Freelook Cancelled</div>`;
++        }
++
++        let section2 = `
++            <div style="background: white; border: 1px solid #E8E4F3; border-radius: 12px; padding: 20px; margin-top: 16px;">
++                ${fStateHtml}
+             </div>
+-            ${!currentLead.inHouseQuotesGenerated ? `
+-              <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Date of Birth *</label><input type="date" class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"></div>
+-                <div style="flex:1; min-width:150px;"><label class="sangam-filter-label" style="font-size:10px;">Plan Type *</label>
+-                  <select class="sangam-filter-select" style="padding:8px; border-radius:6px; width:100%; border:1px solid #D1D5DB;"><option>PA + CI</option><option>PA</option></select>
++        `;
++        
++        return section1 + section2;
++    }
++    
++    function renderCancelledStage(isHistory = false) {
++        let step = currentLead.cancelStep || 2;
++        
++        const renderStep = (num, title, activeCond, doneCond, content, isLast = false) => {
++            let color = doneCond ? '#10B981' : (activeCond ? '#473391' : '#9CA3AF');
++            let icon = doneCond ? '&check;' : num;
++            return `
++                <div style="display: flex; gap: 16px;">
++                    <div style="display: flex; flex-direction: column; align-items: center;">
++                        <div style="width: 24px; height: 24px; border-radius: 50%; background: ${doneCond ? color : (activeCond ? color : '#F3F4F6')}; color: ${doneCond || activeCond ? 'white' : '#9CA3AF'}; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;">${icon}</div>
++                        ${isLast ? '' : `<div style="width: 2px; flex: 1; background: ${doneCond ? color : '#E5E7EB'}; margin: 4px 0;"></div>`}
++                    </div>
++                    <div style="flex: 1; padding-bottom: 24px; opacity: ${activeCond || doneCond ? '1' : '0.5'};">
++                        <div style="font-size: 14px; font-weight: 700; color: ${doneCond || activeCond ? '#111827' : '#9CA3AF'}; margin-bottom: 4px;">${title}</div>
++                        ${content}
++                    </div>
+                 </div>
+-                <div style="flex:1; min-width:200px;"><label class="sangam-filter-label" style="font-size:10px;">Add-on Covers</label>
+-                  <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px; font-size:12px;">
+-                    <label><input type="checkbox"> EMI Protection</label>
+-                    <label><input type="checkbox"> Loss of Employment</label>
+-                    <label><input type="checkbox"> Seasonal Disease Hospitalisation</label>
+-                  </div>
++            `;
++        };
++        
++        let s1Content = `<div style="font-size: 13px; color: #6B6880;">Requested by ${currentLead.cancelAgent} on ${currentLead.cancelDate} &middot; Reason: ${currentLead.cancelReason}</div>`;
++        
++        let s2Content = '';
++        if (step === 2 && !isHistory) {
++            s2Content = `
++                <div style="font-size: 13px; color: #6B6880; margin-bottom: 12px;">Confirm that the insurer has acknowledged and processed the cancellation.</div>
++                <button style="width: 100%; height: 40px; background: #473391; color: white; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="currentLead.cancelStep = 3; currentLead.log.unshift({ dot: 'var(--primary)', text: 'Agent Update &middot; Cancellation confirmed by insurer &middot; Just now', time: 'Just now' }); renderLeadDetail();">Mark as Cancellation Confirmed</button>
++            `;
++        } else if (step > 2) {
++            s2Content = `<div style="font-size: 13px; color: #6B6880;">Cancellation confirmed by insurer.</div>`;
++        }
++        
++        let s3Content = '';
++        if (step === 3 && !isHistory) {
++            s3Content = `
++                <div style="font-size: 13px; color: #6B6880; margin-bottom: 16px;">Confirm that the insurer has initiated the refund process to the customer.</div>
++                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">Refund Amount *</label>
++                        <input type="number" id="refund-amt" placeholder="₹ Amount" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; box-sizing: border-box;" oninput="document.getElementById('btn-ref-init').disabled = !this.value || !document.getElementById('refund-date').value; document.getElementById('btn-ref-init').style.opacity = document.getElementById('btn-ref-init').disabled ? '0.5' : '1';">
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">Expected Refund Date *</label>
++                        <input type="date" id="refund-date" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; box-sizing: border-box;" oninput="document.getElementById('btn-ref-init').disabled = !this.value || !document.getElementById('refund-amt').value; document.getElementById('btn-ref-init').style.opacity = document.getElementById('btn-ref-init').disabled ? '0.5' : '1';">
++                    </div>
+                 </div>
+-              </div>
+-              
+-              <div style="padding:12px; background:#F9FAFB; border-radius:8px; border:1px solid #E5E7EB; margin-bottom:16px; font-size:12px; color:#4B5563;">
+-                <div style="font-weight:700; margin-bottom:8px; color:#111827;">Auto-populated from Home Loan (Read Only)</div>
+-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+-                  <div><span style="color:#9CA3AF;">Loan Amount:</span> <br><b>₹${formatLakhs(currentLead.si || 4500000)}</b></div>
+-                  <div><span style="color:#9CA3AF;">Bank:</span> <br><b>${currentLead.loanBank || 'HDFC'}</b></div>
+-                  <div><span style="color:#9CA3AF;">Loan Stage:</span> <br><b>Sanctioned</b></div>
++                <button id="btn-ref-init" disabled style="width: 100%; height: 40px; background: #473391; color: white; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; opacity: 0.5; transition: 0.2s;" onclick="currentLead.cancelStep = 4; currentLead.refundAmt = document.getElementById('refund-amt').value; currentLead.refundExpDate = document.getElementById('refund-date').value; currentLead.log.unshift({ dot: 'var(--primary)', text: 'Agent Update &middot; Refund initiated &middot; ₹' + currentLead.refundAmt + ' &middot; Expected by ' + currentLead.refundExpDate + ' &middot; Just now', time: 'Just now' }); renderLeadDetail();">Mark as Refund Initiated</button>
++            `;
++        } else if (step > 3) {
++            s3Content = `<div style="font-size: 13px; color: #6B6880;">Refund of ₹${currentLead.refundAmt} initiated. Expected: ${currentLead.refundExpDate}</div>`;
++        }
++        
++        let s4Content = '';
++        if (step === 4 && !isHistory) {
++            s4Content = `
++                <div style="font-size: 13px; color: #6B6880; margin-bottom: 16px;">Confirm with the customer that they have received the refund.</div>
++                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">Actual Refund Date *</label>
++                        <input type="date" id="refund-actual-date" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; box-sizing: border-box;" oninput="document.getElementById('btn-ref-done').disabled = !this.value || !document.getElementById('refund-src').value; document.getElementById('btn-ref-done').style.opacity = document.getElementById('btn-ref-done').disabled ? '0.5' : '1';">
++                    </div>
++                    <div>
++                        <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; display: block;">Confirmation Source *</label>
++                        <select id="refund-src" style="width: 100%; height: 36px; border: 1.5px solid #E5E7EB; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; box-sizing: border-box;" oninput="document.getElementById('btn-ref-done').disabled = !this.value || !document.getElementById('refund-actual-date').value; document.getElementById('btn-ref-done').style.opacity = document.getElementById('btn-ref-done').disabled ? '0.5' : '1';">
++                            <option value="">Select source...</option>
++                            <option value="Customer Confirmed">Customer Confirmed</option>
++                            <option value="Bank Statement">Bank Statement</option>
++                            <option value="Insurer Confirmation">Insurer Confirmation</option>
++                        </select>
++                    </div>
+                 </div>
+-              </div>
++                <button id="btn-ref-done" disabled style="width: 100%; height: 40px; background: #1A6E45; color: white; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; opacity: 0.5; transition: 0.2s;" onclick="currentLead.cancelStep = 5; currentLead.refundActualDate = document.getElementById('refund-actual-date').value; currentLead.log.unshift({ dot: '#1A6E45', text: 'Agent Update &middot; Refund completed &middot; Customer confirmed receipt &middot; Just now', time: 'Just now' }); renderLeadDetail();">Mark as Refund Completed</button>
++            `;
++        } else if (step > 4) {
++            s4Content = `
++                <div style="font-size: 13px; font-weight: 700; color: #1A6E45; margin-bottom: 4px;">&check; Policy cancellation and refund process completed.</div>
++                <div style="font-size: 13px; color: #6B6880;">Cancelled on ${currentLead.cancelDate} &middot; Refund: ₹${currentLead.refundAmt} &middot; Received: ${currentLead.refundActualDate}</div>
++            `;
++        }
+ 
+-              <button class="btn btn-primary" style="width:100%;" onclick="generateInHouseQuote()">Calculate Quotes</button>
+-            ` : `
+-              <div style="display:flex; flex-direction:column; gap:12px;">
+-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+-                  <div><div style="font-weight:700; color:var(--primary);">CARE Insurance</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
+-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹12,500</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('CARE Insurance', '₹12,500', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
+-                </div>
+-                <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:14px; border-radius:8px;">
+-                  <div><div style="font-weight:700; color:var(--primary);">TATA AIG</div><div style="font-size:11px; color:var(--text-muted);">Coverage: ₹${formatLakhs(currentLead.si || 4500000)} • Plan Type: PA + CI</div></div>
+-                  <div style="text-align:right;"><div style="font-weight:800; font-size:16px;">₹13,200</div><button class="btn btn-primary btn-small" style="margin-top:4px;" onclick="selectInHousePlan('TATA AIG', '₹13,200', '₹${formatLakhs(currentLead.si||4500000)}', 'PA + CI')">Select Plan</button></div>
++        return `
++            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px;">
++                <div style="font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 24px;">Cancellation Tracker</div>
++                <div style="padding-left: 8px;">
++                    ${renderStep(1, 'Cancellation Requested', true, true, s1Content)}
++                    ${renderStep(2, 'Cancellation Confirmed', step === 2, step > 2, s2Content)}
++                    ${renderStep(3, 'Refund Initiated', step === 3, step > 3, s3Content)}
++                    ${renderStep(4, 'Refund Completed', step === 4, step > 4, s4Content, true)}
+                 </div>
+-              </div>
+-              <button class="btn btn-ghost btn-small" style="margin-top:16px; width:100%;" onclick="currentLead.inHouseQuotesGenerated=false; renderLeadDetail();">Recalculate Quotes</button>
+-            `}
+-          </div>
+-         `;
+-      }
+-
+-      return `
+-        <div style="margin-top:24px;">
+-          ${productHeaderHtml}
+-          ${centerAreaHtml}
+-        </div>
+-      `;
+-    }
+-
+-    function renderPaymentStage() {
+-      return `
+-        <div class="card" style="padding:32px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.05); border:none; margin: 24px auto; max-width:500px;">
+-          <div style="width:64px; height:64px; border-radius:50%; background:var(--warning-bg); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;">⏳</div>
+-          <h2 style="margin-bottom:8px;">Awaiting Payment</h2>
+-          <div style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">The payment link has been sent to the customer via SMS & Email.</div>
+-          
+-          <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:24px; text-align:left;">
+-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px dashed var(--border); padding-bottom:12px;">
+-              <div style="font-size:12px; color:var(--text-muted);">Insurer</div>
+-              <div style="font-weight:600; font-size:12px;">CARE Health Insurance</div>
+-            </div>
+-            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+-              <div style="font-size:12px; color:var(--text-muted);">Amount</div>
+-              <div style="font-weight:800; font-size:16px; color:var(--primary);">${formatMoney(currentLead.si ? currentLead.si * 0.05 : 25000)}</div>
+-            </div>
+-            <div style="display:flex; justify-content:space-between;">
+-              <div style="font-size:12px; color:var(--text-muted);">Link Expiry</div>
+-              <div style="font-weight:600; font-size:12px; color:var(--danger);">Today, 11:59 PM</div>
+             </div>
+-          </div>
+-          
+-          <div style="display:flex; gap:12px;">
+-            <button class="btn btn-ghost" style="flex:1;" onclick="showToast('Payment link resent to WhatsApp')">🔁 Resend Link</button>
+-            <button class="btn btn-primary" style="flex:1; background:var(--success); border-color:var(--success);" onclick="gMarkPaid()">✓ Mark Paid</button>
+-          </div>
+-        </div>
+-      `;
+-    }
+-
+-    function gMarkPaid() {
+-      currentLead.subStatus = 'Payment Received';
+-      currentLead.log.unshift({ dot: 'var(--success)', text: 'Payment marked as received', time: 'Just now' });
+-      transitionLeadState('Payment Done', 'Payment Verified', '', '', '');
++        `;
+     }
+ 
+-    function setPBStep(step, idx = -1) {
++        function setPBStep(step, idx = -1) {
+       G_PBS = step;
+       if (idx !== -1) G_PBI = idx;
+       renderCenterPanel();
+@@ -3312,15 +4279,35 @@ https://ambak.in/quote/x920dj</textarea>
+              <div class="badge" style="background:#DCFCE7; color:#16A34A; border:1px solid #BBF7D0;">Policy Stage</div>
+           </div>
+ 
+-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
++          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:16px;">
++             <div class="form-group">
++               <label class="label">Plan Name</label>
++               <input type="text" class="form-control" value="${currentLead.selectedPlan ? currentLead.selectedPlan.plan : ''}" readonly style="background: #F9FAFB;">
++             </div>
+              <div class="form-group">
+                <label class="label">Policy Number</label>
+                <input type="text" class="form-control" placeholder="Enter Policy Number">
+              </div>
++          </div>
++          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:16px;">
+              <div class="form-group">
+                <label class="label">Policy Start Date</label>
+                <input type="date" class="form-control" id="policy-start-date" onchange="updateFreelookExpiry()">
+              </div>
++             <div class="form-group">
++               <label class="label">Policy End Date</label>
++               <input type="date" class="form-control" id="policy-end-date">
++             </div>
++          </div>
++          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
++             <div class="form-group">
++               <label class="label">Premium</label>
++               <input type="text" class="form-control" value="${premiumStr}" readonly style="background: #F9FAFB;">
++             </div>
++             <div class="form-group">
++               <label class="label">Loan Account Number</label>
++               <input type="text" class="form-control" placeholder="Enter Loan A/C No.">
++             </div>
+           </div>
+ 
+           <div style="background:#FAFAFA; border:1px solid var(--border); border-radius:8px; padding:16px;">

@@ -600,6 +600,9 @@
       justify-content: center;
       margin: 0 auto;
     }
+    .fup-chip { background: transparent; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #6B7280; cursor: pointer; }
+    .fup-chip:hover { background: #E8E4F3; }
+    .fup-chip.active { background: white; color: #2D2D4E; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
   </style>
 </head>
 <body>
@@ -723,71 +726,194 @@ https://ambak.in/quote/x920dj</textarea>
         <button class="stage-tab" onclick="setFilterStage('Quote')">Quote <span class="count-badge" id="count-quote">45</span></button>
         <button class="stage-tab" onclick="setFilterStage('Payment Done')">Payment Done <span class="count-badge" id="count-payment">18</span></button>
         <button class="stage-tab" onclick="setFilterStage('Policy Issued')">Policy Issued <span class="count-badge" id="count-policy">29</span></button>
+        <button class="stage-tab" onclick="setFilterStage('Policy Cancelled')">Policy Cancelled <span class="count-badge" id="count-cancelled">0</span></button>
         <button class="stage-tab" onclick="setFilterStage('Lost')">Lost <span class="count-badge" id="count-lost">5</span></button>
       </div>
 
-      <!-- Inline Filter Row -->
-      <div style="background: white; padding: 14px 28px; border-bottom: 1px solid #E8E4F3; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <select class="inline-filter-select" id="filter-product">
-          <option value="All">Product ▾</option>
-          <option value="Loan Protection">Loan Protection</option>
-          <option value="Property Insurance">Property Insurance</option>
-          <option value="Credit Life">Credit Life</option>
-          <option value="Term Plan">Term Plan</option>
-        </select>
+      <!-- Filter Rows Container -->
+      <div class="filter-bar-container" style="background: white; border-bottom: 1px solid #E8E4F3;">
         
-        <select class="inline-filter-select" id="filter-source">
-          <option value="All">Source ▾</option>
-          <option value="Yoddha">Yoddha</option>
-          <option value="Saathi">Saathi</option>
-          <option value="Sangam">Sangam</option>
-          <option value="D2C">D2C</option>
-          <option value="Manual">Manual</option>
-        </select>
+        <!-- MAIN ROW: Primary Filters -->
+        <div style="padding: 14px 28px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          
+          <div class="search-input-wrapper">
+            <span style="font-size:13px; color:#A09AB8; margin-right:8px;">🔍</span>
+            <input type="text" id="filter-search" placeholder="Search name, phone, ID..." oninput="renderLeadTable()">
+          </div>
 
-        <select class="inline-filter-select" id="filter-status">
-          <option value="All">Status ▾</option>
-        </select>
+          <!-- Quick Follow-up Chips -->
+          <div style="display:flex; gap: 4px; align-items:center; background:#F7F6FB; padding: 4px; border-radius: 8px; border: 1px solid #E8E4F3;">
+             <button class="fup-chip active" onclick="setQuickFup('All', this)">All</button>
+             <button class="fup-chip" style="color:#C0392B;" onclick="setQuickFup('Overdue', this)">Overdue</button>
+             <button class="fup-chip" onclick="setQuickFup('Today', this)">Today</button>
+             <button class="fup-chip" onclick="setQuickFup('This Week', this)">This Week</button>
+          </div>
 
-        <select class="inline-filter-select" id="filter-assigned" style="display:none;">
-          <option value="All">Assigned IBM ▾</option>
-          <option value="Rohit M">Rohit M</option>
-          <option value="Anil K">Anil K</option>
-          <option value="Sneha P">Sneha P</option>
-        </select>
+          <select class="inline-filter-select" id="filter-product" onchange="renderLeadTable()">
+            <option value="All">Product ▾</option>
+            <option value="Loan Protection">Loan Protection</option>
+            <option value="Property Insurance">Property Insurance</option>
+            <option value="Credit Life">Credit Life</option>
+            <option value="Term Plan">Term Plan</option>
+          </select>
+          
+          <select class="inline-filter-select" id="filter-source" onchange="renderLeadTable()">
+            <option value="All">Source ▾</option>
+            <option value="Yoddha">Yoddha</option>
+            <option value="Saathi">Saathi</option>
+            <option value="Sangam">Sangam</option>
+            <option value="D2C">D2C</option>
+            <option value="Manual">Manual</option>
+          </select>
 
-        <select class="inline-filter-select" id="filter-followup">
-          <option value="All">Follow-up ▾</option>
-          <option value="Overdue">Overdue</option>
-          <option value="Due Today">Due Today</option>
-          <option value="Due This Week">Due This Week</option>
-          <option value="No Follow-up">No Follow-up</option>
-        </select>
+          <select class="inline-filter-select" id="filter-status" onchange="renderLeadTable()">
+            <option value="All">Sub-status ▾</option>
+          </select>
 
-        <select class="inline-filter-select" id="filter-date">
-          <option value="All">Created Date ▾</option>
-          <option value="Today">Today</option>
-          <option value="This Week">This Week</option>
-          <option value="This Month">This Month</option>
-          <option value="Custom">Custom</option>
-        </select>
+          <select class="inline-filter-select" id="filter-payment-status" onchange="renderLeadTable()" title="Applies to Quote and Payment Done stage only">
+            <option value="All">Payment Status ▾</option>
+            <option value="Verification Pending">Verification Pending</option>
+            <option value="Verified">Verified</option>
+            <option value="Verification Failed">Verification Failed</option>
+          </select>
+          
+          <select class="inline-filter-select" id="filter-assigned" onchange="renderLeadTable()">
+            <option value="All">Assigned Agent ▾</option>
+            <option value="Rohit M">Rohit M</option>
+            <option value="Anil K">Anil K</option>
+            <option value="Sneha P">Sneha P</option>
+          </select>
 
-        <div class="search-input-wrapper">
-          <span style="font-size:13px; color:#A09AB8; margin-right:8px;">🔍</span>
-          <input type="text" id="filter-search" placeholder="Search name, phone, ID...">
+          <div style="margin-left: auto; display: flex; align-items: center; gap: 16px;">
+            <div id="active-filter-badge" style="display: none; background: #EEE8FD; color: #473391; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;">0 active</div>
+            <span id="clear-filters-btn" style="font-size: 12px; color: #A09AB8; cursor: pointer; display: none;" onclick="clearFilters()">Clear All</span>
+            
+            <button style="background: white; border: 1.5px solid #E8E4F3; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 7px 14px; cursor: pointer; color: #2D2D4E; display: flex; align-items: center; gap: 4px;" onclick="toggleMoreFilters()">
+              More Filters <span id="more-filters-icon" style="font-size:10px;">▼</span>
+            </button>
+
+            <select class="inline-filter-select" id="sort-dropdown" style="border-radius: 20px;" onchange="handleSortDropdown()">
+              <option value="default">Sort by ▾</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="fup_asc">Follow-up: Earliest First</option>
+              <option value="fup_desc">Follow-up: Overdue First</option>
+              <option value="updated">Last Status Updated</option>
+              <option value="premium_desc">Premium: High to Low</option>
+              <option value="premium_asc">Premium: Low to High</option>
+              <option value="loan_desc">Loan Amount: High to Low</option>
+              <option value="loan_asc">Loan Amount: Low to High</option>
+              <option value="age_desc">Lead Age: Oldest First</option>
+            </select>
+          </div>
         </div>
 
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 16px;">
-          <span id="clear-filters-btn" style="font-size: 12px; color: #A09AB8; cursor: pointer; display: none;" onclick="clearFilters()">Clear Filters</span>
-          <select class="inline-filter-select" id="sort-dropdown" style="border-radius: 20px;" onchange="handleSortDropdown()">
-            <option value="default">Sort by ▾</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="fup_asc">Follow-up (Earliest)</option>
-            <option value="updated">Last Updated</option>
-            <option value="premium_desc">Premium (High to Low)</option>
-            <option value="premium_asc">Premium (Low to High)</option>
-          </select>
+        <!-- DRAWER: More Filters -->
+        <div id="more-filters-drawer" style="display: none; background: #F7F6FB; padding: 16px 28px; border-top: 1px solid #E8E4F3;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+            
+            <select class="inline-filter-select" id="filter-date" onchange="renderLeadTable()">
+              <option value="All">Created Date ▾</option>
+              <option value="Today">Today</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+              <option value="Custom">Custom</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-insurer" onchange="renderLeadTable()">
+              <option value="All">Insurer ▾</option>
+              <option value="All Insurers">All Insurers</option>
+              <option value="CARE Health">CARE Health</option>
+              <option value="TATA AIG">TATA AIG</option>
+              <option value="HDFC Life">HDFC Life</option>
+              <option value="TATA AIA">TATA AIA</option>
+              <option value="Bajaj General">Bajaj General</option>
+              <option value="HDFC Ergo">HDFC Ergo</option>
+              <option value="SBI General">SBI General</option>
+            </select>
+            
+            <select class="inline-filter-select" id="filter-premium" onchange="renderLeadTable()">
+              <option value="All">Premium Range ▾</option>
+              <option value="All Premiums">All Premiums</option>
+              <option value="Below ₹10K">Below ₹10K</option>
+              <option value="₹10K–₹50K">₹10K–₹50K</option>
+              <option value="₹50K–₹2L">₹50K–₹2L</option>
+              <option value="₹2L+">₹2L+</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-doc-status" onchange="renderLeadTable()">
+              <option value="All">Document Status ▾</option>
+              <option value="Pending">Pending</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Verified">Verified</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-med-status" onchange="renderLeadTable()">
+              <option value="All">Medical Status ▾</option>
+              <option value="Scheduled">Scheduled</option>
+              <option value="Completed">Completed</option>
+              <option value="Waived">Waived</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-app-status" onchange="renderLeadTable()">
+              <option value="All">Approval Status ▾</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-hlstage" onchange="renderLeadTable()">
+              <option value="All">HL Stage ▾</option>
+              <option value="All HL Stages">All HL Stages</option>
+              <option value="Login Done">Login Done</option>
+              <option value="Sanctioned">Sanctioned</option>
+              <option value="Disbursed">Disbursed</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Qualified">Qualified</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-bank" onchange="renderLeadTable()">
+              <option value="All">Bank ▾</option>
+              <option value="All Banks">All Banks</option>
+              <option value="HDFC Bank">HDFC Bank</option>
+              <option value="ICICI Bank">ICICI Bank</option>
+              <option value="SBI">SBI</option>
+              <option value="Axis Bank">Axis Bank</option>
+              <option value="Kotak Bank">Kotak Bank</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-loan-amount" onchange="renderLeadTable()">
+              <option value="All">Loan Amount ▾</option>
+              <option value="All Amounts">All Amounts</option>
+              <option value="Below ₹25L">Below ₹25L</option>
+              <option value="₹25L–₹50L">₹25L–₹50L</option>
+              <option value="₹50L–₹1Cr">₹50L–₹1Cr</option>
+              <option value="₹1Cr+">₹1Cr+</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-age" onchange="renderLeadTable()">
+              <option value="All">Lead Age ▾</option>
+              <option value="Less than 7 days">Less than 7 days</option>
+              <option value="7–30 days">7–30 days</option>
+              <option value="30–60 days">30–60 days</option>
+              <option value="60+ days">60+ days</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-status-updated" onchange="renderLeadTable()">
+              <option value="All">Status Updated ▾</option>
+              <option value="All Time">All Time</option>
+              <option value="Today">Today</option>
+              <option value="Yesterday">Yesterday</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+              <option value="Custom range">Custom range</option>
+            </select>
+
+            <select class="inline-filter-select" id="filter-fup-date" onchange="renderLeadTable()">
+              <option value="All">Follow-up Date ▾</option>
+              <option value="Custom Range">Custom Range</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2266,31 +2392,55 @@ https://ambak.in/quote/x920dj</textarea>
 
     // === STATE MANAGEMENT: LIST SCREEN ===
     let currentFilterStage = 'All';
+    let currentQuickFup = 'All';
     let currentSortColumn = 'default';
     let currentSortDirection = 'asc';
+
+    function setQuickFup(val, el) {
+       currentQuickFup = val;
+       document.querySelectorAll('.fup-chip').forEach(c => c.classList.remove('active'));
+       el.classList.add('active');
+       renderLeadTable();
+    }
+
+    function toggleMoreFilters() {
+      const drawer = document.getElementById('more-filters-drawer');
+      const icon = document.getElementById('more-filters-icon');
+      if (drawer.style.display === 'none') {
+        drawer.style.display = 'block';
+        icon.textContent = '▲';
+      } else {
+        drawer.style.display = 'none';
+        icon.textContent = '▼';
+      }
+    }
     
     function setFilterStage(stage) {
       currentFilterStage = stage;
       
-      // Update Tab UI
-      document.querySelectorAll('.stage-tab').forEach(tab => {
-        // preserve the count-badge structure by re-rendering innerHTML or just changing classes
-        // but easier: just change the classname of the button, excluding the count badge
-        // We will reset classes to just "stage-tab"
-        let baseClass = 'stage-tab';
-        tab.className = baseClass; 
-      });
-      
-      const tabClassMap = {
-        'All': 'active-all', 'New': 'active-new', 'Contacted': 'active-contacted',
-        'Quote': 'active-quote', 'Payment Done': 'active-payment', 'Policy Issued': 'active-policy', 'Lost': 'active-lost'
-      };
-      
-      Array.from(document.querySelectorAll('.stage-tab')).forEach(b => {
-         if (b.textContent.trim().startsWith(stage)) {
-            b.classList.add(tabClassMap[stage] || 'active-all');
-         }
-      });
+      // Update UI for stage tabs
+      document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('active-all', 'active'));
+      const activeTab = Array.from(document.querySelectorAll('.stage-tab')).find(t => t.textContent.includes(stage === 'All' ? 'All' : stage));
+      if (activeTab) {
+        if (stage === 'All') activeTab.classList.add('active-all');
+        else activeTab.classList.add('active');
+      }
+
+      // Handle Payment Status filter graying out
+      const paymentStatusFilter = document.getElementById('filter-payment-status');
+      if (paymentStatusFilter) {
+        if (stage === 'New' || stage === 'Contacted') {
+          paymentStatusFilter.style.opacity = '0.4';
+          paymentStatusFilter.style.cursor = 'not-allowed';
+          paymentStatusFilter.disabled = true;
+          paymentStatusFilter.title = "Not applicable for this stage";
+        } else {
+          paymentStatusFilter.style.opacity = '1';
+          paymentStatusFilter.style.cursor = 'pointer';
+          paymentStatusFilter.disabled = false;
+          paymentStatusFilter.title = "Applies to Quote and Payment Done stage only";
+        }
+      }
       
       renderLeadTable();
     }
@@ -2324,16 +2474,38 @@ https://ambak.in/quote/x920dj</textarea>
     }
     
     function clearFilters() {
-      document.getElementById('filter-product').value = 'All';
-      document.getElementById('filter-source').value = 'All';
-      document.getElementById('filter-status').value = 'All';
-      document.getElementById('filter-assigned').value = 'All';
-      document.getElementById('filter-followup').value = 'All';
-      document.getElementById('filter-date').value = 'All';
-      document.getElementById('filter-search').value = '';
-      document.getElementById('sort-dropdown').value = 'default';
+      // Chips
+      document.querySelectorAll('.fup-chip').forEach(c => c.classList.remove('active'));
+      const allChip = Array.from(document.querySelectorAll('.fup-chip')).find(c => c.textContent === 'All');
+      if (allChip) allChip.classList.add('active');
+      currentQuickFup = 'All';
+
+      // Row 1
+      if(document.getElementById('filter-product')) document.getElementById('filter-product').value = 'All';
+      if(document.getElementById('filter-source')) document.getElementById('filter-source').value = 'All';
+      if(document.getElementById('filter-status')) document.getElementById('filter-status').value = 'All';
+      if(document.getElementById('filter-payment-status')) document.getElementById('filter-payment-status').value = 'All';
+      if(document.getElementById('filter-assigned')) document.getElementById('filter-assigned').value = 'All';
+      if(document.getElementById('filter-search')) document.getElementById('filter-search').value = '';
+      if(document.getElementById('sort-dropdown')) document.getElementById('sort-dropdown').value = 'default';
       
-      document.getElementById('clear-filters-btn').style.display = 'none';
+      // Drawer
+      if(document.getElementById('filter-date')) document.getElementById('filter-date').value = 'All';
+      if(document.getElementById('filter-insurer')) document.getElementById('filter-insurer').value = 'All';
+      if(document.getElementById('filter-premium')) document.getElementById('filter-premium').value = 'All';
+      if(document.getElementById('filter-doc-status')) document.getElementById('filter-doc-status').value = 'All';
+      if(document.getElementById('filter-med-status')) document.getElementById('filter-med-status').value = 'All';
+      if(document.getElementById('filter-app-status')) document.getElementById('filter-app-status').value = 'All';
+      if(document.getElementById('filter-hlstage')) document.getElementById('filter-hlstage').value = 'All';
+      if(document.getElementById('filter-bank')) document.getElementById('filter-bank').value = 'All';
+      if(document.getElementById('filter-loan-amount')) document.getElementById('filter-loan-amount').value = 'All';
+      if(document.getElementById('filter-age')) document.getElementById('filter-age').value = 'All';
+      if(document.getElementById('filter-status-updated')) document.getElementById('filter-status-updated').value = 'All';
+      if(document.getElementById('filter-fup-date')) document.getElementById('filter-fup-date').value = 'All';
+
+      if(document.getElementById('clear-filters-btn')) document.getElementById('clear-filters-btn').style.display = 'none';
+      if(document.getElementById('active-filter-badge')) document.getElementById('active-filter-badge').style.display = 'none';
+      
       setFilterStage('All');
     }
 
@@ -2361,13 +2533,73 @@ https://ambak.in/quote/x920dj</textarea>
         const query = searchInput.value.toLowerCase();
         filteredLeads = filteredLeads.filter(l => l.name.toLowerCase().includes(query) || l.id.toLowerCase().includes(query));
       }
+
+      // Read Row 1 values
+      const fProduct = document.getElementById('filter-product')?.value;
+      const fSource = document.getElementById('filter-source')?.value;
+      const fStatus = document.getElementById('filter-status')?.value;
+      const fPaymentStatus = document.getElementById('filter-payment-status')?.value;
+      const fAssigned = document.getElementById('filter-assigned')?.value;
+
+      // Read Drawer values
+      const fDate = document.getElementById('filter-date')?.value;
+      const fInsurer = document.getElementById('filter-insurer')?.value;
+      const fPremium = document.getElementById('filter-premium')?.value;
+      const fDocStatus = document.getElementById('filter-doc-status')?.value;
+      const fMedStatus = document.getElementById('filter-med-status')?.value;
+      const fAppStatus = document.getElementById('filter-app-status')?.value;
+      const fHlStage = document.getElementById('filter-hlstage')?.value;
+      const fBank = document.getElementById('filter-bank')?.value;
+      const fLoanAmount = document.getElementById('filter-loan-amount')?.value;
+      const fAge = document.getElementById('filter-age')?.value;
+      const fStatusUpdated = document.getElementById('filter-status-updated')?.value;
+      const fFupDate = document.getElementById('filter-fup-date')?.value;
+
+      let activeDrawerCount = 0;
+      let activeFilterLabels = [];
+
+      // Collect active filter text for summary string
+      if (currentQuickFup !== 'All') activeFilterLabels.push(`Follow-up: ${currentQuickFup}`);
+      if (fProduct && !['All', 'Product ▾'].includes(fProduct)) activeFilterLabels.push(fProduct);
       
+      if (fDate && !['All', 'Created Date ▾'].includes(fDate)) { activeFilterLabels.push(fDate); activeDrawerCount++; }
+      if (fInsurer && !['All', 'Insurer ▾'].includes(fInsurer)) { activeFilterLabels.push(fInsurer); activeDrawerCount++; }
+      if (fPremium && !['All', 'Premium Range ▾'].includes(fPremium)) activeDrawerCount++;
+      if (fDocStatus && !['All', 'Document Status ▾'].includes(fDocStatus)) activeDrawerCount++;
+      if (fMedStatus && !['All', 'Medical Status ▾'].includes(fMedStatus)) activeDrawerCount++;
+      if (fAppStatus && !['All', 'Approval Status ▾'].includes(fAppStatus)) activeDrawerCount++;
+      if (fHlStage && !['All', 'HL Stage ▾'].includes(fHlStage)) activeDrawerCount++;
+      if (fBank && !['All', 'Bank ▾'].includes(fBank)) activeDrawerCount++;
+      if (fLoanAmount && !['All', 'Loan Amount ▾'].includes(fLoanAmount)) activeDrawerCount++;
+      if (fAge && !['All', 'Lead Age ▾'].includes(fAge)) activeDrawerCount++;
+      if (fStatusUpdated && !['All', 'Status Updated ▾'].includes(fStatusUpdated)) activeDrawerCount++;
+      if (fFupDate && !['All', 'Follow-up Date ▾'].includes(fFupDate)) activeDrawerCount++;
+
+      // Update badge
+      let badge = document.getElementById('active-filter-badge');
+      if (badge) {
+        if (activeDrawerCount > 0) {
+          badge.style.display = 'block';
+          badge.textContent = `${activeDrawerCount} in drawer`;
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+
       // Show/Hide clear filters button
       let clearBtn = document.getElementById('clear-filters-btn');
-      let hasFilters = currentFilterStage !== 'All' || (searchInput && searchInput.value);
+      let hasFilters = currentFilterStage !== 'All' || currentQuickFup !== 'All' || (searchInput && searchInput.value) || 
+        [fProduct, fSource, fStatus, fPaymentStatus, fAssigned, fDate, fInsurer, fPremium, fDocStatus, fMedStatus, fAppStatus, fHlStage, fBank, fLoanAmount, fAge, fStatusUpdated, fFupDate].some(val => val && !val.startsWith('All') && !val.includes('▾'));
+
+      
       if (hasFilters) {
         if(clearBtn) clearBtn.style.display = 'inline-block';
-        if(summaryFilters) summaryFilters.textContent = currentFilterStage !== 'All' ? `+ filtered by ${currentFilterStage}` : '';
+        if(summaryFilters) {
+          let str = '';
+          if (currentFilterStage !== 'All') str += ` · ${currentFilterStage}`;
+          if (activeFilterLabels.length > 0) str += ` · ${activeFilterLabels.join(' · ')}`;
+          summaryFilters.textContent = str ? `Filtered by: ${str.substring(3)}` : '';
+        }
       } else {
         if(clearBtn) clearBtn.style.display = 'none';
         if(summaryFilters) summaryFilters.textContent = '';
@@ -2392,7 +2624,30 @@ https://ambak.in/quote/x920dj</textarea>
       if(summaryCount) summaryCount.textContent = filteredLeads.length;
       
       // 2. Sort Logic
-      if (currentSortColumn === 'id') {
+      const sortVal = document.getElementById('sort-dropdown') ? document.getElementById('sort-dropdown').value : currentSortColumn;
+      if (sortVal === 'id') {
+         filteredLeads.sort((a,b) => currentSortDirection === 'asc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
+      } else if (sortVal === 'created' || sortVal === 'newest') {
+         filteredLeads.sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      } else if (sortVal === 'oldest' || sortVal === 'age_desc') {
+         filteredLeads.sort((a,b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+      } else if (sortVal === 'fup_asc') {
+         filteredLeads.sort((a,b) => {
+            let df_a = a.nextFollowup ? new Date(a.nextFollowup).getTime() : Infinity;
+            let df_b = b.nextFollowup ? new Date(b.nextFollowup).getTime() : Infinity;
+            return df_a - df_b;
+         });
+      } else if (sortVal === 'premium_desc') {
+         filteredLeads.sort((a,b) => b.premiumNum - a.premiumNum);
+      } else if (sortVal === 'premium_asc') {
+         filteredLeads.sort((a,b) => a.premiumNum - b.premiumNum);
+      } else if (sortVal === 'loan_desc') {
+         filteredLeads.sort((a,b) => b.loanNum - a.loanNum);
+      } else if (sortVal === 'loan_asc') {
+         filteredLeads.sort((a,b) => a.loanNum - b.loanNum);
+      } else if (sortVal === 'updated') {
+         filteredLeads.sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      } else if (currentSortColumn === 'id') {
          filteredLeads.sort((a,b) => currentSortDirection === 'asc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
       } else if (currentSortColumn === 'created') {
          filteredLeads.sort((a,b) => {

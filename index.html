@@ -4044,7 +4044,7 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
           `;
       } else if (activeTab === 'property') {
-          reqCount = 4;
+          reqCount = 6;
           contentHtml = `
             <div style="margin-bottom: 16px;">
               <div style="font-size: 13px; font-weight: 700; color: #111827;">Property Insurance Details</div>
@@ -4052,7 +4052,7 @@ https://ambak.in/quote/x920dj</textarea>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
               <div>
-                <label style="${labelStyle}">CITY *</label>
+                <label style="${labelStyle}">PROPERTY CITY *</label>
                 <input type="text" placeholder="Enter city" style="${inputStyle}" ${readonlyAttr} value="Mumbai">
               </div>
               <div>
@@ -4072,6 +4072,76 @@ https://ambak.in/quote/x920dj</textarea>
                 <input type="number" placeholder="₹ Household items value" style="${inputStyle}" ${readonlyAttr} value="1500000">
               </div>
             </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+              <div>
+                <label style="${labelStyle}">POLICY TENURE *</label>
+                <select style="${inputStyle}" ${disabledAttr} onchange="handlePropertyTenureChange(this.value)">
+                  <option value="1" selected>1 Year</option>
+                  <option value="2">2 Years</option>
+                  <option value="3">3 Years</option>
+                  <option value="4">4 Years</option>
+                  <option value="5">5 Years</option>
+                  <option value="10">10 Years</option>
+                  <option value="11">11 Years</option>
+                  <option value="15">15 Years</option>
+                  <option value="20">20 Years</option>
+                </select>
+              </div>
+              <div>
+                <label style="${labelStyle}">CONSTRUCTION YEAR *</label>
+                <input type="number" placeholder="YYYY" style="${inputStyle}" ${readonlyAttr} value="2015" min="1950" max="2026">
+              </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+              <label style="${labelStyle}">ADDONS (OPTIONAL)</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Burglary
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Terrorism
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Rent for Alternate Accommodation
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Loss of Rent
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Personal Accident Self
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Personal Accident Spouse
+                </label>
+                <label id="label-addon-utility" style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                  <input id="addon-utility" type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr}> Utility Expense Cover
+                </label>
+              </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+              <label style="${labelStyle}">ADDITIONAL COVERAGES (OPTIONAL)</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                    <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr} onchange="document.getElementById('val-jewellery').style.display = this.checked ? 'block' : 'none'"> Jewellery and Valuables
+                  </label>
+                  <input type="number" id="val-jewellery" placeholder="₹ Enter total value" style="${inputStyle} display: none; height: 32px;" ${readonlyAttr}>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                    <input type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr} onchange="document.getElementById('val-structures').style.display = this.checked ? 'block' : 'none'"> Additional Structures
+                  </label>
+                  <input type="number" id="val-structures" placeholder="₹ Enter total value" style="${inputStyle} display: none; height: 32px;" ${readonlyAttr}>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label id="label-addon-solar" style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #111827; font-weight: 500;">
+                    <input id="addon-solar" type="checkbox" style="width: 16px; height: 16px;" ${disabledAttr} onchange="document.getElementById('val-solar').style.display = this.checked ? 'block' : 'none'"> Solar Panel
+                  </label>
+                  <input type="number" id="val-solar" placeholder="₹ Enter total value" style="${inputStyle} display: none; height: 32px;" ${readonlyAttr}>
+                </div>
+              </div>
+            </div>
+            <img src="x" onerror="handlePropertyTenureChange('1')" style="display:none;">
           `;
       } else if (activeTab === 'cl' || activeTab === 'term') {
           reqCount = 6;
@@ -4129,7 +4199,7 @@ https://ambak.in/quote/x920dj</textarea>
       let btnAction = isContacted ? 'handleGenerateQuoteFromContacted()' : 'handleGenerateQuoteFromNew()';
       
       let tabBox = `
-        <div id="new-stage-content" style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-top: 12px; position: relative;">
+        <div id="new-stage-content" data-readonly="${isReadOnly}" style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-top: 12px; position: relative;">
           <div id="new-stage-saving" style="position: absolute; right: 20px; top: 20px; font-size: 10px; color: #9CA3AF; font-weight: 600;"></div>
           ${contentHtml}
           <div style="display: flex; flex-direction: column; align-items: flex-end;">
@@ -4375,8 +4445,8 @@ https://ambak.in/quote/x920dj</textarea>
                       </div>
                       
                       <!-- CTA Button -->
-                      <button style="${buttonStyle}" onmouseenter="this.style.background='#F0EEFB'" onmouseleave="this.style.background='white'" onclick="handleSelectPlan(${idx}, '${p.insurer}', '${p.plan}', ${p.premium})">
-                        Share Payment Link
+                      <button style="${buttonStyle}" onmouseenter="this.style.background='#F0EEFB'" onmouseleave="this.style.background='white'" onclick="${activeTab === 'property' ? `openPaymentLinkModal(${idx}, '${p.insurer}', '${p.plan}', ${p.premium})` : `handleSelectPlan(${idx}, '${p.insurer}', '${p.plan}', ${p.premium})`}">
+                        Generate Payment Link
                       </button>
                     </div>
                   </div>
@@ -8469,6 +8539,41 @@ https://ambak.in/quote/x920dj</textarea>
         </div>
       `;
     }
+    function handlePropertyTenureChange(val) {
+      let valInt = parseInt(val, 10);
+      let uLabel = document.getElementById('label-addon-utility');
+      let uCheck = document.getElementById('addon-utility');
+      let sLabel = document.getElementById('label-addon-solar');
+      let sCheck = document.getElementById('addon-solar');
+      
+      let isReadOnlyContext = document.getElementById('new-stage-content')?.getAttribute('data-readonly') === 'true';
+
+      if (uLabel && uCheck) {
+        if (valInt === 10) {
+          uLabel.style.opacity = '0.5';
+          uLabel.title = "Not available for 10-year tenure";
+          uCheck.disabled = true;
+          uCheck.checked = false;
+        } else {
+          uLabel.style.opacity = '1';
+          uLabel.title = "";
+          if (!isReadOnlyContext) uCheck.disabled = false;
+        }
+      }
+
+      if (sLabel && sCheck) {
+        if (valInt > 5) {
+          sLabel.style.opacity = '0.5';
+          sLabel.title = "Only available for 1-5 year tenure";
+          sCheck.disabled = true;
+          sCheck.checked = false;
+        } else {
+          sLabel.style.opacity = '1';
+          sLabel.title = "";
+          if (!isReadOnlyContext) sCheck.disabled = false;
+        }
+      }
+    }
   </script>
 
     <!-- Mark as Lost Modal -->
@@ -8532,5 +8637,136 @@ https://ambak.in/quote/x920dj</textarea>
       </div>
     </div>
 
+<script>
+    function openPaymentLinkModal(idx, insurer, plan, premium) {
+        let householdValue = currentLead.householdItemsValue || 1500000;
+        let modalHtml = `
+          <div id="payment-link-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; font-family:Poppins;">
+             <div style="background:white; border-radius:12px; width:450px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-height:90vh; overflow-y:auto;">
+                <h3 style="margin:0 0 4px 0; color:#111827; font-size:18px;">Generate Payment Link</h3>
+                <p style="font-size:12px; color:#6B7280; margin-bottom:20px;">Provide additional details required for the payment link.</p>
+                
+                <!-- Household Items Bifurcation -->
+                <div style="margin-bottom:20px;">
+                    <div style="font-size:13px; font-weight:700; color:#473391; margin-bottom:8px;">Household Items Bifurcation</div>
+                    <div style="font-size:11px; color:#6B7280; margin-bottom:12px;">Total Value: ₹<span id="plm-total-val">${householdValue}</span></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Electronics</label>
+                            <input type="number" id="plm-elec" class="form-control" style="width:100%; box-sizing:border-box;" oninput="validateBifurcation()" value="0">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Furniture & Fixtures</label>
+                            <input type="number" id="plm-furn" class="form-control" style="width:100%; box-sizing:border-box;" oninput="validateBifurcation()" value="0">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Others</label>
+                            <input type="number" id="plm-oth" class="form-control" style="width:100%; box-sizing:border-box;" oninput="validateBifurcation()" value="0">
+                        </div>
+                    </div>
+                    <div id="plm-error" style="font-size:11px; color:#DC2626; font-weight:600; min-height:16px;">Error: Sum must equal ₹${householdValue}</div>
+                </div>
+
+                <!-- Co-owner Details -->
+                <div style="margin-bottom:20px;">
+                    <div style="font-size:13px; font-weight:700; color:#473391; margin-bottom:8px;">Co-owner Details</div>
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; margin-bottom:12px;">
+                        <input type="checkbox" id="plm-coowner-check" onchange="toggleCoOwner()"> I have a co-owner
+                    </label>
+                    <div id="plm-coowner-fields" style="display:none; grid-template-columns:80px 1fr; gap:12px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Salutation</label>
+                            <select class="form-control" style="width:100%; box-sizing:border-box;">
+                                <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Full Name (As per PAN)</label>
+                            <input type="text" class="form-control" style="width:100%; box-sizing:border-box;" placeholder="Enter name">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Details -->
+                <div style="margin-bottom:24px;">
+                    <div style="font-size:13px; font-weight:700; color:#473391; margin-bottom:8px;">Property Details</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Carpet Area (sqft)</label>
+                            <input type="number" class="form-control" style="width:100%; box-sizing:border-box;" placeholder="e.g. 1200">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Building Type</label>
+                            <select id="plm-bldg-type" class="form-control" style="width:100%; box-sizing:border-box;" onchange="toggleFloorNumber()">
+                                <option value="standalone">Standalone House</option>
+                                <option value="multi">Multi storey</option>
+                            </select>
+                        </div>
+                        <div id="plm-floor-container" style="display:none; grid-column:span 2;">
+                            <label style="font-size:11px; font-weight:600; color:#4B5563;">Floor Number</label>
+                            <input type="text" class="form-control" style="width:100%; box-sizing:border-box;" placeholder="e.g. 4, Ground, etc.">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                   <button class="btn btn-ghost" onclick="closePaymentLinkModal()">Cancel</button>
+                   <button id="plm-submit" class="btn btn-primary" onclick="submitPaymentLinkModal(${idx}, '${insurer}', '${plan}', ${premium})" disabled>Generate Link</button>
+                </div>
+             </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        validateBifurcation(); 
+    }
+
+    function closePaymentLinkModal() {
+        let m = document.getElementById('payment-link-modal');
+        if (m) m.remove();
+    }
+
+    function toggleCoOwner() {
+        let c = document.getElementById('plm-coowner-check');
+        let f = document.getElementById('plm-coowner-fields');
+        if (c && f) {
+            f.style.display = c.checked ? 'grid' : 'none';
+        }
+    }
+
+    function toggleFloorNumber() {
+        let b = document.getElementById('plm-bldg-type');
+        let f = document.getElementById('plm-floor-container');
+        if (b && f) {
+            f.style.display = (b.value === 'multi') ? 'block' : 'none';
+        }
+    }
+
+    function validateBifurcation() {
+        let total = parseFloat(document.getElementById('plm-total-val').innerText) || 1500000;
+        let e = parseFloat(document.getElementById('plm-elec').value) || 0;
+        let f = parseFloat(document.getElementById('plm-furn').value) || 0;
+        let o = parseFloat(document.getElementById('plm-oth').value) || 0;
+        let sum = e + f + o;
+        
+        let err = document.getElementById('plm-error');
+        let btn = document.getElementById('plm-submit');
+        
+        if (sum !== total) {
+            err.innerText = 'Error: Sum (₹' + sum + ') must equal Total (₹' + total + ')';
+            err.style.color = '#DC2626';
+            if (btn) btn.disabled = true;
+        } else {
+            err.innerText = 'Valid matching sum.';
+            err.style.color = '#16A34A';
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    function submitPaymentLinkModal(idx, insurer, plan, premium) {
+        closePaymentLinkModal();
+        showToast('Payment link generated.');
+        window.handleSelectPlan(idx, insurer, plan, premium);
+    }
+</script>
 </body>
 </html>

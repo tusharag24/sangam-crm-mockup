@@ -1732,9 +1732,12 @@ https://ambak.in/quote/x920dj</textarea>
         label: 'Credit Life',
         milestones: [
           { id: 'payment_verified',   label: 'Payment Verified',  completable: false },
-          { id: 'documents',          label: 'Documents',         completable: true,  actionButton: 'Mark as Documents Received' },
-          { id: 'medical',            label: 'Medical',           completable: true,  actionButton: 'Mark as Medical Completed' },
+          { id: 'proposal_form',      label: 'Proposal Form',     completable: true,  actionButton: 'Mark as Proposal Form Completed' },
+          { id: 'medical_call',       label: 'Medical Call',      completable: true,  actionButton: 'Mark as Medical Call Completed' },
+          { id: 'document_submission',label: 'Documents',         completable: true,  actionButton: 'Mark as Documents Received' },
+          { id: 'tele_pd',            label: 'Tele-PD',           completable: true,  actionButton: 'Mark as Tele-PD Completed' },
           { id: 'policy_decision',    label: 'Policy Decision',   completable: false, isDecision: true },
+          { id: 'auto_mandate',       label: 'Auto Mandate',      completable: true,  actionButton: 'Mark as E-Nach Setup Complete' },
           { id: 'policy_copy_upload', label: 'Policy Copy Upload',completable: false, isUpload: true, uploadButtonLabel: 'Mark as Policy Copy Received' },
         ]
       },
@@ -1742,9 +1745,12 @@ https://ambak.in/quote/x920dj</textarea>
         label: 'Term Plan',
         milestones: [
           { id: 'payment_verified',   label: 'Payment Verified',  completable: false },
-          { id: 'documents',          label: 'Documents',         completable: true,  actionButton: 'Mark as Documents Received' },
-          { id: 'medical',            label: 'Medical',           completable: true,  actionButton: 'Mark as Medical Completed' },
+          { id: 'proposal_form',      label: 'Proposal Form',     completable: true,  actionButton: 'Mark as Proposal Form Completed' },
+          { id: 'medical_call',       label: 'Medical Call',      completable: true,  actionButton: 'Mark as Medical Call Completed' },
+          { id: 'document_submission',label: 'Documents',         completable: true,  actionButton: 'Mark as Documents Received' },
+          { id: 'tele_pd',            label: 'Tele-PD',           completable: true,  actionButton: 'Mark as Tele-PD Completed' },
           { id: 'policy_decision',    label: 'Policy Decision',   completable: false, isDecision: true },
+          { id: 'auto_mandate',       label: 'Auto Mandate',      completable: true,  actionButton: 'Mark as E-Nach Setup Complete' },
           { id: 'policy_copy_upload', label: 'Policy Copy Upload',completable: false, isUpload: true, uploadButtonLabel: 'Mark as Policy Copy Received' },
         ]
       }
@@ -2055,9 +2061,9 @@ https://ambak.in/quote/x920dj</textarea>
         id: 'INS-49205', code: 'neha',
         name: 'Neha Gupta', phone: '+91 54321 09876', email: 'neha.g@gmail.com',
         age: 28, income: '₹9L/yr', si: 3500000, loanBank: 'Axis Bank',
-        initialProduct: 'lp', productStatus: 'locked', quotes: [],
-        finalProduct: 'lp', finalInsurer: 'CARE', finalPremium: 8200,
-        source: 'sathi', bucket: 'Payment Done', status: 'Medical', subStatus: 'Scheduled',
+        initialProduct: 'term', productStatus: 'locked', quotes: [],
+        finalProduct: 'term', finalInsurer: 'PB Partners', finalPremium: 8200,
+        source: 'sathi', bucket: 'Payment Done', status: 'Payment Verified', subStatus: '',
         attempts: 0, createdDate: '01 Jun 2026', createdAt: new Date(Date.now() - 22*86400000).toISOString(),
         followUpDate: 'No Follow-up',
         hlLead: { id: '#194123', bank: 'Axis Bank', si: 3500000, hlStage: 'Disbursed', rm: 'Rohit M' },
@@ -5537,10 +5543,13 @@ https://ambak.in/quote/x920dj</textarea>
         
         let DESCRIPTIONS = {
             'kyc': "Customer needs to complete KYC. This is done on the insurer payment portal. Follow up with the customer to confirm completion.",
-            'proposal_form': "CARE Health requires the customer to fill a proposal/declaration form. Share the form link with the customer.",
-            'tele_pd': "TATA AIG will call the customer for a telephonic personal discussion. Inform the customer to expect a call.",
+            'proposal_form': (activeTab === 'term' || activeTab === 'cl') ? "PB is filling out the proposal form with the customer." : "CARE Health requires the customer to fill a proposal/declaration form. Share the form link with the customer.",
+            'tele_pd': (activeTab === 'term' || activeTab === 'cl') ? "PB is coordinating the Tele-PD process." : "TATA AIG will call the customer for a telephonic personal discussion. Inform the customer to expect a call.",
             'documents': "Collect Aadhaar, PAN, and income proof from the customer and submit to the insurer.",
+            'document_submission': "PB is collecting KYC and Income documents from the customer.",
             'medical': "Medical test has been scheduled. Remind the customer to attend.",
+            'medical_call': "PB is scheduling and conducting the medical call with the customer.",
+            'auto_mandate': "PB is assisting the customer in setting up E-nach for recurring payments.",
             'policy_decision': "Insurer has reviewed the application. See decision below.",
             'policy_copy_upload': "Policy has been issued. Download the policy copy from the insurer portal and upload it here."
         };
@@ -5612,10 +5621,24 @@ https://ambak.in/quote/x920dj</textarea>
               </div>
             `;
         } else if (mNode.completable) {
+            let extraHint = '';
+            if (mNode.id === 'document_submission' && (activeTab === 'term' || activeTab === 'cl')) {
+                extraHint = `
+                  <div style="background: white; border: 1px solid #C5C0F5; border-radius: 6px; padding: 12px; margin-top: 12px; font-size: 11px; color: #4B5563;">
+                    <div style="font-weight: 700; color: #473391; margin-bottom: 6px;">Required by PolicyBazaar:</div>
+                    <ul style="margin: 0; padding-left: 16px; line-height: 1.5;">
+                      <li><b>KYC:</b> Aadhaar, PAN, Passport size photo</li>
+                      <li><b>Income (Salaried):</b> 3 months salary slip, 6 months bank statement</li>
+                      <li><b>Income (Self-Employed):</b> 2 years ITR with computation, 1 year bank statement</li>
+                    </ul>
+                  </div>
+                `;
+            }
             actionHtml = `
               <div style="background: #F0EEFB; border: 1px solid #C5C0F5; border-radius: 8px; padding: 14px 16px; margin-top: 20px; text-align: left;">
                 <div style="font-size: 13px; font-weight: 700; color: #473391;">${mNode.label}</div>
                 <div style="font-size: 12px; color: #473391; line-height: 1.5; margin-top: 4px;">${desc}</div>
+                ${extraHint}
                 <button style="width: 100%; height: 40px; background: #473391; color: white; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; margin-top: 12px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" onclick="handleAdvanceMilestone()">
                   ${mNode.actionButton}
                 </button>
